@@ -344,10 +344,6 @@ class shiftFragVar : public ReadShiftProfileGenome {
       if(fvpfull && x > mp_to) continue;
       out << "\tlen" << x;
     }
-    for(auto x: v4mpfv) {
-      if(fvpfull && x > mp_to) continue;
-      out << "\tlen" << x;
-    }
     out << std::endl;
 
     /*    for(auto x: v4mpfv) {
@@ -364,11 +360,11 @@ class shiftFragVar : public ReadShiftProfileGenome {
 	if(fvpfull && x > mp_to) continue;
 	out << mpfv.at(x).getAccuOfDistanceOfFragment(k) << "\t";
       }
-      for(auto x: v4mpfv) {
+      /*      for(auto x: v4mpfv) {
 	if(fvpfull && x > mp_to) continue;
 	out << mpfv.at(x).getsumOfvDistOfDistaneOfFrag() << "\t";
 	//	out <<  mpfv.at(x).getDistOfDistanceOfFragment(k) << "\t";
-      }
+	}*/
       out << std::endl;
     }
   }
