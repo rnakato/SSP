@@ -12,18 +12,20 @@ for CentOS:
 
      sudo yum -y install zlib-devel gsl-devel gtk2-devel
 
-#### 2.3. Install DROMPA
+#### 2.3. Install SSP
     git clone https://github.com/rnakato/SSP.git
     cd SSP
     make
     
 
 #### 2.4. Add the PATH environment variable
-For example, if you downloaded DROMPA and cpdf into the $HOME/my_chipseq_exp directory, type:
+For example, if you downloaded SSP into the $HOME/my_chipseq_exp directory, type:
 
     export PATH = $PATH:$HOME/my_chipseq_exp/SSP/bin
 
 #3. Usage
+    ssp -i bam/ChIP.bam -o ChIP -f BAM --gt genometable.txt --mptable mptable.txt -p 4
+then the files are generated in the directory "sspout (default)".
 
 
 #4. Reference
