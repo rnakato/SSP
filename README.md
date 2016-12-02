@@ -6,7 +6,7 @@
 #### 2.1. Install required libraries
 for Ubuntu:
 
-     sudo apt-get install git gcc libgtk2.0-dev libgsl-dev samtools r-base
+     sudo apt-get install git build-essential samtools
  
 for CentOS:
 
