@@ -1,0 +1,3 @@
+[submodule "src/alglib"]
+	path = src/alglib
+	url = git@github.com:rnakato/alglib.git
