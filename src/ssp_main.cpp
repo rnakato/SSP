@@ -212,8 +212,8 @@ void setOpts(MyOpt::Opts &allopts,MyOpt::Opts &opts4help)
     ;
   MyOpt::Opts optIO("Optional",100);
   optIO.add_options()
-    ("ftype,f",     value<std::string>()->default_value("SAM"), "{SAM|BAM|BOWTIE|TAGALIGN}: format of input file (default:SAM)\nTAGALIGN could be gzip'ed (extension: tagAlign.gz)")
-    ("odir",        value<std::string>()->default_value("sspdir"),	  "output directory name")
+    ("ftype,f",     value<std::string>()->default_value("SAM"), "{SAM|BAM|BOWTIE|TAGALIGN}: format of input file\nTAGALIGN could be gzip'ed (extension: tagAlign.gz)")
+    ("odir",        value<std::string>()->default_value("sspout"),	  "output directory name")
     ("nfvp",        value<int>()->default_value(10000000),   "read number for calculating fragment variability")
     ("fvpbu",   "consider background uniformity for fragment variability estimation")
     ("fvpfull",   "outout full fragment variability profile")
