@@ -119,9 +119,7 @@ int main(int argc, char* argv[])
   p.printstats();
 #endif
 
-  // output stats
-  output_wigstats(p);
-  output_stats(values, p);
+  //  output_stats(values, p);
 
   return 0;
 }
@@ -207,7 +205,7 @@ void setOpts(MyOpt::Opts &allopts,MyOpt::Opts &opts4help)
   MyOpt::Opts optIO("Optional",100);
   optIO.add_options()
     ("ftype,f",     value<std::string>()->default_value("SAM"), "{SAM|BAM|BOWTIE|TAGALIGN}: format of input file (default:SAM)\nTAGALIGN could be gzip'ed (extension: tagAlign.gz)")
-    ("odir",        value<std::string>()->default_value("parse2wigdir+"),	  "output directory name")
+    ("odir",        value<std::string>()->default_value("sspdir"),	  "output directory name")
     ("nfvp",        value<int>()->default_value(10000000),   "read number for calculating fragment variability")
     ("fvpbu",   "consider background uniformity for fragment variability estimation")
     ("fvpfull",   "outout full fragment variability profile")

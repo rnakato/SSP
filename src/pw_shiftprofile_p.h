@@ -221,7 +221,7 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
  public:
   std::vector<ReadShiftProfile> chr;
   
- ReadShiftProfileGenome(std::string n, const Mapfile &p, const int numthreads, double wref): name(n), ReadShiftProfile(p.getlenF3(), wref) {
+ ReadShiftProfileGenome(std::string n, const Mapfile &p, const int numthreads, double wref): ReadShiftProfile(p.getlenF3(), wref), name(n) {
     for(auto x:p.genome.chr) {
       if(x.isautosome()) {
 	nread += x.bothnread_nonred();

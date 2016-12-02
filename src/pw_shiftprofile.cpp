@@ -121,8 +121,8 @@ std::vector<char> genVector(const strandData &seq, int start, int end)
 
 std::vector<char> genVector4FixedReadsNum(const strandData &seq, int start, int end, const double r4cmp)
 {
-  static int n(0);
-  int nseq(0);
+  //  static int n(0);
+  //  int nseq(0);
   std::vector<char> array(end-start, 0);
   for (auto x: seq.vRead) {
     if(!x.duplicate && RANGE(x.F3, start, end-1)){
