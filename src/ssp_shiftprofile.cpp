@@ -124,20 +124,14 @@ std::vector<char> genVector(const strandData &seq, int start, int end)
 
 std::vector<char> genVector4FixedReadsNum(const strandData &seq, int start, int end, const double r4cmp)
 {
-  //  static int n(0);
-  //  int nseq(0);
   std::vector<char> array(end-start, 0);
   for (auto x: seq.vRead) {
     if(!x.duplicate && RANGE(x.F3, start, end-1)){
-    //    if(!x.duplicate && RANGE(x.F3, start, 120000000)) {
       if(rand() >= r4cmp) continue;
       ++array[x.F3 - start];
-      //      ++n;
-      //++nseq;
     }
   }
 
-  //  std::cout << "total num: " << n  << ", each: " << nseq << std::endl;
   return array;
 }
 
@@ -203,18 +197,16 @@ void makeProfile(Mapfile &p, const std::string &typestr, const MyOpt::Variables 
 
 void makeFragVarProfile(const MyOpt::Variables &values, Mapfile &p, const std::string &typestr, const int numthreads, const int flen)
 {
-  shiftFragVar dist(p, numthreads, flen, values.count("fvpfull"));
+  shiftFragVar dist(p, numthreads, flen, values.count("fcsfull"));
   dist.printStartMessage();
 
-  int numRead4fvp(values["nfvp"].as<int>());
+  int numRead4fcs(values["nfcs"].as<int>());
   double r(1);
-  std::cout << "backgrounduniformity: " << p.getbackgroundUniformity() << std::endl;
-  if(numRead4fvp) {
-    r = numRead4fvp/static_cast<double>(dist.getnread());
-    if(values.count("fvpbu")) r *= p.getbackgroundUniformity();
-  }
+  //  std::cout << "backgrounduniformity: " << p.getbackgroundUniformity() << std::endl;
+  if(numRead4fcs) r = numRead4fcs/static_cast<double>(dist.getnread());
+  
   if(r>1){
-    std::cerr << "\nWarning: number of reads for Fragment variability is < "<< (int)(numRead4fvp/NUM_1M) <<" million.\n";
+    std::cerr << "\nWarning: number of reads for Fragment variability is < "<< (int)(numRead4fcs/NUM_1M) <<" million.\n";
     dist.lackOfReads_on();
   }
 
@@ -244,7 +236,7 @@ void strShiftProfile(const MyOpt::Variables &values, Mapfile &p, std::string typ
   else if(typestr=="jaccard") makeProfile<shiftJacBit>(p, typestr, values);
   else if(typestr=="ccp")     makeProfile<shiftCcp>(p, typestr, values);
   else if(typestr=="hdp")     makeProfile<shiftHamming>(p, typestr, values);
-  else if(typestr=="fvp")     makeFragVarProfile(values, p, typestr, values["threads"].as<int>(), p.getflen(values));
+  else if(typestr=="fcs")     makeFragVarProfile(values, p, typestr, values["threads"].as<int>(), p.getflen(values));
   
   return;
 }
@@ -284,7 +276,7 @@ void shiftFragVar::setDist(ReadShiftProfile &chr, const std::vector<char> &fwd, 
   }
   for(size_t k=0; k<sizeOfvDistOfDistaneOfFrag; ++k) fvback[k] /= n;
 
-  if (fvpfull) {
+  if (fcsfull) {
     for(uint i=0; i<seprange.size(); i++) {
       agroup.create_thread(bind(&genThreadFragVar, boost::ref(chr), boost::ref(mpfv), boost::cref(fwd), boost::cref(rev), boost::cref(fvback), seprange[i].start, seprange[i].end, boost::ref(mtx)));
     }

@@ -194,7 +194,7 @@ class ReadShiftProfile {
 	  << (itr->second * rRPKM) << "\t"
 	  << (itr->second * r)     << std::endl;
   }
-  void print2file4fvp(const std::string filename, const std::string name, const int flen, const bool lackOfReads) const {
+  void print2file4fcs(const std::string filename, const std::string name, const int flen, const bool lackOfReads) const {
     if(!nread) {
       std::cerr << filename << ": no read" << std::endl;
     }
@@ -321,10 +321,10 @@ class shiftFragVar : public ReadShiftProfileGenome {
   std::map<int, FragmentVariability> mpfv;
   int flen;
   bool lackOfReads;
-  bool fvpfull;
+  bool fcsfull;
  public:
  shiftFragVar(const Mapfile &p, const int numthreads, const int fl, const bool b):
-  ReadShiftProfileGenome("Fragment Variability", p, numthreads, 1), flen(fl), lackOfReads(false), fvpfull(b) {}
+  ReadShiftProfileGenome("Fragment Variability", p, numthreads, 1), flen(fl), lackOfReads(false), fcsfull(b) {}
 
   void setDist(ReadShiftProfile &chr, const std::vector<char> &fwd, const std::vector<char> &rev);
   void execchr(const Mapfile &p, const int i, const double r4cmp) {
@@ -341,27 +341,27 @@ class shiftFragVar : public ReadShiftProfileGenome {
     std::ofstream out(filename);
 
     for(auto x: v4mpfv) {
-      if(fvpfull && x > mp_to) continue;
+      if(fcsfull && x > mp_to) continue;
       out << "\tlen" << x;
     }
     out << std::endl;
 
     /*    for(auto x: v4mpfv) {
       double myu(mpfv.at(100000).getAccuOfDistanceOfFragment(sizeOfvDistOfDistaneOfFrag-2));
-      if(fvpfull && x > mp_to) continue;
+      if(fcsfull && x > mp_to) continue;
       out << "\t" << mpfv.at(x).getPvalueOfBinomTest(sizeOfvDistOfDistaneOfFrag-2, myu);
     }
     out << std::endl;*/
 
-    for(size_t k=0; k<sizeOfvDistOfDistaneOfFrag; ++k) {
+    for(size_t k=0; k<sizeOfvDistOfDistaneOfFrag-1; ++k) {
       out << k << "\t";
 
       for(auto x: v4mpfv) {
-	if(fvpfull && x > mp_to) continue;
+	if(fcsfull && x > mp_to) continue;
 	out << mpfv.at(x).getAccuOfDistanceOfFragment(k) << "\t";
       }
       /*      for(auto x: v4mpfv) {
-	if(fvpfull && x > mp_to) continue;
+	if(fcsfull && x > mp_to) continue;
 	out << mpfv.at(x).getsumOfvDistOfDistaneOfFrag() << "\t";
 	//	out <<  mpfv.at(x).getDistOfDistanceOfFragment(k) << "\t";
 	}*/
@@ -370,10 +370,10 @@ class shiftFragVar : public ReadShiftProfileGenome {
   }
   
   void outputmpGenome(const std::string &filename) const {
-    print2file4fvp(filename, name, flen, lackOfReads);
+    print2file4fcs(filename, name, flen, lackOfReads);
   }
   void outputmpChr(const std::string &filename, const int i) const {  
-    chr[i].print2file4fvp(filename, name, flen, lackOfReads);
+    chr[i].print2file4fcs(filename, name, flen, lackOfReads);
   }
 };
 

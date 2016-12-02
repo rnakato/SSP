@@ -300,6 +300,7 @@ class SeqStats {
   }
 
   friend void getMpbl(const std::string, std::vector<SeqStats> &chr);
+  friend void getMpbltable(const std::string, std::vector<SeqStats> &chr);
   friend void calcFRiP(SeqStats &, const std::vector<bed>);
 };
 
@@ -321,6 +322,7 @@ class SeqStatsGenome: public SeqStats {
     
     readGenomeTable(values["gt"].as<std::string>(), values["binsize"].as<int>());
     if(values.count("mp")) getMpbl(values["mp"].as<std::string>(), chr);
+    else if(values.count("mptable")) getMpbltable(values["mptable"].as<std::string>(), chr);
     for(auto &x:chr) {
       len      += x.getlen();
       len_mpbl += x.getlenmpbl();
@@ -461,8 +463,6 @@ class Mapfile {
   void setmaxGC(const int m) { maxGC = m; }
   int getmaxGC() const {return maxGC; }
   void readGenomeTable(const MyOpt::Variables &values);
-  //  void getMpbl(const MyOpt::Variables &values);
-  //  std::vector<sepchr> getVsepchr(const int);
 
   void lackOfRead4Complexity_on() { lackOfRead4Complexity = true; }
   void lackOfRead4GenomeCov_on() { lackOfRead4GenomeCov = true; }

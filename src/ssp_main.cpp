@@ -82,6 +82,23 @@ void getMpbl(const std::string mpdir, std::vector<SeqStats> &chr)
   return;
 }
 
+void getMpbltable(const std::string mptable, std::vector<SeqStats> &chr)
+{
+  std::string lineStr;
+  std::vector<std::string> v;
+  std::ifstream in(mptable);
+  if(!in) PRINTERR("Could nome open " << mptable << ".");
+  while (!in.eof()) {
+    getline(in, lineStr);
+    if(lineStr.empty() || lineStr[0] == '#') continue;
+    boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
+    for(auto &x: chr) {
+      if(x.name == rmchr(v[0])) x.len_mpbl = stoi(v[1]);
+    }
+  }
+  return;
+}
+
 void printVersion()
 {
   std::cerr << "SSP version " << VERSION << std::endl;
@@ -209,19 +226,17 @@ void setOpts(MyOpt::Opts &allopts,MyOpt::Opts &opts4help)
     ("ssp_hd", "make ssp based on hamming distance")
     ("ssp_exjac", "make ssp based on extended Jaccard index")
     ("output_eachchr", "make chromosome-sparated ssp files")
+    ("mptable", value<std::string>(), "Genome table for mappable regions")
     ;
   MyOpt::Opts optIO("Optional",100);
   optIO.add_options()
     ("ftype,f",     value<std::string>()->default_value("SAM"), "{SAM|BAM|BOWTIE|TAGALIGN}: format of input file\nTAGALIGN could be gzip'ed (extension: tagAlign.gz)")
     ("odir",        value<std::string>()->default_value("sspout"),	  "output directory name")
-    ("nfvp",        value<int>()->default_value(10000000),   "read number for calculating fragment variability")
-    ("fvpbu",   "consider background uniformity for fragment variability estimation")
-    ("fvpfull",   "outout full fragment variability profile")
+    ("nfcs",        value<int>()->default_value(10000000),   "read number for calculating fragment variability")
+    ("fcsfull",   "outout full fragment variability profile")
     ("nofilter", 	  "do not filter PCR bias")
     ("thre_pb",        value<int>()->default_value(0),	  "PCRbias threshold (default: more than max(1 read, 10 times greater than genome average)) ")
     ("ncmp",        value<int>()->default_value(10000000),	  "read number for calculating library complexity")
-    ("mp",        value<std::string>(),	  "Mappability file")
-    ("mpthre",    value<double>()->default_value(0.3),	  "Threshold of low mappability regions")
     ;
   MyOpt::Opts optother("Others",100);
   optother.add_options()
@@ -231,6 +246,8 @@ void setOpts(MyOpt::Opts &allopts,MyOpt::Opts &opts4help)
     ;
   MyOpt::Opts optignore("for parse2wig",100);
   optignore.add_options()
+    ("mp",        value<std::string>(),	  "Mappability file")
+    ("mpthre",    value<double>()->default_value(0.3),	  "Threshold of low mappability regions")
     ("flen",        value<int>()->default_value(150), "predefined fragment length\n(Automatically calculated in paired-end mode)")
     ("nomodel",   "predefine the fragment length (default: estimated by hamming distance plot)")
     ("binsize,b",   value<int>()->default_value(50),	  "bin size")
@@ -261,7 +278,7 @@ void init_dump(const MyOpt::Variables &values){
   BPRINT("\tFormat: %1%\n")          % values["ftype"].as<std::string>();
   BPRINT("Output file: %1%/%2%\n")   % values["odir"].as<std::string>() % values["output"].as<std::string>();
   BPRINT("Genome-table file: %1%\n") % values["gt"].as<std::string>();
-  if(values["nfvp"].as<int>()) BPRINT("\t%1% reads used for fragment variability\n") % values["nfvp"].as<int>();
+  if(values["nfcs"].as<int>()) BPRINT("\t%1% reads used for fragment variability\n") % values["nfcs"].as<int>();
   
   if (!values.count("nofilter")) {
     BPRINT("PCR bias filtering: ON\n");
