@@ -35,3 +35,5 @@ If the input format is BAM, and mappable genome table is supplied
 "-p 4" specifies the number of CPUs used. 
 
 #4. Reference
+
+Under preparation.
