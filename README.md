@@ -6,11 +6,11 @@
 #### 2.1. Install required libraries
 for Ubuntu:
 
-     sudo apt-get install git gcc libgtk2.0-dev libgsl-dev samtools r-base
+    sudo apt-get install git build-essential libboost-all-dev libgsl-dev libz-dev samtools
  
 for CentOS:
 
-     sudo yum -y install zlib-devel gsl-devel gtk2-devel
+    sudo yum -y install zlib-devel gsl-devel gtk2-devel
 
 #### 2.3. Install SSP
     git clone https://github.com/rnakato/SSP.git
