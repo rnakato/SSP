@@ -4,8 +4,6 @@
 #ifndef _MACRO_H_
 #define _MACRO_H_
 
-#define VERSION "3.3.0+"
-
 enum {NUM_1K=1000,
       NUM_100K=100000,
       NUM_1M=1000000,

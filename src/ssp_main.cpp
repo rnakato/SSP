@@ -1,5 +1,5 @@
-/* Copyright(c)  Ryuichiro Nakato <rnakato@iam.u-tokyo.ac.jp>
- * This file is a part of DROMPA sources.
+/* Copyright(c) Ryuichiro Nakato <rnakato@iam.u-tokyo.ac.jp>
+ * This file is a part of SSP sources.
  */
 #include <iostream>
 #include <iomanip>
@@ -10,20 +10,22 @@
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
 #include "pw_readmapfile.h"
+#include "ssp_estFlen.h"
 #include "pw_makefile.h"
 #include "pw_gv.h"
 #include "pw_gc.h"
+
+#define VERSION "1.0.0"
 
 namespace {
   const int numGcov(5000000);
 }
 
 MyOpt::Variables getOpts(int argc, char* argv[]);
-void setOpts(MyOpt::Opts &);
+void setOpts(MyOpt::Opts &, MyOpt::Opts &);
 void init_dump(const MyOpt::Variables &);
 void output_stats(const MyOpt::Variables &values, const Mapfile &p);
-void calcGenomeCoverage(const MyOpt::Variables &values, Mapfile &p);
-void output_wigstats(const MyOpt::Variables &values, Mapfile &p);
+void output_wigstats(Mapfile &p);
 
 void SeqStatsGenome::readGenomeTable(const std::string &gt, const int binsize)
 {
@@ -84,7 +86,7 @@ void getMpbl(const std::string mpdir, std::vector<SeqStats> &chr)
 
 void printVersion()
 {
-  std::cerr << "parse2wig version " << VERSION << std::endl;
+  std::cerr << "SSP version " << VERSION << std::endl;
   exit(0);
 }
 
@@ -93,56 +95,34 @@ void help_global()
   auto helpmsg = R"(
 ===============
 
-Usage: parse2wig+ [option] -i <inputfile> -o <output> -gt <genome_table>)";
+Usage: ssp [option] -i <inputfile> -o <output> -gt <genome_table>)";
   
-  std::cerr << "\nparse2wig v" << VERSION << helpmsg << std::endl;
+  std::cerr << "\nSSP v" << VERSION << helpmsg << std::endl;
   return;
 }
 
 int main(int argc, char* argv[])
 {
   MyOpt::Variables values = getOpts(argc, argv);
-  
+
   boost::filesystem::path dir(values["odir"].as<std::string>());
   boost::filesystem::create_directory(dir);
 
   Mapfile p(values);
   read_mapfile(values, p);
 
-  if(!values.count("nofilter")) {
-    checkRedundantReads(values, p);
-  } else {
-    p.genome.setnread2nread_red();
-  }
+  if(!values.count("nofilter")) checkRedundantReads(values, p);
+  else                          p.genome.setnread2nread_red();
   p.genome.setnread_red();
   
   estimateFragLength(values, p);
-
-  // BED file
-  if (values.count("bed")) {
-    p.genome.setbed(values["bed"].as<std::string>());
-    p.genome.setFRiP();
-  }
 
 #ifdef DEBUG
   p.printstats();
 #endif
 
-  // Genome coverage
-  calcGenomeCoverage(values, p);
-  
-  // GC contents
-  if (values.count("genome")) normalizeByGCcontents(values, p);
-  
-  // make and output wigdata
-  makewig(values, p);
-  
-  p.estimateZINB();  // for genome
-  
-  p.printPeak(values);
-  
   // output stats
-  output_wigstats(values, p);
+  output_wigstats(p);
   output_stats(values, p);
 
   return 0;
@@ -150,32 +130,33 @@ int main(int argc, char* argv[])
 
 void checkParam(const MyOpt::Variables &values)
 {
-  std::vector<std::string> intopts = {"binsize", "flen", "maxins" , "nrpm", "flen4gc", "threads"};
-  for (auto x: intopts) chkminus<int>(values, x, 0);
-  std::vector<std::string> intopts2 = {"rcenter", "thre_pb"};
-  for (auto x: intopts2) chkminus<int>(values, x, -1);
-  std::vector<std::string> dbopts = {"ndepth", "mpthre"};
-  for (auto x: dbopts) chkminus<double>(values, x, 0);
-  
-  if(!RANGE(values["of"].as<int>(), 0, PWFILETYPENUM-1)) PRINTERR("invalid wigfile type.\n");
+#ifdef DEBUG
+  std::cout << "checkParam..." << std::endl;
+#endif
 
+  std::vector<std::string> intopts = {"threads"};
+  for (auto x: intopts) chkminus<int>(values, x, 0);
+  std::vector<std::string> intopts2 = {"thre_pb"};
+  for (auto x: intopts2) chkminus<int>(values, x, -1);
+  
   std::string ftype = values["ftype"].as<std::string>();
   if(ftype != "SAM" && ftype != "BAM" && ftype != "BOWTIE" && ftype != "TAGALIGN") PRINTERR("invalid --ftype.\n");
-  std::string ntype = values["ntype"].as<std::string>();
-  if(ntype != "NONE" && ntype != "GR" && ntype != "GD" && ntype != "CR" && ntype != "CD") PRINTERR("invalid --ntype.\n");
 
-  if (values.count("genome")) {
-    //    if(!values.count("mp")) PRINTERR("--genome option requires --mp option.\n");
-    isFile(values["genome"].as<std::string>());
-  }
-  
+#ifdef DEBUG
+  std::cout << "checkParam done." << std::endl;
+#endif
   return;
 }
 
 MyOpt::Variables getOpts(int argc, char* argv[])
 {
+#ifdef DEBUG
+  std::cout << "getOpts..." << std::endl;
+#endif
+
   MyOpt::Opts allopts("Options");
-  setOpts(allopts);
+  MyOpt::Opts opts4help("Options");
+  setOpts(allopts, opts4help);
   
   MyOpt::Variables values;
   
@@ -192,7 +173,7 @@ MyOpt::Variables getOpts(int argc, char* argv[])
     }
     if (values.count("help")) {
       help_global();
-      std::cout << "\n" << allopts << std::endl;
+      std::cout << "\n" << opts4help << std::endl;
       exit(0);
     }
     std::vector<std::string> opts = {"input", "output", "gt"};
@@ -201,17 +182,21 @@ MyOpt::Variables getOpts(int argc, char* argv[])
     }
 
     notify(values);
-
     checkParam(values);
+  
     init_dump(values);
   } catch (std::exception &e) {
     std::cout << e.what() << std::endl;
     exit(0);
   }
+  
+#ifdef DEBUG
+  std::cout << "getOpts done." << std::endl;
+#endif
   return values;
 }
 
-void setOpts(MyOpt::Opts &allopts)
+void setOpts(MyOpt::Opts &allopts,MyOpt::Opts &opts4help)
 {
   using namespace boost::program_options;
 
@@ -221,50 +206,18 @@ void setOpts(MyOpt::Opts &allopts)
     ("output,o",  value<std::string>(), "Prefix of output files")
     ("gt",        value<std::string>(), "Genome table (tab-delimited file describing the name and length of each chromosome)")
     ;
-  MyOpt::Opts optIO("Input/Output",100);
+  MyOpt::Opts optIO("Optional",100);
   optIO.add_options()
-    ("binsize,b",   value<int>()->default_value(50),	  "bin size")
     ("ftype,f",     value<std::string>()->default_value("SAM"), "{SAM|BAM|BOWTIE|TAGALIGN}: format of input file (default:SAM)\nTAGALIGN could be gzip'ed (extension: tagAlign.gz)")
-    ("of",        value<int>()->default_value(0),	  "output format\n   0: binary (.bin)\n   1: compressed wig (.wig.gz)\n   2: uncompressed wig (.wig)\n   3: bedGraph (.bedGraph)\n   4: bigWig (.bw)")
     ("odir",        value<std::string>()->default_value("parse2wigdir+"),	  "output directory name")
-    ("rcenter", value<int>()->default_value(0), "consider length around the center of fragment ")
-    ;
-  MyOpt::Opts optsingle("For single-end read",100);
-  optsingle.add_options()
-    ("nomodel",   "predefine the fragment length (default: estimated by hamming distance plot)")
-    ("flen",        value<int>()->default_value(150), "predefined fragment length\n(Automatically calculated in paired-end mode)")
     ("nfvp",        value<int>()->default_value(10000000),   "read number for calculating fragment variability")
     ("fvpbu",   "consider background uniformity for fragment variability estimation")
     ("fvpfull",   "outout full fragment variability profile")
-    ;
-  MyOpt::Opts optpair("For paired-end read",100);
-  optpair.add_options()
-    ("pair", 	  "add when the input file is paired-end")
-    ("maxins",        value<int>()->default_value(500), "maximum fragment length")
-    ;
-  MyOpt::Opts optpcr("PCR bias filtering",100);
-  optpcr.add_options()
     ("nofilter", 	  "do not filter PCR bias")
     ("thre_pb",        value<int>()->default_value(0),	  "PCRbias threshold (default: more than max(1 read, 10 times greater than genome average)) ")
     ("ncmp",        value<int>()->default_value(10000000),	  "read number for calculating library complexity")
-    ;
-  MyOpt::Opts optnorm("Total read normalization",100);
-  optnorm.add_options()
-    ("ntype,n",        value<std::string>()->default_value("NONE"),  "Total read normalization\n{NONE|GR|GD|CR|CD}\n   NONE: not normalize\n   GR: for whole genome, read number\n   GD: for whole genome, read depth\n   CR: for each chromosome, read number\n   CD: for each chromosome, read depth")
-    ("nrpm",        value<int>()->default_value(20000000),	  "Total read number after normalization")
-    ("ndepth",      value<double>()->default_value(1.0),	  "Averaged read depth after normalization")
-    ("bed",        value<std::string>(),	  "specify the BED file of enriched regions (e.g., peak regions)")
-    ;  
-  MyOpt::Opts optmp("Mappability normalization",100);
-  optmp.add_options()
     ("mp",        value<std::string>(),	  "Mappability file")
     ("mpthre",    value<double>()->default_value(0.3),	  "Threshold of low mappability regions")
-    ;
-  MyOpt::Opts optgc("GC bias normalization\n   (require large time and memory)",100);
-  optgc.add_options()
-    ("genome",     value<std::string>(),	  "reference genome sequence for GC content estimation")
-    ("flen4gc",    value<int>()->default_value(120),  "fragment length for calculation of GC distribution")
-    ("gcdepthoff", "do not consider depth of GC contents")
     ;
   MyOpt::Opts optother("Others",100);
   optother.add_options()
@@ -272,7 +225,26 @@ void setOpts(MyOpt::Opts &allopts)
     ("version,v", "print version")
     ("help,h", "show help message")
     ;
-  allopts.add(optreq).add(optIO).add(optsingle).add(optpair).add(optpcr).add(optnorm).add(optmp).add(optgc).add(optother);
+  MyOpt::Opts optignore("for parse2wig",100);
+  optignore.add_options()
+    ("flen",        value<int>()->default_value(150), "predefined fragment length\n(Automatically calculated in paired-end mode)")
+    ("nomodel",   "predefine the fragment length (default: estimated by hamming distance plot)")
+    ("binsize,b",   value<int>()->default_value(50),	  "bin size")
+    ("of",        value<int>()->default_value(0),	  "output format\n   0: binary (.bin)\n   1: compressed wig (.wig.gz)\n   2: uncompressed wig (.wig)\n   3: bedGraph (.bedGraph)\n   4: bigWig (.bw)")
+    ("rcenter", value<int>()->default_value(0), "consider length around the center of fragment ")
+    ("pair", 	  "add when the input file is paired-end")
+    ("maxins",     value<int>()->default_value(500), "maximum fragment length")
+    ("genome",     value<std::string>(),	  "reference genome sequence for GC content estimation")
+    ("flen4gc",    value<int>()->default_value(120),  "fragment length for calculation of GC distribution")
+    ("gcdepthoff", "do not consider depth of GC contents")
+    ("ntype,n",        value<std::string>()->default_value("NONE"),  "Total read normalization\n{NONE|GR|GD|CR|CD}\n   NONE: not normalize\n   GR: for whole genome, read number\n   GD: for whole genome, read depth\n   CR: for each chromosome, read number\n   CD: for each chromosome, read depth")
+    ("nrpm",        value<int>()->default_value(20000000),	  "Total read number after normalization")
+    ("ndepth",      value<double>()->default_value(1.0),	  "Averaged read depth after normalization")
+    ("bed",        value<std::string>(),	  "specify the BED file of enriched regions (e.g., peak regions)")
+    ;  
+    ;
+  allopts.add(optreq).add(optIO).add(optother).add(optignore);
+  opts4help.add(optreq).add(optIO).add(optother);
   return;
 }
 
@@ -280,23 +252,13 @@ void init_dump(const MyOpt::Variables &values){
   std::vector<std::string> str_wigfiletype = {"BINARY", "COMPRESSED WIG", "WIG", "BEDGRAPH", "BIGWIG"};
  
   BPRINT("\n======================================\n");
-  BPRINT("parse2wig version %1%\n\n") % VERSION;
+  BPRINT("SSP version %1%\n\n") % VERSION;
   BPRINT("Input file %1%\n")         % values["input"].as<std::string>();
   BPRINT("\tFormat: %1%\n")          % values["ftype"].as<std::string>();
   BPRINT("Output file: %1%/%2%\n")   % values["odir"].as<std::string>() % values["output"].as<std::string>();
-  BPRINT("\tFormat: %1%\n")          % str_wigfiletype[values["of"].as<int>()];
   BPRINT("Genome-table file: %1%\n") % values["gt"].as<std::string>();
-  BPRINT("Binsize: %1% bp\n")        % values["binsize"].as<int>();
-  BPRINT("Number of threads: %1%\n") % values["threads"].as<int>();
-  if (!values.count("pair")) {
-    std::cout << "Single-end mode: ";
-    BPRINT("fragment length will be estimated from hamming distance\n");
-    if (values.count("nomodel")) BPRINT("Predefined fragment length: %1%\n") % values["flen"].as<int>();
-    if(values["nfvp"].as<int>()) BPRINT("\t%1% reads used for fragment variability\n") % values["nfvp"].as<int>();
-  } else {
-    std::cout << "Paired-end mode: ";
-    BPRINT("Maximum fragment length: %1%\n") % values["maxins"].as<int>();
-  }
+  if(values["nfvp"].as<int>()) BPRINT("\t%1% reads used for fragment variability\n") % values["nfvp"].as<int>();
+  
   if (!values.count("nofilter")) {
     BPRINT("PCR bias filtering: ON\n");
     if (values["thre_pb"].as<int>()) BPRINT("PCR bias threshold: > %1%\n") % values["thre_pb"].as<int>();
@@ -304,26 +266,13 @@ void init_dump(const MyOpt::Variables &values){
     BPRINT("PCR bias filtering: OFF\n");
   }
   BPRINT("\t%1% reads used for library complexity\n") % values["ncmp"].as<int>();
-  if (values.count("bed")) BPRINT("Bed file: %1%\n") % values["bed"].as<std::string>();
 
-  std::string ntype = values["ntype"].as<std::string>();
-  BPRINT("\nTotal read normalization: %1%\n") % ntype;
-  if(ntype == "GR" || ntype == "CR"){
-    BPRINT("\tnormed read: %1% M for genome\n") % (values["nrpm"].as<int>() /static_cast<double>(NUM_1M));
-  }
-  else if(ntype == "GD" || ntype == "CD"){
-    BPRINT("\tnormed depth: %1%\n") % values["ndepth"].as<double>();
-  }
-  printf("\n");
   if (values.count("mp")) {
     printf("Mappability normalization:\n");
     BPRINT("\tFile directory: %1%\n") % values["mp"].as<std::string>();
     BPRINT("\tLow mappablitiy threshold: %1%\n") % values["mpthre"].as<double>();
   }
-  if (values.count("genome")) {
-    printf("Correcting GC bias:\n");
-    BPRINT("\tChromosome directory: %1%\n") % values["genome"].as<std::string>();
-  }
+  BPRINT("Number of threads: %1%\n") % values["threads"].as<int>();
   printf("======================================\n");
   return;
 }
@@ -371,7 +320,7 @@ void output_stats(const MyOpt::Variables &values, const Mapfile &p)
   std::string filename = p.getbinprefix() + ".csv";
   std::ofstream out(filename);
 
-  out << "parse2wig version " << VERSION << std::endl;
+  out << "SSP version " << VERSION << std::endl;
   out << "Input file: \"" << values["input"].as<std::string>() << "\"" << std::endl;
   out << "Redundancy threshold: >" << p.getthre4filtering() << std::endl;
 
@@ -445,29 +394,6 @@ void calcGcovchr(const MyOpt::Variables &values, Mapfile &p, int s, int e, doubl
   }
 }
 
-void calcGenomeCoverage(const MyOpt::Variables &values, Mapfile &p)
-{
-  std::cout << "calculate genome coverage.." << std::flush;
-
-  // ignore peak region
-  double r = numGcov/static_cast<double>(p.genome.bothnread_nonred() - p.genome.getNreadInbed());
-  if(r>1){
-    std::cerr << "Warning: number of reads is < "<< static_cast<int>(numGcov/NUM_1M) << " million.\n";
-    p.lackOfRead4GenomeCov_on();
-  }
-  double r4cmp = r*RAND_MAX;
-
-  boost::thread_group agroup;
-  boost::mutex mtx;
-  for(uint i=0; i<p.genome.vsepchr.size(); i++) {
-    agroup.create_thread(bind(calcGcovchr, boost::cref(values), boost::ref(p), p.genome.vsepchr[i].s, p.genome.vsepchr[i].e, r4cmp, boost::ref(mtx)));
-  }
-  agroup.join_all();
-  
-  std::cout << "done." << std::endl;
-  return;
-}
-
 void calcFRiP(SeqStats &chr, const std::vector<bed> vbed)
 {
   std::vector<char> array(chr.getlen(), MAPPABLE);
@@ -489,7 +415,7 @@ void calcFRiP(SeqStats &chr, const std::vector<bed> vbed)
   return;
 }
 
-void output_wigstats(const MyOpt::Variables &values, Mapfile &p)
+void output_wigstats(Mapfile &p)
 {
   std::string filename = p.getbinprefix() + ".binarray_dist.csv";
   std::ofstream out(filename);

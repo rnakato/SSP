@@ -8,14 +8,12 @@
 #include <boost/iostreams/device/file.hpp>
 #include <boost/iostreams/device/file_descriptor.hpp>
 #include <ext/stdio_filebuf.h>
-#include <time.h>
-#include "pw_shiftprofile.h"
 
 void parseSam(const MyOpt::Variables &, const std::string &, Mapfile &);
 void parseBowtie(const MyOpt::Variables &, const std::string &, Mapfile &);
 void parseTagAlign(const MyOpt::Variables &, const std::string &, Mapfile &);
-void filtering_eachchr_single(const MyOpt::Variables &values, Mapfile &, SeqStats &);
-void filtering_eachchr_pair(const MyOpt::Variables &values, Mapfile &, SeqStats &);
+void filtering_eachchr_single(Mapfile &, SeqStats &);
+void filtering_eachchr_pair(Mapfile &, SeqStats &);
 
 void read_mapfile(const MyOpt::Variables &values, Mapfile &p)
 {
@@ -341,15 +339,15 @@ void checkRedundantReads(const MyOpt::Variables &values, Mapfile &p)
   p.setr4cmp(r*RAND_MAX);
   
   for(uint i=0; i<p.genome.chr.size(); ++i) {
-    if (values.count("pair")) filtering_eachchr_pair(values, p, p.genome.chr[i]);
-    else                      filtering_eachchr_single(values, p, p.genome.chr[i]);
+    if (values.count("pair")) filtering_eachchr_pair(p, p.genome.chr[i]);
+    else                      filtering_eachchr_single(p, p.genome.chr[i]);
   }
   
   printf("done.\n");
   return;
 }
 
-void filtering_eachchr_single(const MyOpt::Variables &values, Mapfile &p, SeqStats &chr)
+void filtering_eachchr_single(Mapfile &p, SeqStats &chr)
 {
   for(int strand=0; strand<STRANDNUM; strand++) {
 
@@ -363,7 +361,7 @@ void filtering_eachchr_single(const MyOpt::Variables &values, Mapfile &p, SeqSta
   return;
 }
 
-void filtering_eachchr_pair(const MyOpt::Variables &values, Mapfile &p, SeqStats &chr)
+void filtering_eachchr_pair(Mapfile &p, SeqStats &chr)
 {
   std::unordered_map<std::string, int> mp;
   for(int strand=0; strand<STRANDNUM; ++strand) {
@@ -376,36 +374,6 @@ void filtering_eachchr_pair(const MyOpt::Variables &values, Mapfile &p, SeqStats
   }
 
   return;
-}
-
-void estimateFragLength(const MyOpt::Variables &values, Mapfile &p)
-{
-  if(!values.count("pair") && !values.count("nomodel")) {
-    clock_t t1 = clock();
-    //    strShiftProfile(values, p, "exjaccard");
-    clock_t t2 = clock();
-    std::cout << "Jaccard Vec: " << static_cast<double>(t2 - t1) / CLOCKS_PER_SEC << "sec.\n";
-
-    strShiftProfile(values, p, "jaccard"); 
-    clock_t t3 = clock();
-    std::cout << "Jaccard Bit: " << static_cast<double>(t3 - t2) / CLOCKS_PER_SEC << "sec.\n";
-
-    strShiftProfile(values, p, "fvp"); 
-    clock_t t4 = clock();
-    std::cout << "Fragment variability: " << static_cast<double>(t4 - t3) / CLOCKS_PER_SEC << "sec.\n";
-
-    exit(0);
-    strShiftProfile(values, p, "hdp");
-    clock_t t5 = clock();
-    std::cout << "Hamming: " << static_cast<double>(t5 - t4) / CLOCKS_PER_SEC << "sec.\n";
-
-    strShiftProfile(values, p, "ccp");
-    clock_t t6 = clock();
-    std::cout << "ccp: " << static_cast<double>(t6 - t5) / CLOCKS_PER_SEC << "sec.\n";
-  }
-
-  p.genome.calcdepthAll(p.getflen(values));
-  p.genome.setF5All(p.getflen(values));
 }
 
 int check_sv(int sv)
