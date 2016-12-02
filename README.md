@@ -6,7 +6,7 @@
 #### 2.1. Install required libraries
 for Ubuntu:
 
-     sudo apt-get install git build-essential libboost-all-dev samtools
+     sudo apt-get install git build-essential libboost-all-dev libgsl-dev libz-dev samtools
  
 for CentOS:
 
