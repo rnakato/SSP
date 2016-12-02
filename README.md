@@ -27,7 +27,7 @@ For example, if you downloaded SSP into the $HOME/my_chipseq_exp directory, type
 The simplest command is:
 
     ssp -i ChIP.sam -o ChIP --gt genometable.txt
-then the files are generated in the directory "sspout (default)".
+then the output files (prefix: "ChIP") are generated in the directory "sspout (default)".
 
 If the input format is BAM, and mappable genome table is supplied
 
