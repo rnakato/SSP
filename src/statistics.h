@@ -37,7 +37,6 @@ class moment {
   double getmean() const { return mean; }
   double getvar()  const { return var; }
   double getsd()   const { return sd; }
-
 };
 
 template <class T>

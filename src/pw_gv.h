@@ -5,12 +5,9 @@
 #define _PW_GV_H_
 
 #include <fstream>
-#include <numeric>
 #include <boost/format.hpp>
 #include <boost/thread.hpp>
-#include "seq.h"
 #include "util.h"
-#include "macro.h"
 #include "readdata.h"
 #include "statistics.h"
 
