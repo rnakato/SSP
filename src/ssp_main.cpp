@@ -286,7 +286,7 @@ void init_dump(const MyOpt::Variables &values){
   } else {
     BPRINT("PCR bias filtering: OFF\n");
   }
-  BPRINT("\t%1% reads used for library complexity\n") % values["ncmp"].as<int>();
+  if (values.count("fcsfull")) BPRINT("\tplot full fcs profile.\n") % values["ncmp"].as<int>();
 
   if (values.count("mp")) {
     printf("Mappability normalization:\n");
