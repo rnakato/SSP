@@ -1,19 +1,31 @@
-# DROMPA-
-DROMPA written in C++
+# SSP (Strand shift profile)
 
 Requirements
 
-- Ubuntu
- sudo apt-get install build-essential
- sudo apt-get install libboost-all-dev
- sudo apt-get install libgsl-dev 
- sudo apt-get install zlib1g-dev 
- sudo apt-get install libgtk2.0-dev 
+#1. Overview
 
- cpdf-binaries-master
+#2. Install
+#### 2.1. Install required libraries
+for Ubuntu:
 
-- CentOS
- sudo yum install gcc-c++
- sudo yum install boost-devel
- sudo yum install gsl-devel
- sudo yum install zlib-devel
+     sudo apt-get install git gcc libgtk2.0-dev libgsl-dev samtools r-base
+ 
+for CentOS:
+
+     sudo yum -y install zlib-devel gsl-devel gtk2-devel
+
+#### 2.3. Install DROMPA
+    git clone https://github.com/rnakato/SSP.git
+    cd SSP
+    make
+    
+
+#### 2.4. Add the PATH environment variable
+For example, if you downloaded DROMPA and cpdf into the $HOME/my_chipseq_exp directory, type:
+
+    export PATH = $PATH:$HOME/my_chipseq_exp/DROMPA3:$HOME/my_chipseq_exp/cpdf-binaries-master/Linux-Intel-**bit
+
+#3. Usage
+
+
+#4. Reference
