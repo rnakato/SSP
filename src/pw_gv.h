@@ -112,9 +112,6 @@ class Wigstats {
   double getNegativeBinomial(const int i) const {
     return _getNegativeBinomial(i, nb_p, nb_n);
   }
-  /*  double getZIP(const int i) const {
-    return _getZIP(i, ave, pois_p0);
-    }*/
   double getZINB(const int i) const {
     if(ave) return _getZINB(i, nb_p, nb_n, nb_p0);
     else return 0;

@@ -19,7 +19,7 @@ CFLAGS += -DDEBUG
 endif
 
 OBJS_UTIL = $(OBJDIR)/readdata.o $(OBJDIR)/util.o
-OBJS_PW = $(OBJDIR)/ssp_main.o $(OBJDIR)/ssp_estFlen.o $(OBJDIR)/pw_readmapfile.o $(OBJDIR)/pw_makefile.o $(OBJDIR)/pw_gc.o $(OBJDIR)/pw_shiftprofile.o $(OBJDIR)/statistics.o $(LIBDIR)/libalglib.a
+OBJS_PW = $(OBJDIR)/ssp_main.o $(OBJDIR)/ssp_estFlen.o $(OBJDIR)/pw_readmapfile.o $(OBJDIR)/pw_shiftprofile.o $(OBJDIR)/statistics.o $(LIBDIR)/libalglib.a
 
 .PHONY: all clean
 
@@ -45,10 +45,7 @@ clean:
 HEADS_UTIL = $(SRCDIR)/util.h $(SRCDIR)/readdata.h $(SRCDIR)/macro.h $(SRCDIR)/seq.h
 
 $(LIBDIR)/libalglib.a: Makefile $(SRCDIR)/alglib.h
-$(OBJDIR)/ssp_main.o: $(SRCDIR)/pw_makefile.h $(SRCDIR)/pw_gc.h
 $(OBJDIR)/pw_readmapfile.o: $(SRCDIR)/pw_shiftprofile.h
-$(OBJDIR)/pw_makefile.o: $(SRCDIR)/pw_makefile.h
-$(OBJDIR)/pw_gc.o: $(SRCDIR)/pw_gc.h
 $(OBJDIR)/pw_shiftprofile.o: Makefile $(SRCDIR)/pw_shiftprofile_p.h $(SRCDIR)/pw_shiftprofile.h
 $(OBJS_UTIL): Makefile $(HEADS_UTIL)
 $(OBJS_PW): Makefile $(SRCDIR)/pw_gv.h $(SRCDIR)/pw_readmapfile.h $(SRCDIR)/statistics.h $(HEADS_UTIL) $(SRCDIR)/ssp_estFlen.h

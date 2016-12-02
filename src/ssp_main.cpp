@@ -11,9 +11,7 @@
 #include <boost/filesystem.hpp>
 #include "pw_readmapfile.h"
 #include "ssp_estFlen.h"
-#include "pw_makefile.h"
 #include "pw_gv.h"
-#include "pw_gc.h"
 
 #define VERSION "1.0.0"
 
