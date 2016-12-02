@@ -1,5 +1,8 @@
-#include "pw_shiftprofile.h"
-#include "pw_shiftprofile_p.h"
+/* Copyright(c)  Ryuichiro Nakato <rnakato@iam.u-tokyo.ac.jp>
+ * This file is a part of SSP sources.
+ */
+#include "ssp_shiftprofile.h"
+#include "ssp_shiftprofile_p.h"
 #include "macro.h"
 #include <map>
 #include <boost/thread.hpp>

@@ -1,8 +1,8 @@
 /* Copyright(c)  Ryuichiro Nakato <rnakato@iam.u-tokyo.ac.jp>
- * This file is a part of DROMPA sources.
+ * This file is a part of SSP sources.
  */
-#ifndef _PW_SHIFTPROFILE_P_H_
-#define _PW_SHIFTPROFILE_P_H_
+#ifndef _SSP_SHIFTPROFILE_P_H_
+#define _SSP_SHIFTPROFILE_P_H_
 
 #include "pw_gv.h"
 #include <boost/dynamic_bitset.hpp>
@@ -381,4 +381,4 @@ class shiftFragVar : public ReadShiftProfileGenome {
   }
 };
 
-#endif /* _PW_SHIFTPROFILE_P_H_ */
+#endif /* _SSP_SHIFTPROFILE_P_H_ */

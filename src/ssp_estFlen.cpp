@@ -2,7 +2,7 @@
  * This file is a part of SSP sources.
  */
 #include "ssp_estFlen.h"
-#include "pw_shiftprofile.h"
+#include "ssp_shiftprofile.h"
 #include <time.h>
 
 void estimateFragLength(const MyOpt::Variables &values, Mapfile &p)
