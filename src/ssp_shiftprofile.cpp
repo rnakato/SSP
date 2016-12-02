@@ -152,7 +152,7 @@ boost::dynamic_bitset<> genBitset(const strandData &seq, int start, int end)
 }
 
 template <class T>
-void genThread(T &dist, const Mapfile &p, uint chr_s, uint chr_e, std::string typestr) {
+void genThread(T &dist, const Mapfile &p, uint chr_s, uint chr_e, std::string typestr, const bool output_eachchr) {
   for(uint i=chr_s; i<=chr_e; ++i) {
     std::cout << p.genome.chr[i].name << ".." << std::flush;
 
@@ -160,27 +160,27 @@ void genThread(T &dist, const Mapfile &p, uint chr_s, uint chr_e, std::string ty
     dist.chr[i].setflen();
     
     std::string filename = p.getprefix() + "." + typestr + "." + p.genome.chr[i].name + ".csv";
-    dist.outputmpChr(filename, i);
+    if(output_eachchr) dist.outputmpChr(filename, i);
   }
 }
 
 template <class T>
-void makeProfile(Mapfile &p, const std::string &typestr, const int numthreads)
+void makeProfile(Mapfile &p, const std::string &typestr, const MyOpt::Variables &values)
 {
-  T dist(p, numthreads);
+  T dist(p, values["threads"].as<int>());
   dist.printStartMessage();
-
+  
   boost::thread_group agroup;
   boost::mutex mtx;
 
   if(typestr == "hdp" || typestr == "jaccard") {
-    //agroup.create_thread(bind(genThread<T>, boost::ref(dist), boost::cref(p), 0, 0, typestr));
+    //agroup.create_thread(bind(genThread<T>, boost::ref(dist), boost::cref(p), 0, 0, typestr, values.count("output_eachchr")));
     for(uint i=0; i<p.genome.vsepchr.size(); i++) {
-      agroup.create_thread(bind(genThread<T>, boost::ref(dist), boost::cref(p), p.genome.vsepchr[i].s, p.genome.vsepchr[i].e, typestr));
+      agroup.create_thread(bind(genThread<T>, boost::ref(dist), boost::cref(p), p.genome.vsepchr[i].s, p.genome.vsepchr[i].e, typestr, values.count("output_eachchr")));
     }
     agroup.join_all();
   } else {
-    genThread(dist, p, 0, p.genome.chr.size()-1, typestr);
+    genThread(dist, p, 0, p.genome.chr.size()-1, typestr, values.count("output_eachchr"));
     //genThread(dist, p, 0, 0, typestr);
   }
 
@@ -225,7 +225,7 @@ void makeFragVarProfile(const MyOpt::Variables &values, Mapfile &p, const std::s
       std::cout << p.genome.chr[i].name << ".." << std::flush;
       dist.execchr(p, i, r4cmp);
       std::string filename = p.getprefix() + "." + typestr + "." + p.genome.chr[i].name + ".csv";
-      dist.outputmpChr(filename, i);
+      if(values.count("output_eachchr")) dist.outputmpChr(filename, i);
       dist.addmp2genome(i);
     }
   }
@@ -240,12 +240,11 @@ void makeFragVarProfile(const MyOpt::Variables &values, Mapfile &p, const std::s
 
 void strShiftProfile(const MyOpt::Variables &values, Mapfile &p, std::string typestr)
 {
-  int numthreads(values["threads"].as<int>());
-  if(typestr=="exjaccard")    makeProfile<shiftJacVec>(p, typestr, numthreads);
-  else if(typestr=="jaccard") makeProfile<shiftJacBit>(p, typestr, numthreads);
-  else if(typestr=="ccp")     makeProfile<shiftCcp>(p, typestr, numthreads);
-  else if(typestr=="hdp")     makeProfile<shiftHamming>(p, typestr, numthreads);
-  else if(typestr=="fvp")     makeFragVarProfile(values, p, typestr, numthreads, p.getflen(values));
+  if(typestr=="exjaccard")    makeProfile<shiftJacVec>(p, typestr, values);
+  else if(typestr=="jaccard") makeProfile<shiftJacBit>(p, typestr, values);
+  else if(typestr=="ccp")     makeProfile<shiftCcp>(p, typestr, values);
+  else if(typestr=="hdp")     makeProfile<shiftHamming>(p, typestr, values);
+  else if(typestr=="fvp")     makeFragVarProfile(values, p, typestr, values["threads"].as<int>(), p.getflen(values));
   
   return;
 }
@@ -311,7 +310,7 @@ void shiftFragVar::setDist(ReadShiftProfile &chr, const std::vector<char> &fwd, 
   return;
 }
 
-void scanRepeatRegion(const std::vector<char> &fwd, const std::vector<char> &rev)
+/*void scanRepeatRegion(const std::vector<char> &fwd, const std::vector<char> &rev)
 {
   int SizeOfFragOverlapDist(10000);
   std::vector<int> FragOverlapDist(SizeOfFragOverlapDist,0);
@@ -331,3 +330,4 @@ void scanRepeatRegion(const std::vector<char> &fwd, const std::vector<char> &rev
   //  for(int i=0; i<size; ++i) if(array[i]>1) std::cout << i << "\t" << array[i] << std::endl;
   return;
 }
+*/

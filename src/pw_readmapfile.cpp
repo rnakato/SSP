@@ -33,9 +33,6 @@ void read_mapfile(const MyOpt::Variables &values, Mapfile &p)
   if(!p.genome.bothnread()) PRINTERR("no read in input file.");
 
   p.setFraglen(values);
-  
-  /* output distributions of read length and fragment length */
-  p.outputDistFile(values);
 
   return;
 }

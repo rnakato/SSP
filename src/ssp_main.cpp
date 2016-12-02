@@ -202,6 +202,14 @@ void setOpts(MyOpt::Opts &allopts,MyOpt::Opts &opts4help)
     ("output,o",  value<std::string>(), "Prefix of output files")
     ("gt",        value<std::string>(), "Genome table (tab-delimited file describing the name and length of each chromosome)")
     ;
+  
+  MyOpt::Opts optssp("Strand shift profile",100);
+  optssp.add_options()
+    ("ssp_cc", "make ssp based on cross correlation")
+    ("ssp_hd", "make ssp based on hamming distance")
+    ("ssp_exjac", "make ssp based on extended Jaccard index")
+    ("output_eachchr", "make chromosome-sparated ssp files")
+    ;
   MyOpt::Opts optIO("Optional",100);
   optIO.add_options()
     ("ftype,f",     value<std::string>()->default_value("SAM"), "{SAM|BAM|BOWTIE|TAGALIGN}: format of input file (default:SAM)\nTAGALIGN could be gzip'ed (extension: tagAlign.gz)")
@@ -239,8 +247,8 @@ void setOpts(MyOpt::Opts &allopts,MyOpt::Opts &opts4help)
     ("bed",        value<std::string>(),	  "specify the BED file of enriched regions (e.g., peak regions)")
     ;  
     ;
-  allopts.add(optreq).add(optIO).add(optother).add(optignore);
-  opts4help.add(optreq).add(optIO).add(optother);
+  allopts.add(optreq).add(optssp).add(optIO).add(optother).add(optignore);
+  opts4help.add(optreq).add(optssp).add(optIO).add(optother);
   return;
 }
 
