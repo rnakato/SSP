@@ -6,9 +6,8 @@ LIBS_DP += -lz -lgsl -lgslcblas -lboost_thread
 
 SRCDIR = ./src
 OBJDIR = ./obj
-LIBDIR = ./lib
+ALGLIBDIR = ./src/alglib
 BINDIR = ./bin
-ALGLBDIR = $(SRCDIR)/alglib-3.10.0/src
 
 PROGRAMS = ssp 
 TARGET = $(addprefix $(BINDIR)/,$(PROGRAMS))
@@ -19,7 +18,7 @@ CFLAGS += -DDEBUG
 endif
 
 OBJS_UTIL = $(OBJDIR)/readdata.o $(OBJDIR)/util.o
-OBJS_PW = $(OBJDIR)/ssp_main.o $(OBJDIR)/ssp_estFlen.o $(OBJDIR)/pw_readmapfile.o $(OBJDIR)/pw_shiftprofile.o $(OBJDIR)/statistics.o $(LIBDIR)/libalglib.a
+OBJS_PW = $(OBJDIR)/ssp_main.o $(OBJDIR)/ssp_estFlen.o $(OBJDIR)/pw_readmapfile.o $(OBJDIR)/pw_shiftprofile.o $(OBJDIR)/statistics.o $(ALGLIBDIR)/libalglib.a
 
 .PHONY: all clean
 
@@ -29,11 +28,8 @@ $(BINDIR)/ssp: $(OBJS_PW) $(OBJS_UTIL)
 	@if [ ! -e `dirname $@` ]; then mkdir -p `dirname $@`; fi
 	$(CC) -o $@ $^ $(LIBS) $(LIBS_DP)
 
-$(LIBDIR)/libalglib.a: $(SRCDIR)/alglib.cpp
-	@if [ ! -e `dirname $@` ]; then mkdir -p `dirname $@`; fi
-	$(CC) -c $< $(ALGLBDIR)/specialfunctions.cpp $(ALGLBDIR)/ap.cpp $(ALGLBDIR)/alglibinternal.cpp $(CFLAGS)
-	ar r $@ alglib.o alglibinternal.o ap.o specialfunctions.o
-	rm alglib.o alglibinternal.o ap.o specialfunctions.o
+$(ALGLIBDIR)/libalglib.a:
+	make -C $(ALGLIBDIR)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	@if [ ! -e `dirname $@` ]; then mkdir -p `dirname $@`; fi
@@ -41,10 +37,10 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 
 clean:
 	rm -rf bin lib obj
+	make clean -C $(ALGLIBDIR)
 
 HEADS_UTIL = $(SRCDIR)/util.h $(SRCDIR)/readdata.h $(SRCDIR)/macro.h $(SRCDIR)/seq.h
 
-$(LIBDIR)/libalglib.a: Makefile $(SRCDIR)/alglib.h
 $(OBJDIR)/pw_readmapfile.o: $(SRCDIR)/pw_shiftprofile.h
 $(OBJDIR)/pw_shiftprofile.o: Makefile $(SRCDIR)/pw_shiftprofile_p.h $(SRCDIR)/pw_shiftprofile.h
 $(OBJS_UTIL): Makefile $(HEADS_UTIL)

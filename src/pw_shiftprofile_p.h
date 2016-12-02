@@ -6,7 +6,7 @@
 
 #include "pw_gv.h"
 #include <boost/dynamic_bitset.hpp>
-#include "alglib.h"
+#include "alglib/alglib.h"
 
 namespace {
   const int mp_from(500);
