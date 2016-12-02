@@ -1,8 +1,7 @@
 CC = g++
 CFLAGS += -std=c++11 -O2 -Wall -W
-LDFLAGS =
-LIBS += -lboost_program_options -lboost_system -lboost_filesystem -lboost_iostreams
-LIBS_DP += -lz -lgsl -lgslcblas -lboost_thread
+LDFLAGS = -lz -lgsl -lgslcblas -lboost_thread
+LIBS += -lboost_program_options -lboost_system -lboost_filesystem 
 
 SRCDIR = ./src
 OBJDIR = ./obj
@@ -26,7 +25,7 @@ all: $(TARGET)
 
 $(BINDIR)/ssp: $(OBJS_PW) $(OBJS_UTIL)
 	@if [ ! -e `dirname $@` ]; then mkdir -p `dirname $@`; fi
-	$(CC) -o $@ $^ $(LIBS) $(LIBS_DP)
+	$(CC) -o $@ $^ $(LIBS) $(LDFLAGS)
 
 $(ALGLIBDIR)/libalglib.a:
 	make -C $(ALGLIBDIR)
