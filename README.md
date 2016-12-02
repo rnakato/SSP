@@ -1,7 +1,5 @@
 # SSP (Strand shift profile)
 
-Requirements
-
 #1. Overview
 
 #2. Install
