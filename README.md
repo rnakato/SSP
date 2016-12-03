@@ -8,7 +8,7 @@ SSP is written in C++ and requires the following libraries:
 * [GTK library](http://www.gtk.org/)
 * [GNU Scientific Library](http://www.gnu.org/software/gsl/)
 * [zlib](http://www.zlib.net/)
-* (optional) [SAMtools](http://samtools.sourceforge.net/)
+* [SAMtools](http://samtools.sourceforge.net/) (for BAM formatted input)
 
 #### 2.1. Install required libraries
 for Ubuntu:
