@@ -10,7 +10,7 @@ for Ubuntu:
  
 for CentOS:
 
-    sudo yum -y install zlib-devel gsl-devel gtk2-devel
+    sudo yum -y install git gcc-c++ boost-devel zlib-devel gsl-devel
 
 #### 2.3. Install SSP
     git clone https://github.com/rnakato/SSP.git
