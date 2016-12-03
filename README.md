@@ -11,6 +11,7 @@ for Ubuntu:
 for CentOS:
 
     sudo yum -y install git gcc-c++ boost-devel zlib-devel gsl-devel
+and install samtools from [the website](http://samtools.sourceforge.net/).
 
 #### 2.3. Install SSP
     git clone https://github.com/rnakato/SSP.git
