@@ -3,7 +3,7 @@
 #1. Overview
 
 #2. Install
-SSP is written in C++ and requires the following libraries:
+SSP is written in C++ and requires the following programs and libraries:
 * [Boost library](http://www.boost.org/)
 * [GTK library](http://www.gtk.org/)
 * [GNU Scientific Library](http://www.gnu.org/software/gsl/)
