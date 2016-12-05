@@ -20,7 +20,7 @@ namespace {
   const int thre4bkdis(500000);
   const int sizeOfvDistOfDistaneOfFrag = 5000;
 
-  const std::vector<int> v4mpfv{50, 100, 150, 500, 1000, 2000, 3000, 10000, 100000, 1000000};
+  const std::vector<int> v4acfp{50, 100, 150, 500, 1000, 2000, 3000, 10000, 100000, 1000000};
 }
 
 std::vector<char> genVector(const strandData &seq, int start, int end);
@@ -262,7 +262,7 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
     std::cout << "Making " << name << " profile..." << std::flush;
   }
   
-  void printmpfv(const std::string &){};
+  void printacfp(const std::string &){};
 };
 
 class shiftJacVec : public ReadShiftProfileGenome {
@@ -318,7 +318,7 @@ class shiftHamming : public ReadShiftProfileGenome {
 };
 
 class shiftFragVar : public ReadShiftProfileGenome {
-  std::map<int, FragmentVariability> mpfv;
+  std::map<int, FragmentVariability> acfp;
   int flen;
   bool lackOfReads;
   bool fcsfull;
@@ -337,33 +337,33 @@ class shiftFragVar : public ReadShiftProfileGenome {
   }
 
   void lackOfReads_on() { lackOfReads=true; }
-  void printmpfv(const std::string &filename) const {
+  void printacfp(const std::string &filename) const {
     std::ofstream out(filename);
 
-    for(auto x: v4mpfv) {
-      if(fcsfull && x > mp_to) continue;
+    for(auto x: v4acfp) {
+      if(!fcsfull && x > mp_to) continue;
       out << "\tlen" << x;
     }
     out << std::endl;
 
-    /*    for(auto x: v4mpfv) {
-      double myu(mpfv.at(100000).getAccuOfDistanceOfFragment(sizeOfvDistOfDistaneOfFrag-2));
+    /*    for(auto x: v4acfp) {
+      double myu(acfp.at(100000).getAccuOfDistanceOfFragment(sizeOfvDistOfDistaneOfFrag-2));
       if(fcsfull && x > mp_to) continue;
-      out << "\t" << mpfv.at(x).getPvalueOfBinomTest(sizeOfvDistOfDistaneOfFrag-2, myu);
+      out << "\t" << acfp.at(x).getPvalueOfBinomTest(sizeOfvDistOfDistaneOfFrag-2, myu);
     }
     out << std::endl;*/
 
     for(size_t k=0; k<sizeOfvDistOfDistaneOfFrag-1; ++k) {
       out << k << "\t";
 
-      for(auto x: v4mpfv) {
-	if(fcsfull && x > mp_to) continue;
-	out << mpfv.at(x).getAccuOfDistanceOfFragment(k) << "\t";
+      for(auto x: v4acfp) {
+	if(!fcsfull && x > mp_to) continue;
+	out << acfp.at(x).getAccuOfDistanceOfFragment(k) << "\t";
       }
-      /*      for(auto x: v4mpfv) {
+      /*      for(auto x: v4acfp) {
 	if(fcsfull && x > mp_to) continue;
-	out << mpfv.at(x).getsumOfvDistOfDistaneOfFrag() << "\t";
-	//	out <<  mpfv.at(x).getDistOfDistanceOfFragment(k) << "\t";
+	out << acfp.at(x).getsumOfvDistOfDistaneOfFrag() << "\t";
+	//	out <<  acfp.at(x).getDistOfDistanceOfFragment(k) << "\t";
 	}*/
       out << std::endl;
     }

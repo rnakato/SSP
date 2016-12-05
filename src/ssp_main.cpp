@@ -64,41 +64,6 @@ std::vector<sepchr> SeqStatsGenome::getVsepchr(const int numthreads)
   return vsepchr;
 }
 
-void getMpbl(const std::string mpdir, std::vector<SeqStats> &chr)
-{
-  std::string lineStr;
-  std::vector<std::string> v;
-  std::string mpfile = mpdir + "/map_fragL150_genome.txt";
-  std::ifstream in(mpfile);
-  if(!in) PRINTERR("Could nome open " << mpfile << ".");
-  while (!in.eof()) {
-    getline(in, lineStr);
-    if(lineStr.empty() || lineStr[0] == '#') continue;
-    boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
-    for(auto &x: chr) {
-      if(x.name == rmchr(v[0])) x.len_mpbl = stoi(v[1]);
-    }
-  }
-  return;
-}
-
-void getMpbltable(const std::string mptable, std::vector<SeqStats> &chr)
-{
-  std::string lineStr;
-  std::vector<std::string> v;
-  std::ifstream in(mptable);
-  if(!in) PRINTERR("Could nome open " << mptable << ".");
-  while (!in.eof()) {
-    getline(in, lineStr);
-    if(lineStr.empty() || lineStr[0] == '#') continue;
-    boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
-    for(auto &x: chr) {
-      if(x.name == rmchr(v[0])) x.len_mpbl = stoi(v[1]);
-    }
-  }
-  return;
-}
-
 void printVersion()
 {
   std::cerr << "SSP version " << VERSION << std::endl;
@@ -286,7 +251,7 @@ void init_dump(const MyOpt::Variables &values){
   } else {
     BPRINT("PCR bias filtering: OFF\n");
   }
-  if (values.count("fcsfull")) BPRINT("\tplot full fcs profile.\n") % values["ncmp"].as<int>();
+  if (values.count("fcsfull")) BPRINT("\tplot full fcs profile.\n");
 
   if (values.count("mp")) {
     printf("Mappability normalization:\n");

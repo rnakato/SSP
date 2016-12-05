@@ -222,8 +222,8 @@ void makeFragVarProfile(const MyOpt::Variables &values, Mapfile &p, const std::s
     }
   }
 
-  std::string filename1 = p.getprefix() + ".mpfv.csv";
-  dist.printmpfv(filename1);
+  std::string filename1 = p.getprefix() + ".acfp.csv";
+  dist.printacfp(filename1);
   std::string filename2 = p.getprefix() + "." + typestr + ".csv";
   dist.outputmpGenome(filename2);
 
@@ -241,7 +241,7 @@ void strShiftProfile(const MyOpt::Variables &values, Mapfile &p, std::string typ
   return;
 }
 
-void genThreadFragVar(ReadShiftProfile &chr, std::map<int, FragmentVariability> &mpfv, const std::vector<char> &fwd, const std::vector<char> &rev, const std::vector<double> &fvback, const int s, const int e, boost::mutex &mtx)
+void genThreadFragVar(ReadShiftProfile &chr, std::map<int, FragmentVariability> &acfp, const std::vector<char> &fwd, const std::vector<char> &rev, const std::vector<double> &fvback, const int s, const int e, boost::mutex &mtx)
 {
   for(int step=s; step<e; ++step) {
     FragmentVariability fv;
@@ -253,7 +253,7 @@ void genThreadFragVar(ReadShiftProfile &chr, std::map<int, FragmentVariability> 
       diffMax = std::max(diffMax, fv.getAccuOfDistanceOfFragment(k) - fvback[k]);
     }
     chr.setmp(step, diffMax, mtx);
-    mpfv[step].add2genome(fv, mtx);
+    acfp[step].add2genome(fv, mtx);
   }
 }
 
@@ -278,14 +278,14 @@ void shiftFragVar::setDist(ReadShiftProfile &chr, const std::vector<char> &fwd, 
 
   if (fcsfull) {
     for(uint i=0; i<seprange.size(); i++) {
-      agroup.create_thread(bind(&genThreadFragVar, boost::ref(chr), boost::ref(mpfv), boost::cref(fwd), boost::cref(rev), boost::cref(fvback), seprange[i].start, seprange[i].end, boost::ref(mtx)));
+      agroup.create_thread(bind(&genThreadFragVar, boost::ref(chr), boost::ref(acfp), boost::cref(fwd), boost::cref(rev), boost::cref(fvback), seprange[i].start, seprange[i].end, boost::ref(mtx)));
     }
     agroup.join_all();
   } else {
     std::vector<int> v{flen, chr.getlenF3()};
-    std::copy(v4mpfv.begin(), v4mpfv.end(), std::back_inserter(v));
+    std::copy(v4acfp.begin(), v4acfp.end(), std::back_inserter(v));
     for(auto x: v) {
-    //    for(auto x: v4mpfv) {
+    //    for(auto x: v4acfp) {
       FragmentVariability fv;
       fv.setVariability(x, chr.start, chr.end, fwd, rev);
       
@@ -295,7 +295,7 @@ void shiftFragVar::setDist(ReadShiftProfile &chr, const std::vector<char> &fwd, 
 	diffMax = std::max(diffMax, fv.getAccuOfDistanceOfFragment(k) - fvback[k]);
       }
       chr.setmp(x, diffMax, mtx);
-      mpfv[x].add2genome(fv, mtx);
+      acfp[x].add2genome(fv, mtx);
     }
   }
 
