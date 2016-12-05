@@ -341,7 +341,7 @@ class shiftFragVar : public ReadShiftProfileGenome {
     std::ofstream out(filename);
 
     for(auto x: v4acfp) {
-      if(!fcsfull && x > mp_to) continue;
+      if(fcsfull && x > mp_to) continue;
       out << "\tlen" << x;
     }
     out << std::endl;
@@ -357,7 +357,7 @@ class shiftFragVar : public ReadShiftProfileGenome {
       out << k << "\t";
 
       for(auto x: v4acfp) {
-	if(!fcsfull && x > mp_to) continue;
+	if(fcsfull && x > mp_to) continue;
 	out << acfp.at(x).getAccuOfDistanceOfFragment(k) << "\t";
       }
       /*      for(auto x: v4acfp) {
