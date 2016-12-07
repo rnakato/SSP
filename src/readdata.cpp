@@ -62,7 +62,7 @@ std::vector<std::string> readGeneList(const std::string& fileName)
 
 HashOfGeneDataMap parseRefFlat(const std::string& fileName)
 {
-  if(fileName.find(".gtf") != std::string::npos) {
+  if(isStr(fileName, ".gtf")) {
     std::cerr << "Warning: gene file seems to be gtf format but is parsed as refFlat." << std::endl;
   }
 
@@ -106,7 +106,7 @@ HashOfGeneDataMap parseRefFlat(const std::string& fileName)
 
 HashOfGeneDataMap parseGtf(const std::string& fileName, const int nameflag)
 {
-  if(fileName.find(".gtf") == std::string::npos) {
+  if(!isStr(fileName, ".gtf")) {
     std::cerr << "Warning: gene file may not be gtf format but is parsed as gtf." << std::endl;
   }
 
@@ -119,36 +119,39 @@ HashOfGeneDataMap parseGtf(const std::string& fileName, const int nameflag)
   while (!in.eof()) {
     getline(in, lineStr);
     if(lineStr.empty() || lineStr[0] == '#') continue;
-    std::string gname, tname;
     std::vector<std::string> v;
     
     boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
     std::string feat = v[2];
-    if(feat == "gene" || feat == "transcript") continue;
-    if(feat == "three_prime_utr" || feat == "five_prime_utr") continue;
+    if(feat == "gene" || feat == "transcript" || feat == "three_prime_utr" || feat == "five_prime_utr") continue;
     
-    std::string chr  = rmchr(v[0]);
-    int start   = stoi(v[3]);
-    int end     = stoi(v[4]);
+    std::string chr = rmchr(v[0]);
+    int start = stoi(v[3]);
+    int end   = stoi(v[4]);
     std::string strand = v[6];
-    std::string id   = v[8];
-    std::string gsrc, gtype, tsrc, ttype;
+    std::string annotation = v[8];
 
+    std::string gname, tname, gsrc, gtype, tsrc, ttype, ttag="";
     std::vector<std::string> idtab, vc;
-    boost::split(idtab, id, boost::algorithm::is_any_of(";"));
+    boost::split(idtab, annotation, boost::algorithm::is_any_of(";"));
     for (auto term: idtab) {
       boost::split(vc, term, boost::algorithm::is_any_of("\""));
-      if(term.find("gene_source") != std::string::npos)             gsrc  = vc[1];
-      else if(term.find("gene_biotype") != std::string::npos)       gtype = vc[1];
-      else if(term.find("transcript_source") != std::string::npos)  tsrc  = vc[1];
-      else if(term.find("transcript_biotype") != std::string::npos) ttype = vc[1];
+      if(isStr(term, "gene_source"))             gsrc  = vc[1];
+      else if(isStr(term, "gene_biotype"))       gtype = vc[1];
+      else if(isStr(term, "transcript_source"))  tsrc  = vc[1];
+      else if(isStr(term, "transcript_biotype")) ttype = vc[1];
+      else if(isStr(term, "tag")) {
+	if(ttag=="" || vc[1]=="CCDS") ttag = vc[1];
+	else if(vc[1]=="basic" && ttag!="CCDS") ttag = vc[1];
+	else if( ttag!="basic" && ttag!="CCDS") ttag = vc[1];
+      }
       else{
 	if(nameflag) {
-	  if(term.find("transcript_name") != std::string::npos) tname = vc[1];
-	  else if(term.find("gene_name")  != std::string::npos) gname = vc[1];
+	  if(isStr(term, "transcript_name")) tname = vc[1];
+	  else if(isStr(term, "gene_name")) gname = vc[1];
 	} else {
-	  if(term.find("transcript_id") != std::string::npos) tname = vc[1];
-	  else if(term.find("gene_id")  != std::string::npos) gname = vc[1];
+	  if(isStr(term, "transcript_id")) tname = vc[1];
+	  else if(isStr(term, "gene_id")) gname = vc[1];
 	}
       }
     }
@@ -175,6 +178,7 @@ HashOfGeneDataMap parseGtf(const std::string& fileName, const int nameflag)
     tmp[chr][tname].tsrc = tsrc;
     tmp[chr][tname].gtype = gtype;
     tmp[chr][tname].ttype = ttype;
+    tmp[chr][tname].ttag = ttag;
   }
 
   return tmp;
@@ -189,9 +193,17 @@ HashOfGeneDataMap construct_gmp(const HashOfGeneDataMap &tmp)
     for(auto itr2 = itr->second.begin(); itr2 != itr->second.end(); ++itr2) {
       std::string gname = itr2->second.gname;
       if(gmp.find(chr) == gmp.end() || gmp[chr].find(gname) == gmp[chr].end()) gmp[chr][gname] = itr2->second;
-      else if((itr2->second.tsrc.empty() || itr2->second.tsrc == "ensembl_havana") && (gmp[chr][gname].length() < itr2->second.length())) {
-	 gmp[chr][gname] = itr2->second;
+      else if(itr2->second.ttag == "CCDS") {
+	if(gmp[chr][gname].ttag != "CCDS" || gmp[chr][gname].length() < itr2->second.length()) gmp[chr][gname] = itr2->second;
+      }else if(itr2->second.ttag == "basic") {
+	if(gmp[chr][gname].ttag != "CCDS" &&
+	   ((gmp[chr][gname].ttag == "basic" && gmp[chr][gname].length() < itr2->second.length()) ||
+	    gmp[chr][gname].ttag != "basic")) gmp[chr][gname] = itr2->second;
       }
+
+
+      else if(gmp[chr][gname].ttag != "basic" && (itr2->second.ttag == "basic" || gmp[chr][gname].length() < itr2->second.length())) gmp[chr][gname] = itr2->second;
+      else if(itr2->second.ttag == "basic" || gmp[chr][gname].length() < itr2->second.length()) gmp[chr][gname] = itr2->second;
     }
   }
   return gmp;

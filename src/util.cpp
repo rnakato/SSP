@@ -12,11 +12,17 @@ std::string rmchr(const std::string &chr)
   return s;
 }
 
-void isFile(std::string str)
+void isFile(const std::string &str)
 {
   boost::filesystem::path const file(str);
   if(!boost::filesystem::exists(file)) {
     std::cerr << "Error: " << str << " does not exist." << std::endl;
     exit(1);
   }
+}
+
+int isStr(const std::string &str, const std::string &query)
+{
+  if(str.find(query) != std::string::npos) return 1;
+  else return 0;
 }

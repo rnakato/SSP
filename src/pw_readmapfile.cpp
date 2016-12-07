@@ -2,6 +2,7 @@
  * This file is a part of DROMPA sources.
  */
 #include "pw_readmapfile.h"
+#include "util.h"
 #include <algorithm>
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
@@ -159,7 +160,7 @@ void parseBowtie(const MyOpt::Variables &values, const std::string &inputfile, M
 	nametemp = "";
       }
     } else {
-      if(v[0].find("/2") != std::string::npos) PRINTERR("Warning: parsing paired-end file as single-end");
+      if(isStr(v[0], "/2")) PRINTERR("Warning: parsing paired-end file as single-end");
       Fragment frag;
       frag.chr = rmchr(v[2]);
       frag.readlen_F3 = v[4].length();
@@ -215,7 +216,7 @@ void funcTagAlign(const MyOpt::Variables &values, Mapfile &p, T &in)
 
 void parseTagAlign(const MyOpt::Variables &values, const std::string &inputfile, Mapfile &p)
 {
-  if(inputfile.find(".gz") != std::string::npos) {
+  if(isStr(inputfile, ".gz")) {
     std::string command = "zcat " + inputfile;
     FILE *fp = popen(command.c_str(), "r");
     __gnu_cxx::stdio_filebuf<char> *p_fb = new __gnu_cxx::stdio_filebuf<char>(fp, std::ios_base::in);

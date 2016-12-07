@@ -10,7 +10,8 @@
 #include <boost/program_options.hpp>
 
 std::string rmchr(const std::string &chr);
-void isFile(std::string);
+void isFile(const std::string &);
+int isStr(const std::string &, const std::string &);
 
 template <class T>
 void printOpt(boost::program_options::variables_map &values, std::string opt, std::string str)

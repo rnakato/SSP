@@ -161,13 +161,14 @@ class genedata {
   std::string tsrc;  // transcript source
   std::string gtype; // gene biotype
   std::string ttype; // transcript biotype
+  std::string ttag;  // Gencode tag
 
   genedata(): txStart(0), txEnd(0), cdsStart(0), cdsEnd(0), exonCount(0) {}
 
   int length() const { return (txEnd - txStart); }
   void printall() const {
     if(this){
-      std::cout << tname << "\t" << gname << "\t" << chr << "\t" << strand << "\t" << txStart << "\t" << txEnd << "\t" << cdsStart << "\t" << cdsEnd << "\t" << exonCount << "\tgene source: " << gsrc << "\ttranscript source: "<< tsrc << "\tgene biotype: "<< gtype << "\ttranscript biotype: "<< ttype << "\t";
+      std::cout << tname << "\t" << gname << "\t" << chr << "\t" << strand << "\t" << txStart << "\t" << txEnd << "\t" << cdsStart << "\t" << cdsEnd << "\t" << exonCount << "\tgene source: " << gsrc << "\ttranscript source: "<< tsrc << "\tgene biotype: "<< gtype << "\ttranscript biotype: "<< ttype  << "\ttranscript tag: "<< ttag << "\t";
       for (auto x: exon) std::cout << x.start << "-" << x.end << ", ";
     }
   }
