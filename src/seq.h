@@ -175,7 +175,7 @@ class genedata {
     }
   }
   void print() const {
-    if(this) std::cout << tname << "\t" << gname << "\t" << strand << "\t" << txStart << "\t" << txEnd << "\t";
+    if(this) std::cout << tname << "\t" << gname << "\t" << tid << "\t" << gid << "\t" << strand << "\t" << txStart << "\t" << txEnd << "\t";
   }
 };
 
