@@ -221,8 +221,8 @@ void printRefFlat(const HashOfGeneDataMap &mp, const int nameflag)
 {
   for(auto itr = mp.begin(); itr != mp.end(); ++itr) {
     for(auto itr2 = itr->second.begin(); itr2 != itr->second.end(); ++itr2) {
-      if(nameflag) std::cout << itr2->second.tname << "\t" << itr2->second.gname << "\t";
-      else std::cout << itr2->second.tid << "\t" << itr2->second.gid << "\t";
+      if(nameflag) std::cout << itr2->second.gname << "\t" << itr2->second.tname << "\t";
+      else std::cout << itr2->second.gid << "\t" << itr2->second.tid << "\t";
       std::cout << itr->first << "\t"
 	   << itr2->second.strand << "\t"
 	   << itr2->second.txStart << "\t"
