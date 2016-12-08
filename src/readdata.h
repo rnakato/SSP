@@ -19,10 +19,10 @@ std::vector<std::string> scanGeneName(const HashOfGeneDataMap &);
 HashOfGeneDataMap extract_mp(const HashOfGeneDataMap &, const std::vector<std::string>);
 std::vector<std::string> readGeneList(const std::string&);
 HashOfGeneDataMap parseRefFlat(const std::string&);
-HashOfGeneDataMap parseGtf(const std::string&, const int);
+HashOfGeneDataMap parseGtf(const std::string&);
 HashOfGeneDataMap construct_gmp(const HashOfGeneDataMap &);
 void printMap(const HashOfGeneDataMap &);
-void printRefFlat(const HashOfGeneDataMap &);
+void printRefFlat(const HashOfGeneDataMap &, const int nameflag);
 std::vector<chrsize> read_genometable(const std::string&);
 
 std::vector<int>  readMpbl(std::string, std::string, int, int);

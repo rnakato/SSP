@@ -104,7 +104,7 @@ HashOfGeneDataMap parseRefFlat(const std::string& fileName)
   return tmp;
 }
 
-HashOfGeneDataMap parseGtf(const std::string& fileName, const int nameflag)
+HashOfGeneDataMap parseGtf(const std::string& fileName)
 {
   if(!isStr(fileName, ".gtf")) {
     std::cerr << "Warning: gene file may not be gtf format but is parsed as gtf." << std::endl;
@@ -131,7 +131,7 @@ HashOfGeneDataMap parseGtf(const std::string& fileName, const int nameflag)
     std::string strand = v[6];
     std::string annotation = v[8];
 
-    std::string gname, tname, gsrc, gtype, tsrc, ttype, ttag="";
+    std::string gname, tname, gid, tid, gsrc, gtype, tsrc, ttype, ttag="";
     std::vector<std::string> idtab, vc;
     boost::split(idtab, annotation, boost::algorithm::is_any_of(";"));
     for (auto term: idtab) {
@@ -141,24 +141,21 @@ HashOfGeneDataMap parseGtf(const std::string& fileName, const int nameflag)
       else if(isStr(term, "transcript_source"))  tsrc  = vc[1];
       else if(isStr(term, "transcript_biotype")) ttype = vc[1];
       else if(isStr(term, "tag")) {
-	if(ttag=="" || vc[1]=="CCDS") ttag = vc[1];
+	if(ttag=="" || vc[1]=="CCDS")           ttag = vc[1];
 	else if(vc[1]=="basic" && ttag!="CCDS") ttag = vc[1];
 	else if( ttag!="basic" && ttag!="CCDS") ttag = vc[1];
       }
-      else{
-	if(nameflag) {
-	  if(isStr(term, "transcript_name")) tname = vc[1];
-	  else if(isStr(term, "gene_name")) gname = vc[1];
-	} else {
-	  if(isStr(term, "transcript_id")) tname = vc[1];
-	  else if(isStr(term, "gene_id")) gname = vc[1];
-	}
-      }
+      else if(isStr(term, "transcript_name")) tname = vc[1];
+      else if(isStr(term, "gene_name"))       gname = vc[1];
+      else if(isStr(term, "transcript_id"))   tid = vc[1];
+      else if(isStr(term, "gene_id"))         gid = vc[1];
     }
 
     tmp[chr][tname].tname  = tname;
     tmp[chr][tname].gname  = gname;
-    tmp[chr][tname].chr    = chr;
+    tmp[chr][tname].tid  = tid;
+    tmp[chr][tname].gid  = gid;
+    tmp[chr][tname].chr  = chr;
     tmp[chr][tname].strand = strand;
     if(feat == "start_codon") {
       if(strand == "+") tmp[chr][tname].cdsStart = start;
@@ -220,13 +217,13 @@ void printMap(const HashOfGeneDataMap &mp)
   return;
 }
 
-void printRefFlat(const HashOfGeneDataMap &mp)
+void printRefFlat(const HashOfGeneDataMap &mp, const int nameflag)
 {
   for(auto itr = mp.begin(); itr != mp.end(); ++itr) {
     for(auto itr2 = itr->second.begin(); itr2 != itr->second.end(); ++itr2) {
-      std::cout << itr2->second.gname << "\t"
-	   << itr2->first << "\t"
-	   << itr->first << "\t"
+      if(nameflag) std::cout << itr2->second.tname << "\t" << itr2->second.gname << "\t";
+      else std::cout << itr2->second.tid << "\t" << itr2->second.gid << "\t";
+      std::cout << itr->first << "\t"
 	   << itr2->second.strand << "\t"
 	   << itr2->second.txStart << "\t"
 	   << itr2->second.txEnd << "\t";
