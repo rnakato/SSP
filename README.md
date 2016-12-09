@@ -23,7 +23,7 @@ and install samtools from [the website](http://samtools.sourceforge.net/).
 #### 2.3. Install SSP
     git clone https://github.com/rnakato/SSP.git
     cd SSP
-    make
+    make -j4
     
 
 #### 2.4. Add the PATH environment variable
