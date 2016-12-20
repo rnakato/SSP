@@ -75,7 +75,7 @@ void help_global()
   auto helpmsg = R"(
 ===============
 
-Usage: ssp [option] -i <inputfile> -o <output> -gt <genome_table>)";
+Usage: ssp [option] -i <inputfile> -o <output> --gt <genome_table>)";
   
   std::cerr << "\nSSP v" << VERSION << helpmsg << std::endl;
   return;
