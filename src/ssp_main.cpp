@@ -144,7 +144,6 @@ MyOpt::Variables getOpts(int argc, char* argv[])
 
   try {
     boost::program_options::parsed_options parsed = parse_command_line(argc, argv, allopts);
- std::cout << "gffetOpts..." << std::endl;
     store(parsed, values);
     if (values.count("version")) printVersion();
     if (argc ==1) {
