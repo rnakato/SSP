@@ -7,5 +7,6 @@
 #include "pw_gv.h"
 
 void strShiftProfile(const MyOpt::Variables &values, Mapfile &p, std::string);
+void makeFCSProfile(const MyOpt::Variables &values, Mapfile &p, const std::string &typestr);
 
 #endif /* _SSP_SHIFTPROFILE_H_ */

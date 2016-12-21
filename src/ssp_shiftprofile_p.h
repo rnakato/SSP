@@ -99,13 +99,14 @@ class FragmentVariability {
 
 class ReadShiftProfile {
   int lenF3;
-  double nsc;
-  int nsci;
   double r;
   double bk;
-  double dirOfProfileSummit;
 
  protected:
+  double nsc;
+  double rlsc;
+  int nsci;
+  double dirOfProfileSummit;
   long len;
   long nread;
   double backgroundUniformity;
@@ -120,7 +121,7 @@ class ReadShiftProfile {
   double rchr;
 
  ReadShiftProfile(const int len, const double wref, int s=0, int e=0, long n=0, long l=0):
-  lenF3(len), nsc(0), nsci(0), r(0), bk(0), dirOfProfileSummit(wref), len(l), nread(n), backgroundUniformity(0), start(s), end(e), width(e-s), rchr(1) {}
+  lenF3(len), r(0), bk(0), nsc(0), rlsc(0), nsci(0), dirOfProfileSummit(wref), len(l), nread(n), backgroundUniformity(0), start(s), end(e), width(e-s), rchr(1) {}
   virtual ~ReadShiftProfile() {}
   void setmp(const int i, const double val, boost::mutex &mtx) {
     boost::mutex::scoped_lock lock(mtx);
@@ -171,11 +172,12 @@ class ReadShiftProfile {
     double rRPKM = (NUM_10M/static_cast<double>(nread)) / (NUM_100M/static_cast<double>(len));
     double be(bk * rRPKM);
     double const_bu(1/39.0);  // N/(4*L-N), N=10M, L=100M
+    rlsc = mp.at(lenF3) *r *dirOfProfileSummit;
     backgroundUniformity = const_bu / be;
     
     std::ofstream out(filename);
     out << "NSC\t" << nsc * dirOfProfileSummit << std::endl;
-    out << "RLSC\t"<< (mp.at(lenF3) *r *dirOfProfileSummit) << std::endl;
+    out << "RLSC\t"<< rlsc << std::endl;
     out << "Estimated fragment length\t" << nsci << std::endl;
     out << "Background enrichment\t" << be << std::endl;
     out << "Background uniformity\t" << backgroundUniformity << std::endl;
@@ -252,8 +254,29 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
     addmp(mp, chr[i].mp, chr[i].rchr);
     addmp(nc, chr[i].nc, chr[i].rchr);
   }
-  void outputmpGenome(const std::string &filename) {
+
+  void makeRscript(const std::string &filename, const std::string &prefix) {
+    std::string Rscript(prefix + ".R");
+    std::ofstream out(Rscript);
+    out << "data <- read.csv('" << filename << "', header=TRUE, skip=5, sep='\t', quote='')" << std::endl;
+    out << "output <- '" << prefix << "'" << std::endl;
+    out << "pdf(paste(output, '.pdf', sep=''), height=7, width=14)" << std::endl;
+    out << "par(mfrow=c(1,2))" << std::endl;
+    out << "plot(data[,1], data[,4], type='l', xlab='Strand shift', ylab='Normalized score', xlim=c(-200,1500), main='-200 bp ~ 1500 bp', sub=sprintf('NSC=%g, RLSC=%g, Bu=%g', " << nsc * dirOfProfileSummit << "," << rlsc << "," << backgroundUniformity << "))" << std::endl;
+    out << "abline(v=" << nsci <<",lty=2,col=2)" << std::endl;
+    out << "legend('bottomright', legend=paste('Estimated fragment length = ', " << nsci << "))" << std::endl;
+    out << "plot(data[,1], data[,4], type='l', xlab='Strand shift',ylab='Normalized score', main='Long distance')" << std::endl;
+    out << "dev.off()" << std::endl;
+
+    std::string command = "R --vanilla < " + Rscript + " | tee " + Rscript + ".log";
+    
+    int return_code = system(command.c_str());
+  }
+  
+  void outputmpGenome(const std::string &prefix) {
+    std::string filename = prefix + ".csv";
     print2file(filename, name);
+    makeRscript(filename, prefix);
   }
   void outputmpChr(const std::string &filename, const int i) {
     chr[i].print2file(filename, name);
@@ -360,11 +383,6 @@ class shiftFragVar : public ReadShiftProfileGenome {
 	if(fcsfull && x > mp_to) continue;
 	out << acfp.at(x).getAccuOfDistanceOfFragment(k) << "\t";
       }
-      /*      for(auto x: v4acfp) {
-	if(fcsfull && x > mp_to) continue;
-	out << acfp.at(x).getsumOfvDistOfDistaneOfFrag() << "\t";
-	//	out <<  acfp.at(x).getDistOfDistanceOfFragment(k) << "\t";
-	}*/
       out << std::endl;
     }
   }

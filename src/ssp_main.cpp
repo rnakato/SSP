@@ -129,7 +129,7 @@ void checkParam(const MyOpt::Variables &values)
 MyOpt::Variables getOpts(int argc, char* argv[])
 {
 #ifdef DEBUG
-  std::cout << "getOpts..." << std::endl;
+  std::cout << "setOpts..." << std::endl;
 #endif
 
   MyOpt::Opts allopts("Options");
@@ -138,12 +138,15 @@ MyOpt::Variables getOpts(int argc, char* argv[])
   
   MyOpt::Variables values;
   
+#ifdef DEBUG
+  std::cout << "getOpts..." << std::endl;
+#endif
+
   try {
     boost::program_options::parsed_options parsed = parse_command_line(argc, argv, allopts);
+ std::cout << "gffetOpts..." << std::endl;
     store(parsed, values);
-    
     if (values.count("version")) printVersion();
-
     if (argc ==1) {
       help_global();
       std::cerr << "Use --help option for more information on the other options\n\n";
@@ -187,21 +190,21 @@ void setOpts(MyOpt::Opts &allopts,MyOpt::Opts &opts4help)
   
   MyOpt::Opts optssp("Strand shift profile",100);
   optssp.add_options()
-    ("ssp_cc", "make ssp based on cross correlation")
-    ("ssp_hd", "make ssp based on hamming distance")
+    ("ssp_cc",    "make ssp based on cross correlation")
+    ("ssp_hd",    "make ssp based on hamming distance")
     ("ssp_exjac", "make ssp based on extended Jaccard index")
     ("output_eachchr", "make chromosome-sparated ssp files")
     ("mptable", value<std::string>(), "Genome table for mappable regions")
     ;
   MyOpt::Opts optIO("Optional",100);
   optIO.add_options()
-    ("ftype,f",     value<std::string>()->default_value("SAM"), "{SAM|BAM|BOWTIE|TAGALIGN}: format of input file\nTAGALIGN could be gzip'ed (extension: tagAlign.gz)")
-    ("odir",        value<std::string>()->default_value("sspout"),	  "output directory name")
-    ("nfcs",        value<int>()->default_value(10000000),   "read number for calculating fragment variability")
-    ("fcsfull",   "outout full fragment variability profile")
-    ("nofilter", 	  "do not filter PCR bias")
-    ("thre_pb",        value<int>()->default_value(0),	  "PCRbias threshold (default: more than max(1 read, 10 times greater than genome average)) ")
-    ("ncmp",        value<int>()->default_value(10000000),	  "read number for calculating library complexity")
+    ("ftype,f", value<std::string>()->default_value("SAM"), "{SAM|BAM|BOWTIE|TAGALIGN}: format of input file\nTAGALIGN could be gzip'ed (extension: tagAlign.gz)")
+    ("odir",    value<std::string>()->default_value("sspout"),	  "output directory name")
+    ("nfcs",    value<int>()->default_value(10000000),   "read number for calculating fragment variability")
+    ("fcsfull",  "outout full fragment variability profile")
+    ("nofilter", "do not filter PCR bias")
+    ("thre_pb", value<int>()->default_value(0),	       "PCRbias threshold (default: more than max(1 read, 10 times greater than genome average)) ")
+    ("ncmp",    value<int>()->default_value(10000000), "read number for calculating library complexity")
     ;
   MyOpt::Opts optother("Others",100);
   optother.add_options()
@@ -209,6 +212,8 @@ void setOpts(MyOpt::Opts &allopts,MyOpt::Opts &opts4help)
     ("version,v", "print version")
     ("help,h", "show help message")
     ;
+
+  // Ignored options
   MyOpt::Opts optignore("for parse2wig",100);
   optignore.add_options()
     ("mp",        value<std::string>(),	  "Mappability file")
@@ -229,6 +234,7 @@ void setOpts(MyOpt::Opts &allopts,MyOpt::Opts &opts4help)
     ("bed",        value<std::string>(),	  "specify the BED file of enriched regions (e.g., peak regions)")
     ;  
     ;
+    
   allopts.add(optreq).add(optssp).add(optIO).add(optother).add(optignore);
   opts4help.add(optreq).add(optssp).add(optIO).add(optother);
   return;
@@ -243,7 +249,7 @@ void init_dump(const MyOpt::Variables &values){
   BPRINT("\tFormat: %1%\n")          % values["ftype"].as<std::string>();
   BPRINT("Output file: %1%/%2%\n")   % values["odir"].as<std::string>() % values["output"].as<std::string>();
   BPRINT("Genome-table file: %1%\n") % values["gt"].as<std::string>();
-  if(values["nfcs"].as<int>()) BPRINT("\t%1% reads used for fragment variability\n") % values["nfcs"].as<int>();
+  if(values.count("mptable")) BPRINT("Mappable genome-table file: %1%\n") % values["mptable"].as<std::string>();
   
   if (!values.count("nofilter")) {
     BPRINT("PCR bias filtering: ON\n");
@@ -251,14 +257,10 @@ void init_dump(const MyOpt::Variables &values){
   } else {
     BPRINT("PCR bias filtering: OFF\n");
   }
-  if (values.count("fcsfull")) BPRINT("\tplot full fcs profile.\n");
+  if(values.count("fcsfull")) BPRINT("\tplot full fcs profile.\n");
+  if(values["nfcs"].as<int>()) BPRINT("\n%1% reads used for fragment cluster score\n") % values["nfcs"].as<int>();
 
-  if (values.count("mp")) {
-    printf("Mappability normalization:\n");
-    BPRINT("\tFile directory: %1%\n") % values["mp"].as<std::string>();
-    BPRINT("\tLow mappablitiy threshold: %1%\n") % values["mpthre"].as<double>();
-  }
-  BPRINT("Number of threads: %1%\n") % values["threads"].as<int>();
+  BPRINT("\nNumber of threads: %1%\n") % values["threads"].as<int>();
   printf("======================================\n");
   return;
 }

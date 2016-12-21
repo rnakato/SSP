@@ -14,8 +14,8 @@ void estimateFragLength(const MyOpt::Variables &values, Mapfile &p)
   strShiftProfile(values, p, "jaccard"); 
   t2 = clock();
   std::cout << "Jaccard Bit: " << static_cast<double>(t2 - t1) / CLOCKS_PER_SEC << "sec.\n";
+  makeFCSProfile(values, p, "fcs");
 
-  strShiftProfile(values, p, "fcs"); 
   clock_t t3 = clock();
   std::cout << "Fragment variability: " << static_cast<double>(t3 - t2) / CLOCKS_PER_SEC << "sec.\n";
 

@@ -186,8 +186,9 @@ void makeProfile(Mapfile &p, const std::string &typestr, const MyOpt::Variables 
   dist.setflen();
   p.seteflen(dist.getnsci());
 
-  std::string filename = p.getprefix() + "." + typestr + ".csv";
-  dist.outputmpGenome(filename);
+  std::string prefix = p.getprefix() + "." + typestr;
+  dist.outputmpGenome(prefix);
+
   if(typestr == "jaccard") {
     p.setbackgroundUniformity(dist.getbackgroundUniformity());
   }
@@ -195,9 +196,43 @@ void makeProfile(Mapfile &p, const std::string &typestr, const MyOpt::Variables 
   return;
 }
 
-void makeFragVarProfile(const MyOpt::Variables &values, Mapfile &p, const std::string &typestr, const int numthreads, const int flen)
+void strShiftProfile(const MyOpt::Variables &values, Mapfile &p, std::string typestr)
 {
-  shiftFragVar dist(p, numthreads, flen, values.count("fcsfull"));
+  if(typestr=="exjaccard")    makeProfile<shiftJacVec>(p, typestr, values);
+  else if(typestr=="jaccard") makeProfile<shiftJacBit>(p, typestr, values);
+  else if(typestr=="ccp")     makeProfile<shiftCcp>(p, typestr, values);
+  else if(typestr=="hdp")     makeProfile<shiftHamming>(p, typestr, values);
+  
+  return;
+}
+
+void makeRscript(const std::string prefix)
+{
+  std::string Rscript(prefix + ".FCS.R");
+  std::ofstream out(Rscript);
+  out << "data <- read.csv('" << prefix << ".acfp.csv', header=TRUE, row.names=1, sep='\t', quote='')" << std::endl;
+  out << "colname <- colnames(data)" << std::endl;
+  out << "colnames(data) <- colname[-1]" << std::endl;
+  out << "data <- data[,-11]" << std::endl;
+  out << "pdf('" << prefix << ".FCS.pdf', height=7, width=14)" << std::endl;
+  out << "par(mfrow=c(1,2))" << std::endl;
+  out << "cols <- rainbow(10)" << std::endl;
+  out << "plot(0, 0, type = 'n', xlim = range(1:nrow(data)), ylim = range(data), xlab = 'Neighboring distance (bp)', ylab = 'Accumulated prop')" << std::endl;
+  out << "for (i in 1:ncol(data)) { lines(1:nrow(data), data[,i], col=cols[i])}" << std::endl;
+  out << "legend('bottomright', legend = colnames(data), lty = 1, col = cols)" << std::endl;
+  out << "data <- read.csv('" << prefix << ".fcs.csv', header=TRUE, skip=2, sep='\t', quote='')" << std::endl;
+  out << "plot(data[,1],data[,2], log='x', type='l', xlab = 'Read-pair distance (bp)', ylab = 'Fragment cluster score')" << std::endl;
+  out << "dev.off()" << std::endl;
+
+  std::string command = "R --vanilla < " + Rscript + " | tee " + Rscript + ".log";
+  int return_code = system(command.c_str());
+  
+  return;
+}
+
+void makeFCSProfile(const MyOpt::Variables &values, Mapfile &p, const std::string &typestr)
+{
+  shiftFragVar dist(p, values["threads"].as<int>(), p.getflen(values), values.count("fcsfull"));
   dist.printStartMessage();
 
   int numRead4fcs(values["nfcs"].as<int>());
@@ -227,17 +262,8 @@ void makeFragVarProfile(const MyOpt::Variables &values, Mapfile &p, const std::s
   std::string filename2 = p.getprefix() + "." + typestr + ".csv";
   dist.outputmpGenome(filename2);
 
-  return;
-}
+  makeRscript(p.getprefix());
 
-void strShiftProfile(const MyOpt::Variables &values, Mapfile &p, std::string typestr)
-{
-  if(typestr=="exjaccard")    makeProfile<shiftJacVec>(p, typestr, values);
-  else if(typestr=="jaccard") makeProfile<shiftJacBit>(p, typestr, values);
-  else if(typestr=="ccp")     makeProfile<shiftCcp>(p, typestr, values);
-  else if(typestr=="hdp")     makeProfile<shiftHamming>(p, typestr, values);
-  else if(typestr=="fcs")     makeFragVarProfile(values, p, typestr, values["threads"].as<int>(), p.getflen(values));
-  
   return;
 }
 
