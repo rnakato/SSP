@@ -7,6 +7,12 @@
 #include <map>
 #include <boost/thread.hpp>
 
+namespace {
+  const int ng_from(5000);
+  const int ng_to(1000000);
+  const int ng_step(5000);
+}
+
 void addmp(std::map<int, double> &mpto, const std::map<int, double> &mpfrom, double w)
 {
   for(auto itr = mpfrom.begin(); itr != mpfrom.end(); ++itr) {
@@ -49,7 +55,9 @@ void genThreadCcp(ReadShiftProfile &chr, const std::vector<char> &fwd, const std
 {
   for(int step=s; step<e; ++step) {
     double xy(0);
-    for(int j=mp_from; j<chr.width-ng_to; ++j) xy += (fwd[j] - mx) * (rev[j+step] - my);
+    for(int j=mp_from; j<chr.width-ng_to; ++j) {
+      xy += (fwd[j] - mx) * (rev[j+step] - my);
+    }
     chr.setmp(step, xy, mtx);
   }
 }

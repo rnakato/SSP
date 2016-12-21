@@ -11,15 +11,8 @@
 namespace {
   const int mp_from(500);
   const int mp_to(1500);
-  //  const int ng_from(4000);
-  // const int ng_to(5000);
-  //const int ng_step(100);
-  const int ng_from(5000);
-  const int ng_to(1000000);
-  const int ng_step(5000);
   const int thre4bkdis(500000);
   const int sizeOfvDistOfDistaneOfFrag = 5000;
-
   const std::vector<int> v4acfp{50, 100, 150, 500, 1000, 2000, 3000, 10000, 100000, 1000000};
 }
 
@@ -333,7 +326,7 @@ class shiftJacBit : public ReadShiftProfileGenome {
 class shiftCcp : public ReadShiftProfileGenome {
  public:
  shiftCcp(const Mapfile &p, int numthreads): ReadShiftProfileGenome("Cross correlation", p, numthreads) {}
-  
+
   void setDist(ReadShiftProfile &chr, const std::vector<char> &fwd, const std::vector<char> &rev);
   void execchr(const Mapfile &p, int i) {
     auto fwd = genVector(p.genome.chr[i].seq[STRAND_PLUS],  chr[i].start, chr[i].end);
