@@ -151,7 +151,7 @@ void genThread(T &dist, const Mapfile &p, uint chr_s, uint chr_e, std::string ty
     std::cout << p.genome.chr[i].name << ".." << std::flush;
 
     dist.execchr(p, i);
-    dist.chr[i].setflen();
+    dist.chr[i].setflen(dist.name);
     
     std::string filename = p.getprefix() + "." + typestr + "." + p.genome.chr[i].name + ".csv";
     if(output_eachchr) dist.outputmpChr(filename, i);
@@ -183,7 +183,7 @@ void makeProfile(Mapfile &p, const std::string &typestr, const MyOpt::Variables 
     if(p.genome.chr[i].isautosome()) dist.addmp2genome(i);
   }
 
-  dist.setflen();
+  dist.setflen(dist.name);
   p.seteflen(dist.getnsci());
 
   std::string prefix = p.getprefix() + "." + typestr;

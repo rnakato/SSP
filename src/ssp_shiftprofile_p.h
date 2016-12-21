@@ -106,7 +106,6 @@ class ReadShiftProfile {
   double nsc;
   double rlsc;
   int nsci;
-  double dirOfProfileSummit;
   long len;
   long nread;
   double backgroundUniformity;
@@ -120,8 +119,8 @@ class ReadShiftProfile {
 
   double rchr;
 
- ReadShiftProfile(const int len, const double wref, int s=0, int e=0, long n=0, long l=0):
-  lenF3(len), r(0), bk(0), nsc(0), rlsc(0), nsci(0), dirOfProfileSummit(wref), len(l), nread(n), backgroundUniformity(0), start(s), end(e), width(e-s), rchr(1) {}
+ ReadShiftProfile(const int len, int s=0, int e=0, long n=0, long l=0):
+  lenF3(len), r(0), bk(0), nsc(0), rlsc(0), nsci(0), len(l), nread(n), backgroundUniformity(0), start(s), end(e), width(e-s), rchr(1) {}
   virtual ~ReadShiftProfile() {}
   void setmp(const int i, const double val, boost::mutex &mtx) {
     boost::mutex::scoped_lock lock(mtx);
@@ -148,23 +147,35 @@ class ReadShiftProfile {
     bk /= n;
     r = 1/bk;
   }
-  void setflen() {
+
+  void setflen(const std::string &name) {
     int threwidth(5);
+    
     setControlRatio();
-    nsc = mp[mp_to-1] * dirOfProfileSummit;
+    nsc = mp[mp_to-1];
     for(int i=mp_to-1-threwidth; i > lenF3*1.3; --i) {
       int on(1);
-      for(int j=1; j<=threwidth; ++j) {
-	if (mp[i] < mp[i+j] || mp[i] < mp[i-j]) on=0;
-      }
-      if(on && nsc < mp[i] *r *dirOfProfileSummit) {
-	nsc  = mp[i] *r *dirOfProfileSummit;
-	nsci = i;
+      if(name == "Hamming distance") {
+	for(int j=1; j<=threwidth; ++j) {
+	  if (mp[i] > mp[i+j] || mp[i] > mp[i-j]) on=0;
+	}
+	if(on && nsc > mp[i]) {
+	  nsc  = mp[i];
+	  nsci = i;
+	}
+      } else {
+	for(int j=1; j<=threwidth; ++j) {
+	  if (mp[i] < mp[i+j] || mp[i] < mp[i-j]) on=0;
+	}
+	if(on && nsc < mp[i] * r) {
+	  nsc  = mp[i] * r;
+	  nsci = i;
+	}
       }
     }
   }
 
-  void print2file(const std::string filename, const std::string name) {
+  void print2file(const std::string &filename, const std::string &name) {
     if(!nread) {
       std::cerr << filename << ": no read" << std::endl;
     }
@@ -172,11 +183,11 @@ class ReadShiftProfile {
     double rRPKM = (NUM_10M/static_cast<double>(nread)) / (NUM_100M/static_cast<double>(len));
     double be(bk * rRPKM);
     double const_bu(1/39.0);  // N/(4*L-N), N=10M, L=100M
-    rlsc = mp.at(lenF3) *r *dirOfProfileSummit;
+    rlsc = mp.at(lenF3) *r;
     backgroundUniformity = const_bu / be;
     
     std::ofstream out(filename);
-    out << "NSC\t" << nsc * dirOfProfileSummit << std::endl;
+    out << "NSC\t" << nsc  << std::endl;
     out << "RLSC\t"<< rlsc << std::endl;
     out << "Estimated fragment length\t" << nsci << std::endl;
     out << "Background enrichment\t" << be << std::endl;
@@ -217,13 +228,13 @@ class ReadShiftProfile {
 
 class ReadShiftProfileGenome: public ReadShiftProfile {
  protected:
-  std::string name;
   std::vector<range> seprange;
   
  public:
+  std::string name;
   std::vector<ReadShiftProfile> chr;
   
- ReadShiftProfileGenome(std::string n, const Mapfile &p, const int numthreads, double wref): ReadShiftProfile(p.getlenF3(), wref), name(n) {
+ ReadShiftProfileGenome(std::string n, const Mapfile &p, const int numthreads): ReadShiftProfile(p.getlenF3()), name(n) {
     for(auto x:p.genome.chr) {
       if(x.isautosome()) {
 	nread += x.bothnread_nonred();
@@ -231,7 +242,7 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
       }
     }
     for(auto x:p.genome.chr) {
-      ReadShiftProfile v(p.getlenF3(), wref, 0, x.getlen(), x.bothnread_nonred(), x.getlenmpbl());
+      ReadShiftProfile v(p.getlenF3(), 0, x.getlen(), x.bothnread_nonred(), x.getlenmpbl());
       v.setrchr(nread);
       chr.push_back(v);
     }
@@ -258,11 +269,16 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
   void makeRscript(const std::string &filename, const std::string &prefix) {
     std::string Rscript(prefix + ".R");
     std::ofstream out(Rscript);
+
+    std::cout << nsc << "\t" << nsci << std::endl;
+    
     out << "data <- read.csv('" << filename << "', header=TRUE, skip=5, sep='\t', quote='')" << std::endl;
     out << "output <- '" << prefix << "'" << std::endl;
     out << "pdf(paste(output, '.pdf', sep=''), height=7, width=14)" << std::endl;
     out << "par(mfrow=c(1,2))" << std::endl;
-    out << "plot(data[,1], data[,4], type='l', xlab='Strand shift', ylab='Normalized score', xlim=c(-200,1500), main='-200 bp ~ 1500 bp', sub=sprintf('NSC=%g, RLSC=%g, Bu=%g', " << nsc * dirOfProfileSummit << "," << rlsc << "," << backgroundUniformity << "))" << std::endl;
+    if(name == "Jaccard index") out << "plot(data[,1], data[,4], type='l', xlab='Strand shift', ylab='Normalized score', xlim=c(-200,1500), main='-200 bp ~ 1500 bp', sub=sprintf('NSC=%g, RLSC=%g, Bu=%g', " << nsc << "," << rlsc << "," << backgroundUniformity << "))" << std::endl;
+    else if(name == "Cross correlation") out << "plot(data[,1], data[,4], type='l', xlab='Strand shift', ylab='Normalized score', xlim=c(-200,1500), main='-200 bp ~ 1500 bp', sub=sprintf('NSC=%g, RLSC=%g', " << nsc << "," << rlsc << "))" << std::endl;
+    else out << "plot(data[,1], data[,4], type='l', xlab='Strand shift', ylab='Normalized score', xlim=c(-200,1500), main='-200 bp ~ 1500 bp')" << std::endl;
     out << "abline(v=" << nsci <<",lty=2,col=2)" << std::endl;
     out << "legend('bottomright', legend=paste('Estimated fragment length = ', " << nsci << "))" << std::endl;
     out << "plot(data[,1], data[,4], type='l', xlab='Strand shift',ylab='Normalized score', main='Long distance')" << std::endl;
@@ -290,7 +306,7 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
 
 class shiftJacVec : public ReadShiftProfileGenome {
  public:
- shiftJacVec(const Mapfile &p, int numthreads): ReadShiftProfileGenome("Jaccard index", p, numthreads, 1) {}
+ shiftJacVec(const Mapfile &p, int numthreads): ReadShiftProfileGenome("Jaccard index", p, numthreads) {}
 
   void setDist(ReadShiftProfile &chr, const std::vector<char> &fwd, const std::vector<char> &rev);
   void execchr(const Mapfile &p, int i) {
@@ -303,7 +319,7 @@ class shiftJacVec : public ReadShiftProfileGenome {
 
 class shiftJacBit : public ReadShiftProfileGenome {
  public:
- shiftJacBit(const Mapfile &p, int numthreads): ReadShiftProfileGenome("Jaccard index", p, numthreads, 1) {}
+ shiftJacBit(const Mapfile &p, int numthreads): ReadShiftProfileGenome("Jaccard index", p, numthreads) {}
 
   void setDist(ReadShiftProfile &chr, const boost::dynamic_bitset<> &fwd, boost::dynamic_bitset<> &rev);
   void execchr(const Mapfile &p, int i) {
@@ -316,7 +332,7 @@ class shiftJacBit : public ReadShiftProfileGenome {
 
 class shiftCcp : public ReadShiftProfileGenome {
  public:
- shiftCcp(const Mapfile &p, int numthreads): ReadShiftProfileGenome("Cross correlation", p, numthreads, 1) {}
+ shiftCcp(const Mapfile &p, int numthreads): ReadShiftProfileGenome("Cross correlation", p, numthreads) {}
   
   void setDist(ReadShiftProfile &chr, const std::vector<char> &fwd, const std::vector<char> &rev);
   void execchr(const Mapfile &p, int i) {
@@ -329,7 +345,7 @@ class shiftCcp : public ReadShiftProfileGenome {
 
 class shiftHamming : public ReadShiftProfileGenome {
  public:
- shiftHamming(const Mapfile &p, int numthreads): ReadShiftProfileGenome("Hamming distance", p, numthreads, -1) {}
+ shiftHamming(const Mapfile &p, int numthreads): ReadShiftProfileGenome("Hamming distance", p, numthreads) {}
 
   void setDist(ReadShiftProfile &chr, const boost::dynamic_bitset<> &fwd, boost::dynamic_bitset<> &rev);
   void execchr(const Mapfile &p, int i) {
@@ -347,7 +363,7 @@ class shiftFragVar : public ReadShiftProfileGenome {
   bool fcsfull;
  public:
  shiftFragVar(const Mapfile &p, const int numthreads, const int fl, const bool b):
-  ReadShiftProfileGenome("Fragment Variability", p, numthreads, 1), flen(fl), lackOfReads(false), fcsfull(b) {}
+  ReadShiftProfileGenome("Fragment Variability", p, numthreads), flen(fl), lackOfReads(false), fcsfull(b) {}
 
   void setDist(ReadShiftProfile &chr, const std::vector<char> &fwd, const std::vector<char> &rev);
   void execchr(const Mapfile &p, const int i, const double r4cmp) {
