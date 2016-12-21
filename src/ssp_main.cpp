@@ -189,17 +189,26 @@ void setOpts(MyOpt::Opts &allopts,MyOpt::Opts &opts4help)
   
   MyOpt::Opts optssp("Strand shift profile",100);
   optssp.add_options()
+    ("ng_from", value<int>()->default_value(5*NUM_100K), "start shift of background")
+    ("ng_to",   value<int>()->default_value(NUM_1M), "end shift of background")
+    ("ng_step", value<int>()->default_value(5000), "step shift on of background")
     ("ssp_cc",    "make ssp based on cross correlation")
     ("ssp_hd",    "make ssp based on hamming distance")
     ("ssp_exjac", "make ssp based on extended Jaccard index")
     ("output_eachchr", "make chromosome-sparated ssp files")
     ("mptable", value<std::string>(), "Genome table for mappable regions")
     ;
+  MyOpt::Opts optfcs("Fragment cluster score",100);
+  optfcs.add_options()
+    ("nfcs",    value<int>()->default_value(NUM_10M),      "read number for fragment cluster score")
+    ("ng_from_fcs", value<int>()->default_value(NUM_100K), "fcs start of background")
+    ("ng_to_fcs",   value<int>()->default_value(NUM_1M),   "fcs end of background")
+    ("ng_step_fcs", value<int>()->default_value(NUM_100K), "fcs step on of background")
+    ;
   MyOpt::Opts optIO("Optional",100);
   optIO.add_options()
     ("ftype,f", value<std::string>()->default_value("SAM"), "{SAM|BAM|BOWTIE|TAGALIGN}: format of input file\nTAGALIGN could be gzip'ed (extension: tagAlign.gz)")
     ("odir",    value<std::string>()->default_value("sspout"),	  "output directory name")
-    ("nfcs",    value<int>()->default_value(10000000),   "read number for calculating fragment variability")
     ("fcsfull",  "outout full fragment variability profile")
     ("nofilter", "do not filter PCR bias")
     ("thre_pb", value<int>()->default_value(0),	       "PCRbias threshold (default: more than max(1 read, 10 times greater than genome average)) ")
@@ -234,8 +243,8 @@ void setOpts(MyOpt::Opts &allopts,MyOpt::Opts &opts4help)
     ;  
     ;
     
-  allopts.add(optreq).add(optssp).add(optIO).add(optother).add(optignore);
-  opts4help.add(optreq).add(optssp).add(optIO).add(optother);
+  allopts.add(optreq).add(optssp).add(optfcs).add(optIO).add(optother).add(optignore);
+  opts4help.add(optreq).add(optssp).add(optfcs).add(optIO).add(optother);
   return;
 }
 

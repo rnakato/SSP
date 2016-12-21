@@ -7,12 +7,6 @@
 #include <map>
 #include <boost/thread.hpp>
 
-namespace {
-  const int ng_from(5000);
-  const int ng_to(1000000);
-  const int ng_step(5000);
-}
-
 void addmp(std::map<int, double> &mpto, const std::map<int, double> &mpfrom, double w)
 {
   for(auto itr = mpfrom.begin(); itr != mpfrom.end(); ++itr) {
@@ -20,17 +14,17 @@ void addmp(std::map<int, double> &mpto, const std::map<int, double> &mpfrom, dou
   }
 }
 
-double getJaccard(int step, int width, int xysum, const std::vector<char> &fwd, const std::vector<char> &rev)
+double getJaccard(int step, int to, int xysum, const std::vector<char> &fwd, const std::vector<char> &rev)
 {
   int xy(0);
-  for(int j=mp_from; j<width-ng_to; ++j) if(fwd[j] * rev[j+step]) xy += std::max(fwd[j], rev[j+step]);
+  for(int j=mp_from; j<to; ++j) if(fwd[j] * rev[j+step]) xy += std::max(fwd[j], rev[j+step]);
   return (xy/static_cast<double>(xysum-xy));
 }
 
-void genThreadJacVec(ReadShiftProfile &chr, int xysum, const std::vector<char> &fwd, const std::vector<char> &rev, int s, int e, boost::mutex &mtx)
+void genThreadJacVec(ReadShiftProfile &chr, int ng_to, int xysum, const std::vector<char> &fwd, const std::vector<char> &rev, int s, int e, boost::mutex &mtx)
 {
   for(int step=s; step<e; ++step) {
-    chr.setmp(step, getJaccard(step, chr.width, xysum, fwd, rev), mtx);
+    chr.setmp(step, getJaccard(step, chr.width-ng_to, xysum, fwd, rev), mtx);
   }
 }
 
@@ -42,7 +36,7 @@ void shiftJacVec::setDist(ReadShiftProfile &chr, const std::vector<char> &fwd, c
   boost::thread_group agroup;
   boost::mutex mtx;
   for(uint i=0; i<seprange.size(); i++) {
-    agroup.create_thread(bind(&genThreadJacVec, boost::ref(chr), xx+yy, boost::cref(fwd), boost::cref(rev), seprange[i].start, seprange[i].end, boost::ref(mtx)));
+    agroup.create_thread(bind(&genThreadJacVec, boost::ref(chr), ng_to, xx+yy, boost::cref(fwd), boost::cref(rev), seprange[i].start, seprange[i].end, boost::ref(mtx)));
   }
   agroup.join_all();
 
@@ -51,7 +45,7 @@ void shiftJacVec::setDist(ReadShiftProfile &chr, const std::vector<char> &fwd, c
   }
 }
 
-void genThreadCcp(ReadShiftProfile &chr, const std::vector<char> &fwd, const std::vector<char> &rev, double mx, double my, const int s, const int e, boost::mutex &mtx)
+void genThreadCcp(ReadShiftProfile &chr, int ng_to, const std::vector<char> &fwd, const std::vector<char> &rev, double mx, double my, const int s, const int e, boost::mutex &mtx)
 {
   for(int step=s; step<e; ++step) {
     double xy(0);
@@ -70,7 +64,7 @@ void shiftCcp::setDist(ReadShiftProfile &chr, const std::vector<char> &fwd, cons
   boost::thread_group agroup;
   boost::mutex mtx;
   for(uint i=0; i<seprange.size(); i++) {
-    agroup.create_thread(bind(genThreadCcp, boost::ref(chr), boost::cref(fwd), boost::cref(rev), x.getmean(), y.getmean(), seprange[i].start, seprange[i].end, boost::ref(mtx)));
+    agroup.create_thread(bind(genThreadCcp, boost::ref(chr), ng_to, boost::cref(fwd), boost::cref(rev), x.getmean(), y.getmean(), seprange[i].start, seprange[i].end, boost::ref(mtx)));
   }
   agroup.join_all();
 
@@ -169,7 +163,7 @@ void genThread(T &dist, const Mapfile &p, uint chr_s, uint chr_e, std::string ty
 template <class T>
 void makeProfile(Mapfile &p, const std::string &typestr, const MyOpt::Variables &values)
 {
-  T dist(p, values["threads"].as<int>());
+  T dist(p, values);
   dist.printStartMessage();
   
   boost::thread_group agroup;
@@ -240,7 +234,7 @@ void makeRscript(const std::string prefix)
 
 void makeFCSProfile(const MyOpt::Variables &values, Mapfile &p, const std::string &typestr)
 {
-  shiftFragVar dist(p, values["threads"].as<int>(), p.getflen(values), values.count("fcsfull"));
+  shiftFragVar dist(p, values, p.getflen(values));
   dist.printStartMessage();
 
   int numRead4fcs(values["nfcs"].as<int>());
@@ -298,15 +292,13 @@ void shiftFragVar::setDist(ReadShiftProfile &chr, const std::vector<char> &fwd, 
 
   std::vector<double> fvback(sizeOfvDistOfDistaneOfFrag,0);
   int n(0);
-  //  for(int step=ng_from; step<ng_to; step+=ng_step) {
-  for(int step=NUM_100K; step<NUM_1M; step+=NUM_100K) {
+  for(int step=ng_from_fcs; step<ng_to_fcs; step+=ng_step_fcs) {
     FragmentVariability fv;
     fv.setVariability(step, chr.start, chr.end, fwd, rev);    
     for(size_t k=0; k<sizeOfvDistOfDistaneOfFrag; ++k) {
       fvback[k] += fv.getAccuOfDistanceOfFragment(k);
     }
     ++n;
-
   }
   for(size_t k=0; k<sizeOfvDistOfDistaneOfFrag; ++k) fvback[k] /= n;
 
@@ -335,25 +327,3 @@ void shiftFragVar::setDist(ReadShiftProfile &chr, const std::vector<char> &fwd, 
 
   return;
 }
-
-/*void scanRepeatRegion(const std::vector<char> &fwd, const std::vector<char> &rev)
-{
-  int SizeOfFragOverlapDist(10000);
-  std::vector<int> FragOverlapDist(SizeOfFragOverlapDist,0);
-
-  int size(fwd.size());
-  std::vector<short> array(size, 0);
-  int fraglen=1000;
-  int last(0);
-  for(int i=0; i<size - fraglen; ++i) {
-    if(fwd[i] && rev[i+fraglen]) {
-      for(int j=0; j<fraglen; ++j) ++array[i+j];
-      if(i-last==1) std::cout << last << "-" << i << std::endl;
-      last=i;
-    }
-  }
-
-  //  for(int i=0; i<size; ++i) if(array[i]>1) std::cout << i << "\t" << array[i] << std::endl;
-  return;
-}
-*/
