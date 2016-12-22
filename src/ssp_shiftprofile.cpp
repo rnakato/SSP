@@ -10,7 +10,7 @@
 void addmp(std::map<int, double> &mpto, const std::map<int, double> &mpfrom, double w)
 {
   for(auto itr = mpfrom.begin(); itr != mpfrom.end(); ++itr) {
-    mpto[itr->first] += itr->second * w;
+    if(!std::isnan(itr->second)) mpto[itr->first] += itr->second * w;
   }
 }
 
@@ -237,8 +237,11 @@ void makeFCSProfile(const MyOpt::Variables &values, Mapfile &p, const std::strin
   shiftFragVar dist(p, values, p.getflen(values));
   dist.printStartMessage();
 
-  double numRead4fcs = (values["num4ssp"].as<int>()/static_cast<double>(dist.getnread())) / (NUM_100M/static_cast<double>(dist.getlen()));
-  double r = numRead4fcs/static_cast<double>(dist.getnread());
+  double r = (values["num4ssp"].as<int>()/static_cast<double>(dist.getnread())) / (NUM_100M/static_cast<double>(dist.getlen()));
+  //  double r = numRead4fcs/static_cast<double>(dist.getnread());
+
+  //  std::cout << numRead4fcs << "\t" << r << std::endl;
+  // exit (0);
   
   if(r>1){
     std::cerr << "\nWarning: number of reads for Fragment variability is lacked: "<< (int)(dist.getnread()/NUM_1M) <<" million.\n";

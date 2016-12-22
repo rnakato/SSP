@@ -268,7 +268,8 @@ void init_dump(const MyOpt::Variables &values){
     BPRINT("PCR bias filtering: OFF\n");
   }
   if(values.count("fcsfull")) BPRINT("\tplot full fcs profile.\n");
-
+  BPRINT("background region: [%d,%d], step %d\n") % values["ng_from"].as<int>() % values["ng_to"].as<int>() % values["ng_step"].as<int>();
+  
   BPRINT("\nNumber of threads: %1%\n") % values["threads"].as<int>();
   printf("======================================\n");
   return;
