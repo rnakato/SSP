@@ -36,7 +36,6 @@ The simplest command is:
 
     ssp -i ChIP.sam -o ChIP --gt genometable.txt
 then the output files (prefix: "ChIP") are generated in the directory "sspout (default)".
-
 The format of input file is automatically detected by postfix(.sam/.bam/.bowtie/.tagalign(.gz)). If the detection does not work well, supply -f option (e.g., "-f BAM").
 
 If the input format is BAM, and mappable genome table is supplied
