@@ -282,7 +282,7 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
     out << "output <- '" << prefix << "'" << std::endl;
     out << "pdf(paste(output, '.pdf', sep=''), height=7, width=14)" << std::endl;
     out << "par(mfrow=c(1,2))" << std::endl;
-    if(name == "Jaccard index") out << "plot(data[,1], data[,4], type='l', xlab='Strand shift', ylab='Normalized score', xlim=c(-200,1500), main='-200 bp ~ 1500 bp', sub=sprintf('NSC=%g, RLSC=%g, Bu=%g', " << nsc << "," << rlsc << "," << backgroundUniformity << "))" << std::endl;
+    if(name == "Jaccard index") out << "plot(data[,1], data[,4], type='l', xlab='Strand shift', ylab='Normalized score', xlim=c(" << -mp_from << "," << mp_to << "), main='" << -mp_from << " bp ~ " << mp_to << " bp', sub=sprintf('NSC=%g, RLSC=%g, Bu=%g', " << nsc << "," << rlsc << "," << backgroundUniformity << "))" << std::endl;
     else if(name == "Cross correlation") out << "plot(data[,1], data[,4], type='l', xlab='Strand shift', ylab='Normalized score', xlim=c(-200,1500), main='-200 bp ~ 1500 bp', sub=sprintf('NSC=%g, RLSC=%g', " << nsc << "," << rlsc << "))" << std::endl;
     else out << "plot(data[,1], data[,4], type='l', xlab='Strand shift', ylab='Normalized score', xlim=c(-200,1500), main='-200 bp ~ 1500 bp')" << std::endl;
     out << "abline(v=" << nsci <<",lty=2,col=2)" << std::endl;
@@ -322,7 +322,6 @@ class shiftJacVec : public ReadShiftProfileGenome {
     setDist(chr[i], fwd, rev);  
   }
 };
-
 
 class shiftJacBit : public ReadShiftProfileGenome {
  public:
