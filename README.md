@@ -38,10 +38,16 @@ The simplest command is:
 then the output files (prefix: "ChIP") are generated in the directory "sspout (default)".
 The format of input file is automatically detected by postfix(.sam/.bam/.bowtie/.tagalign(.gz)). If the detection does not work well, supply -f option (e.g., "-f BAM").
 
-If the input format is BAM, and mappable genome table is supplied
+If the mappable genome table is supplied
 
      ssp -i ChIP.bam -o ChIP --gt genometable.txt --mptable mptable.txt -p 4
-"-p 4" specifies the number of CPUs used. 
+"-p 4" specifies the number of CPUs used. Mappable genome table files for several species and mapping parameters are included in data directory.
+
+
+Multiple input files are allowed (separated by ",")
+
+     ssp -i ChIP1.bam,ChIP2.bam,ChIP3.bam -o ChIP --gt genometable.txt 
+
 
 #4. Reference
 
