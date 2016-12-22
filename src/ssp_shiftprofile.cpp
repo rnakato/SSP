@@ -170,13 +170,13 @@ void makeProfile(Mapfile &p, const std::string &typestr, const MyOpt::Variables 
   boost::mutex mtx;
 
   if(typestr == "hdp" || typestr == "jaccard") {
-    //agroup.create_thread(bind(genThread<T>, boost::ref(dist), boost::cref(p), 0, 0, typestr, values.count("output_eachchr")));
+    //agroup.create_thread(bind(genThread<T>, boost::ref(dist), boost::cref(p), 0, 0, typestr, values.count("eachchr")));
     for(uint i=0; i<p.genome.vsepchr.size(); i++) {
-      agroup.create_thread(bind(genThread<T>, boost::ref(dist), boost::cref(p), p.genome.vsepchr[i].s, p.genome.vsepchr[i].e, typestr, values.count("output_eachchr")));
+      agroup.create_thread(bind(genThread<T>, boost::ref(dist), boost::cref(p), p.genome.vsepchr[i].s, p.genome.vsepchr[i].e, typestr, values.count("eachchr")));
     }
     agroup.join_all();
   } else {
-    genThread(dist, p, 0, p.genome.chr.size()-1, typestr, values.count("output_eachchr"));
+    genThread(dist, p, 0, p.genome.chr.size()-1, typestr, values.count("eachchr"));
     //genThread(dist, p, 0, 0, typestr);
   }
 
@@ -237,13 +237,11 @@ void makeFCSProfile(const MyOpt::Variables &values, Mapfile &p, const std::strin
   shiftFragVar dist(p, values, p.getflen(values));
   dist.printStartMessage();
 
-  int numRead4fcs(values["nfcs"].as<int>());
-  double r(1);
-  //  std::cout << "backgrounduniformity: " << p.getbackgroundUniformity() << std::endl;
-  if(numRead4fcs) r = numRead4fcs/static_cast<double>(dist.getnread());
+  double numRead4fcs = (values["num4ssp"].as<int>()/static_cast<double>(dist.getnread())) / (NUM_100M/static_cast<double>(dist.getlen()));
+  double r = numRead4fcs/static_cast<double>(dist.getnread());
   
   if(r>1){
-    std::cerr << "\nWarning: number of reads for Fragment variability is < "<< (int)(numRead4fcs/NUM_1M) <<" million.\n";
+    std::cerr << "\nWarning: number of reads for Fragment variability is lacked: "<< (int)(dist.getnread()/NUM_1M) <<" million.\n";
     dist.lackOfReads_on();
   }
 
@@ -254,7 +252,7 @@ void makeFCSProfile(const MyOpt::Variables &values, Mapfile &p, const std::strin
       std::cout << p.genome.chr[i].name << ".." << std::flush;
       dist.execchr(p, i, r4cmp);
       std::string filename = p.getprefix() + "." + typestr + "." + p.genome.chr[i].name + ".csv";
-      if(values.count("output_eachchr")) dist.outputmpChr(filename, i);
+      if(values.count("eachchr")) dist.outputmpChr(filename, i);
       dist.addmp2genome(i);
     }
   }

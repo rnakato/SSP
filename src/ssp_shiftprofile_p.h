@@ -101,6 +101,7 @@ class ReadShiftProfile {
   int nsci;
   long len;
   long nread;
+  long num4ssp;
   double backgroundUniformity;
   
  public:
@@ -112,8 +113,8 @@ class ReadShiftProfile {
 
   double rchr;
 
- ReadShiftProfile(const int len, const int b, int s=0, int e=0, long n=0, long l=0):
-  lenF3(len), r(0), bk(0), bk_from(b), nsc(0), rlsc(0), nsci(0), len(l), nread(n), backgroundUniformity(0), start(s), end(e), width(e-s), rchr(1) {}
+ ReadShiftProfile(const int len, const int b, const int n4s, int s=0, int e=0, long n=0, long l=0):
+  lenF3(len), r(0), bk(0), bk_from(b), nsc(0), rlsc(0), nsci(0), len(l), nread(n), num4ssp(n4s), backgroundUniformity(0), start(s), end(e), width(e-s), rchr(1) {}
   virtual ~ReadShiftProfile() {}
   void setmp(const int i, const double val, boost::mutex &mtx) {
     boost::mutex::scoped_lock lock(mtx);
@@ -174,9 +175,7 @@ class ReadShiftProfile {
     }
     double sum(getmpsum());
 
-
-    ////////////////
-    double rRPKM = (NUM_10M/static_cast<double>(nread)) / (NUM_100M/static_cast<double>(len));
+    double rRPKM = (num4ssp/static_cast<double>(nread)) / (NUM_100M/static_cast<double>(len));
     double be(bk * rRPKM);
     double const_bu(1/39.0);  // N/(4*L-N), N=10M, L=100M
     rlsc = mp.at(lenF3) *r;
@@ -237,7 +236,7 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
   std::vector<ReadShiftProfile> chr;
   
  ReadShiftProfileGenome(std::string n, const Mapfile &p, const MyOpt::Variables &values):
-  ReadShiftProfile(p.getlenF3(), values["ng_from"].as<int>()),
+  ReadShiftProfile(p.getlenF3(), values["ng_from"].as<int>(), values["num4ssp"].as<int>()),
     numthreads(values["threads"].as<int>()),
     ng_from(5000),
     ng_to(values["ng_to"].as<int>()),
@@ -250,7 +249,7 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
       }
     }
     for(auto x:p.genome.chr) {
-      ReadShiftProfile v(p.getlenF3(), values["ng_from"].as<int>(), 0, x.getlen(), x.bothnread_nonred(), x.getlenmpbl());
+      ReadShiftProfile v(p.getlenF3(), values["ng_from"].as<int>(), values["num4ssp"].as<int>(), 0, x.getlen(), x.bothnread_nonred(), x.getlenmpbl());
       v.setrchr(nread);
       chr.push_back(v);
     }
@@ -259,6 +258,7 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
   }
   virtual ~ReadShiftProfileGenome(){}
   long getnread() const { return nread; }
+  long getlen() const { return len; }
   void defSepRange(const int numthreads) {
     int length(mp_to+mp_from);
     int sepsize = length/numthreads +1;
@@ -282,9 +282,10 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
     out << "output <- '" << prefix << "'" << std::endl;
     out << "pdf(paste(output, '.pdf', sep=''), height=7, width=14)" << std::endl;
     out << "par(mfrow=c(1,2))" << std::endl;
-    if(name == "Jaccard index") out << "plot(data[,1], data[,4], type='l', xlab='Strand shift', ylab='Normalized score', xlim=c(" << -mp_from << "," << mp_to << "), main='" << -mp_from << " bp ~ " << mp_to << " bp', sub=sprintf('NSC=%g, RLSC=%g, Bu=%g', " << nsc << "," << rlsc << "," << backgroundUniformity << "))" << std::endl;
-    else if(name == "Cross correlation") out << "plot(data[,1], data[,4], type='l', xlab='Strand shift', ylab='Normalized score', xlim=c(-200,1500), main='-200 bp ~ 1500 bp', sub=sprintf('NSC=%g, RLSC=%g', " << nsc << "," << rlsc << "))" << std::endl;
-    else out << "plot(data[,1], data[,4], type='l', xlab='Strand shift', ylab='Normalized score', xlim=c(-200,1500), main='-200 bp ~ 1500 bp')" << std::endl;
+    out << "plot(data[1:" << mp_from+mp_to << ",1], data[1:" << mp_from+mp_to << ",4], type='l', xlab='Strand shift', ylab='Normalized score', xlim=c(" << -mp_from << "," << mp_to << "), main='" << -mp_from << " bp ~ " << mp_to << " bp', ";
+    if(name == "Jaccard index") out << "sub=sprintf('NSC=%g, RLSC=%g, Bu=%g', " << nsc << "," << rlsc << "," << backgroundUniformity << "))" << std::endl;
+    else if(name == "Cross correlation") out << "sub=sprintf('NSC=%g, RLSC=%g', " << nsc << "," << rlsc << "))" << std::endl;
+    else out << ")" << std::endl;
     out << "abline(v=" << nsci <<",lty=2,col=2)" << std::endl;
     out << "legend('bottomright', legend=paste('Estimated fragment length = ', " << nsci << "))" << std::endl;
     out << "plot(data[,1], data[,4], type='l', xlab='Strand shift',ylab='Normalized score', main='Long distance')" << std::endl;
