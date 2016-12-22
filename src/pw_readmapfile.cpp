@@ -23,10 +23,16 @@ void read_mapfile(const MyOpt::Variables &values, Mapfile &p)
   for(auto inputfile: v) {
     isFile(inputfile);
     BPRINT("Parsing %1%...\n") % inputfile;
-    std::string ftype = values["ftype"].as<std::string>();
-    if(ftype == "SAM" || ftype == "BAM") parseSam(values, inputfile, p);
-    else if(ftype == "BOWTIE") parseBowtie(values, inputfile, p);
-    else if(ftype == "TAGALIGN") parseTagAlign(values, inputfile, p);
+    if(values.count("ftype")) {
+      std::string ftype = values["ftype"].as<std::string>();
+      if(ftype == "SAM" || ftype == "BAM") parseSam(values, inputfile, p);
+      else if(ftype == "BOWTIE") parseBowtie(values, inputfile, p);
+      else if(ftype == "TAGALIGN") parseTagAlign(values, inputfile, p);
+    } else {
+      if(isStr(inputfile, ".sam") || isStr(inputfile, ".bam")) parseSam(values, inputfile, p);
+      else if(isStr(inputfile, ".bowtie"))   parseBowtie(values, inputfile, p);
+      else if(isStr(inputfile, ".tagalign")) parseTagAlign(values, inputfile, p);
+    }
     printf("done.\n");
   }
   p.genome.setnread();
@@ -92,13 +98,15 @@ void do_bamse(const MyOpt::Variables &values, Mapfile &p, T & in)
 
 void parseSam(const MyOpt::Variables &values, const std::string &inputfile, Mapfile &p)
 {
-  if(values["ftype"].as<std::string>()=="SAM") {  // SAM
+  if((values.count("ftype") && values["ftype"].as<std::string>()=="SAM") || isStr(inputfile, ".sam")) {  // SAM
+    std::cout << "Input format: SAM" << std::endl;
     std::ifstream in(inputfile);
     if(!in) PRINTERR("Could not open " << inputfile << ".");
     if (values.count("pair")) do_bampe(values, p, in);
     else do_bamse(values, p, in);
   }
   else if(values["ftype"].as<std::string>()=="BAM") {  // BAM
+    std::cout << "Input format: BAM" << std::endl;
     std::string command = "samtools view -h " + inputfile;
     FILE *fp = popen(command.c_str(), "r");
     __gnu_cxx::stdio_filebuf<char> *p_fb = new __gnu_cxx::stdio_filebuf<char>(fp, std::ios_base::in);
@@ -115,6 +123,7 @@ void parseBowtie(const MyOpt::Variables &values, const std::string &inputfile, M
   int maxins(values["maxins"].as<int>());
   std::ifstream in(inputfile);
   if(!in) PRINTERR("Could not open " << inputfile << ".");
+  std::cout << "Input format: BOWTIE" << std::endl;
 
   std::string chr_F3(""), chr_F5(""), nametemp("");
   int F5(0);
@@ -183,6 +192,7 @@ void parseBowtie(const MyOpt::Variables &values, const std::string &inputfile, M
 template <class T>
 void funcTagAlign(const MyOpt::Variables &values, Mapfile &p, T &in)
 {
+  std::cout << "Input format: TAGALIGN" << std::endl;
   std::string lineStr;
   while (!in.eof()) {
     getline(in, lineStr);

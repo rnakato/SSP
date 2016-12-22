@@ -116,10 +116,12 @@ void checkParam(const MyOpt::Variables &values)
   for (auto x: intopts) chkminus<int>(values, x, 0);
   std::vector<std::string> intopts2 = {"thre_pb"};
   for (auto x: intopts2) chkminus<int>(values, x, -1);
-  
-  std::string ftype = values["ftype"].as<std::string>();
-  if(ftype != "SAM" && ftype != "BAM" && ftype != "BOWTIE" && ftype != "TAGALIGN") PRINTERR("invalid --ftype.\n");
 
+  if(values.count("ftype")) {
+    std::string ftype = values["ftype"].as<std::string>();
+    if(ftype != "SAM" && ftype != "BAM" && ftype != "BOWTIE" && ftype != "TAGALIGN") PRINTERR("invalid --ftype.\n");
+  }
+  
 #ifdef DEBUG
   std::cout << "checkParam done." << std::endl;
 #endif
@@ -207,7 +209,7 @@ void setOpts(MyOpt::Opts &allopts,MyOpt::Opts &opts4help)
     ;
   MyOpt::Opts optIO("Optional",100);
   optIO.add_options()
-    ("ftype,f", value<std::string>()->default_value("SAM"), "{SAM|BAM|BOWTIE|TAGALIGN}: format of input file\nTAGALIGN could be gzip'ed (extension: tagAlign.gz)")
+    ("ftype,f", value<std::string>(), "{SAM|BAM|BOWTIE|TAGALIGN}: format of input file\nTAGALIGN could be gzip'ed (extension: tagAlign.gz)")
     ("odir",    value<std::string>()->default_value("sspout"),	  "output directory name")
     ("fcsfull",  "outout full fragment variability profile")
     ("nofilter", "do not filter PCR bias")
@@ -254,7 +256,7 @@ void init_dump(const MyOpt::Variables &values){
   BPRINT("\n======================================\n");
   BPRINT("SSP version %1%\n\n") % VERSION;
   BPRINT("Input file %1%\n")         % values["input"].as<std::string>();
-  BPRINT("\tFormat: %1%\n")          % values["ftype"].as<std::string>();
+  if(values.count("ftype")) BPRINT("\tFormat: %1%\n") % values["ftype"].as<std::string>();
   BPRINT("Output file: %1%/%2%\n")   % values["odir"].as<std::string>() % values["output"].as<std::string>();
   BPRINT("Genome-table file: %1%\n") % values["gt"].as<std::string>();
   if(values.count("mptable")) BPRINT("Mappable genome-table file: %1%\n") % values["mptable"].as<std::string>();
