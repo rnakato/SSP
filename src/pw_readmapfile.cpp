@@ -105,7 +105,7 @@ void parseSam(const MyOpt::Variables &values, const std::string &inputfile, Mapf
     if (values.count("pair")) do_bampe(values, p, in);
     else do_bamse(values, p, in);
   }
-  else if(values["ftype"].as<std::string>()=="BAM") {  // BAM
+  else {  // BAM
     std::cout << "Input format: BAM" << std::endl;
     std::string command = "samtools view -h " + inputfile;
     FILE *fp = popen(command.c_str(), "r");
