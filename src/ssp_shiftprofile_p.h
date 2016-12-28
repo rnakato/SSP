@@ -241,21 +241,23 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
     ng_from(5000),
     ng_to(values["ng_to"].as<int>()),
     ng_step(values["ng_step"].as<int>()),
-    name(n) {
-    for(auto x:p.genome.chr) {
-      if(x.isautosome()) {
-	nread += x.bothnread_nonred();
-	len   += x.getlenmpbl();
+    name(n)
+    {
+      for(auto x:p.genome.chr) {
+	if(x.isautosome()) {
+	  nread += x.bothnread_nonred();
+	  len   += x.getlenmpbl();
+	}
       }
+      for(auto x:p.genome.chr) {
+	ReadShiftProfile v(p.getlenF3(), values["ng_from"].as<int>(), values["num4ssp"].as<int>(), 0, x.getlen(), x.bothnread_nonred(), x.getlenmpbl());
+	std::cout << "read\t" << x.bothnread() << "\t"<< x.bothnread_nonred() << std::endl;
+	v.setrchr(nread);
+	chr.push_back(v);
+      }
+      // seprange
+      defSepRange(numthreads);
     }
-    for(auto x:p.genome.chr) {
-      ReadShiftProfile v(p.getlenF3(), values["ng_from"].as<int>(), values["num4ssp"].as<int>(), 0, x.getlen(), x.bothnread_nonred(), x.getlenmpbl());
-      v.setrchr(nread);
-      chr.push_back(v);
-    }
-    // seprange
-    defSepRange(numthreads);
-  }
   virtual ~ReadShiftProfileGenome(){}
   long getnread() const { return nread; }
   long getlen() const { return len; }
