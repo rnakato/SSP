@@ -288,7 +288,7 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
     else out << ")" << std::endl;
     out << "abline(v=" << nsci <<",lty=2,col=2)" << std::endl;
     out << "legend('bottomright', legend=paste('Estimated fragment length = ', " << nsci << "))" << std::endl;
-    out << "plot(data[,1], data[,4], type='l', xlab='Strand shift',ylab='Normalized score', main='Long distance')" << std::endl;
+    out << "plot(data[,1], data[,4], type='l', xlab='Strand shift',ylab='Normalized score', main='Long distance', log='x', xlim=c(1,1000000))" << std::endl;
     out << "dev.off()" << std::endl;
 
     std::string command = "R --vanilla < " + Rscript + " | tee " + Rscript + ".log";
