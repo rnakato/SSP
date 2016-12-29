@@ -177,7 +177,7 @@ class ReadShiftProfile {
 
     double rRPKM = (num4ssp/static_cast<double>(nread)) / (NUM_100M/static_cast<double>(len));
     double be(bk * rRPKM);
-    double const_bu = (num4ssp/4*NUM_100M - num4ssp);  // 1/39 N/(4*L-N), N=10M, L=100M
+    double const_bu = num4ssp/static_cast<double>(4*NUM_100M - num4ssp);  // 1/39 N/(4*L-N), N=10M, L=100M
     rlsc = mp.at(lenF3) *r;
     backgroundUniformity = const_bu / be;
     
