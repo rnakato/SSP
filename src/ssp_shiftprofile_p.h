@@ -251,7 +251,6 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
       }
       for(auto x:p.genome.chr) {
 	ReadShiftProfile v(p.getlenF3(), values["ng_from"].as<int>(), values["num4ssp"].as<int>(), 0, x.getlen(), x.bothnread_nonred(), x.getlenmpbl());
-	std::cout << "read\t" << x.bothnread() << "\t"<< x.bothnread_nonred() << std::endl;
 	v.setrchr(nread);
 	chr.push_back(v);
       }
@@ -290,7 +289,7 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
     else out << ")" << std::endl;
     out << "abline(v=" << nsci <<",lty=2,col=2)" << std::endl;
     out << "legend('bottomright', legend=paste('Estimated fragment length = ', " << nsci << "))" << std::endl;
-    out << "plot(data[,1], data[,4], type='l', xlab='Strand shift',ylab='Normalized score', main='Long distance', log='x', xlim=c(1,1000000))" << std::endl;
+    out << "plot(data[,1], data[,4], type='l', xlab='Strand shift',ylab='Normalized score', main='Long distance (log scale)', log='x', xlim=c(1,1000000))" << std::endl;
     out << "dev.off()" << std::endl;
 
     std::string command = "R --vanilla < " + Rscript + " | tee " + Rscript + ".log";
