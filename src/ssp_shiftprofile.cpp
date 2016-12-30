@@ -237,14 +237,15 @@ void makeFCSProfile(const MyOpt::Variables &values, Mapfile &p, const std::strin
   shiftFragVar dist(p, values, p.getflen(values));
   dist.printStartMessage();
 
-  double r = (values["num4ssp"].as<int>()/static_cast<double>(dist.getnread())) / (NUM_100M/static_cast<double>(dist.getlen()));
-  //  double r = numRead4fcs/static_cast<double>(dist.getnread());
+  // double r = (values["num4ssp"].as<int>()/static_cast<double>(dist.getnread())) / (NUM_100M/static_cast<double>(dist.getlen()));
+  double r = values["num4ssp"].as<int>()/static_cast<double>(dist.getnread());
 
-  //  std::cout << numRead4fcs << "\t" << r << std::endl;
-  // exit (0);
-  
+#ifdef DEBUG
+  std::cout << "\nr for FCS\t" << r << "\t reads: " << dist.getnread()<<  std::endl;
+#endif
+
   if(r>1){
-    std::cerr << "\nWarning: number of reads for Fragment variability is lacked: "<< (int)(dist.getnread()/NUM_1M) <<" million.\n";
+    std::cerr << "\nWarning: number of reads (" << dist.getnread() << ") is less than num4ssp ("<<  values["num4ssp"].as<int>() <<").\n";
     dist.lackOfReads_on();
   }
 
