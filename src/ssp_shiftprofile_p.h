@@ -174,13 +174,14 @@ class ReadShiftProfile {
       std::cerr << filename << ": no read" << std::endl;
     }
     double sum(getmpsum());
-
     double rRPKM = (num4ssp/static_cast<double>(nread)) / (NUM_100M/static_cast<double>(len));
+    //double rRPM(num4ssp/static_cast<double>(nread));
+
     double be(bk * rRPKM);
     double const_bu = num4ssp/static_cast<double>(4*NUM_100M - num4ssp);  // 1/39 N/(4*L-N), N=10M, L=100M
     rlsc = mp.at(lenF3) *r;
     backgroundUniformity = const_bu / be;
-    
+
     std::ofstream out(filename);
     out << "NSC\t" << nsc  << std::endl;
     out << "RLSC\t"<< rlsc << std::endl;
@@ -188,7 +189,7 @@ class ReadShiftProfile {
     out << "Background enrichment\t" << be << std::endl;
     out << "Background uniformity\t" << backgroundUniformity << std::endl;
 
-    out << "Strand shift\t" << name << "\tprop\tper 10M reads\tper control" << std::endl;
+    out << "Strand shift\t" << name << "\tProportion\tper " << num4ssp/NUM_1M << "M reads for 100Mbp len\tper control" << std::endl;
     for(auto itr = mp.begin(); itr != mp.end(); ++itr) 
       out << itr->first            << "\t"
 	  << itr->second           << "\t"
