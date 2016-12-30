@@ -118,22 +118,24 @@ std::vector<char> genVector(const strandData &seq, int start, int end)
 {
   std::vector<char> array(end-start, 0);
   for (auto x: seq.vRead) {
-    if(!x.duplicate && RANGE(x.F3, start, end-1))
-      ++array[x.F3 - start];
+    if(!x.duplicate && RANGE(x.F3, start, end-1)) ++array[x.F3 - start];
   }
   return array;
 }
 
 std::vector<char> genVector4FixedReadsNum(const strandData &seq, int start, int end, const double r4cmp)
 {
+  int n(0);
   std::vector<char> array(end-start, 0);
   for (auto x: seq.vRead) {
     if(!x.duplicate && RANGE(x.F3, start, end-1)){
       if(rand() >= r4cmp) continue;
       ++array[x.F3 - start];
+      ++n;
     }
   }
-
+  //  std::cout << "\nfkf   " << n << std::endl;
+  
   return array;
 }
 
@@ -226,7 +228,8 @@ void makeRscript(const std::string prefix)
   out << "plot(data[,1],data[,2], log='x', type='l', xlab = 'Read-pair distance (bp)', ylab = 'Fragment cluster score')" << std::endl;
   out << "dev.off()" << std::endl;
 
-  std::string command = "R --vanilla < " + Rscript + " | tee " + Rscript + ".log";
+  std::string command = "R --vanilla < " + Rscript + " > " + Rscript + ".log 2>&1";
+  std::cout << command << std::endl;
   int return_code = system(command.c_str());
   
   return;
@@ -251,7 +254,7 @@ void makeFCSProfile(const MyOpt::Variables &values, Mapfile &p, const std::strin
 
   double r4cmp = r*RAND_MAX;
 
-  for(uint i=0; i<=p.genome.chr.size()-1; ++i) {
+  for(uint i=0; i<p.genome.chr.size(); ++i) {
     if(p.genome.chr[i].isautosome()) {
       std::cout << p.genome.chr[i].name << ".." << std::flush;
       dist.execchr(p, i, r4cmp);

@@ -293,7 +293,7 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
     out << "plot(data[,1], data[,5], type='l', xlab='Strand shift',ylab='Score relative to background', main='Long distance (log scale)', log='x', xlim=c(1,1000000))" << std::endl;
     out << "dev.off()" << std::endl;
 
-    std::string command = "R --vanilla < " + Rscript + " | tee " + Rscript + ".log";
+    std::string command = "R --vanilla < " + Rscript + " > " + Rscript + ".log 2>&1";
     
     int return_code = system(command.c_str());
   }
