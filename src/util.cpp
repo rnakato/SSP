@@ -2,6 +2,7 @@
  * This file is a part of DROMPA sources.
  */
 #include "util.h"
+#include <algorithm>
 #include <boost/filesystem.hpp>
 
 std::string rmchr(const std::string &chr)
@@ -21,8 +22,10 @@ void isFile(const std::string &str)
   }
 }
 
-int isStr(const std::string &str, const std::string &query)
+int isStr(std::string str, std::string query)
 {
+  std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+  std::transform(query.begin(), query.end(), query.begin(), ::tolower);
   if(str.find(query) != std::string::npos) return 1;
   else return 0;
 }
