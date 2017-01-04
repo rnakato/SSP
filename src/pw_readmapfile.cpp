@@ -33,7 +33,7 @@ void read_mapfile(const MyOpt::Variables &values, Mapfile &p)
       else if(isStr(inputfile, ".bowtie"))   parseBowtie(values, inputfile, p);
       else if(isStr(inputfile, ".tagalign")) parseTagAlign(values, inputfile, p);
     }
-    printf("done.\n");
+    //    printf("done.\n");
   }
   p.genome.setnread();
 

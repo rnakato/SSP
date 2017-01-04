@@ -179,8 +179,8 @@ class ReadShiftProfile {
 
     double be(bk * rRPKM);
     double const_bu = num4ssp/static_cast<double>(4*NUM_100M - num4ssp);  // 1/39 N/(4*L-N), N=10M, L=100M
-    std::cout << "####### " << num4ssp << "\t  " << const_bu << "\t" << rRPKM << "\t" << bk << std::endl;
-    std::cout << "####### " << nread << "\t  " << NUM_100M << "\t" << len << std::endl;
+    //    std::cout << "####### " << num4ssp << "\t  " << const_bu << "\t" << rRPKM << "\t" << bk << std::endl;
+    //    std::cout << "####### " << nread << "\t  " << NUM_100M << "\t" << len << std::endl;
       rlsc = mp.at(lenF3) *r;
     backgroundUniformity = const_bu / be;
 
@@ -250,7 +250,7 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
 	if(x.isautosome()) {
 	  nread += x.bothnread_nonred();
 	  len   += x.getlenmpbl();
-	  std::cout<< len << "\t" << x.getlenmpbl() << std::endl;
+	  //	  std::cout<< len << "\t" << x.getlenmpbl() << std::endl;
 	}
       }
       for(auto x:p.genome.chr) {
