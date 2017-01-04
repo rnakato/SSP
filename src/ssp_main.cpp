@@ -16,16 +16,16 @@
 #define VERSION "1.0.0"
 
 namespace {
-  const int numGcov(5000000);
+  const int32_t numGcov(5000000);
 }
 
-MyOpt::Variables getOpts(int argc, char* argv[]);
+MyOpt::Variables getOpts(int32_t argc, char* argv[]);
 void setOpts(MyOpt::Opts &, MyOpt::Opts &);
 void init_dump(const MyOpt::Variables &);
 void output_stats(const MyOpt::Variables &values, const Mapfile &p);
 void output_wigstats(Mapfile &p);
 
-void SeqStatsGenome::readGenomeTable(const std::string &gt, const int binsize)
+void SeqStatsGenome::readGenomeTable(const std::string &gt, const int32_t binsize)
 {
   std::vector<std::string> v;
   std::string lineStr;
@@ -44,20 +44,20 @@ void SeqStatsGenome::readGenomeTable(const std::string &gt, const int binsize)
   return;
 }
 
-std::vector<sepchr> SeqStatsGenome::getVsepchr(const int numthreads)
+std::vector<sepchr> SeqStatsGenome::getVsepchr(const int32_t numthreads)
 {
   std::vector<sepchr> vsepchr;
 
-  uint sepsize = len/numthreads;
-  for(uint i=0; i<chr.size(); ++i) {
-    uint s = i;
-    long len(0);
+  uint32_t sepsize = len/numthreads;
+  for(uint32_t i=0; i<chr.size(); ++i) {
+    uint32_t s = i;
+    uint64_t len(0);
     while(len < sepsize && i<chr.size()) {
       len += chr[i].getlen();
       i++;
     }
     i--;
-    uint e = i;
+    uint32_t e = i;
     sepchr sep(s,e);
     vsepchr.push_back(sep);
   }
@@ -113,9 +113,9 @@ void checkParam(const MyOpt::Variables &values)
 #endif
 
   std::vector<std::string> intopts = {"threads"};
-  for (auto x: intopts) chkminus<int>(values, x, 0);
+  for (auto x: intopts) chkminus<int32_t>(values, x, 0);
   std::vector<std::string> intopts2 = {"thre_pb"};
-  for (auto x: intopts2) chkminus<int>(values, x, -1);
+  for (auto x: intopts2) chkminus<int32_t>(values, x, -1);
 
   if(values.count("ftype")) {
     std::string ftype = values["ftype"].as<std::string>();
@@ -191,10 +191,10 @@ void setOpts(MyOpt::Opts &allopts,MyOpt::Opts &opts4help)
   
   MyOpt::Opts optssp("Strand shift profile",100);
   optssp.add_options()
-    ("ng_from", value<int>()->default_value(5*NUM_100K), "start shift of background")
-    ("ng_to",   value<int>()->default_value(NUM_1M),     "end shift of background")
-    ("ng_step", value<int>()->default_value(5000),       "step shift on of background")
-    ("num4ssp", value<int>()->default_value(NUM_10M),    "Read number for calculating backgroud uniformity (per 100 Mbp)")
+    ("ng_from", value<int32_t>()->default_value(5*NUM_100K), "start shift of background")
+    ("ng_to",   value<int32_t>()->default_value(NUM_1M),     "end shift of background")
+    ("ng_step", value<int32_t>()->default_value(5000),       "step shift on of background")
+    ("num4ssp", value<int32_t>()->default_value(NUM_10M),    "Read number for calculating backgroud uniformity (per 100 Mbp)")
     ("ssp_cc",    "make ssp based on cross correlation")
     ("ssp_hd",    "make ssp based on hamming distance")
     ("ssp_exjac", "make ssp based on extended Jaccard index")
@@ -203,9 +203,9 @@ void setOpts(MyOpt::Opts &allopts,MyOpt::Opts &opts4help)
     ;
   MyOpt::Opts optfcs("Fragment cluster score",100);
   optfcs.add_options()
-    ("ng_from_fcs", value<int>()->default_value(NUM_100K), "fcs start of background")
-    ("ng_to_fcs",   value<int>()->default_value(NUM_1M),   "fcs end of background")
-    ("ng_step_fcs", value<int>()->default_value(NUM_100K), "fcs step on of background")
+    ("ng_from_fcs", value<int32_t>()->default_value(NUM_100K), "fcs start of background")
+    ("ng_to_fcs",   value<int32_t>()->default_value(NUM_1M),   "fcs end of background")
+    ("ng_step_fcs", value<int32_t>()->default_value(NUM_100K), "fcs step on of background")
     ;
   MyOpt::Opts optIO("Optional",100);
   optIO.add_options()
@@ -213,12 +213,12 @@ void setOpts(MyOpt::Opts &allopts,MyOpt::Opts &opts4help)
     ("odir",    value<std::string>()->default_value("sspout"),	  "output directory name")
     ("fcsfull",  "outout full fragment variability profile")
     ("nofilter", "do not filter PCR bias")
-    ("thre_pb", value<int>()->default_value(0),	       "PCRbias threshold (default: more than max(1 read, 10 times greater than genome average)) ")
-    ("ncmp",    value<int>()->default_value(10000000), "read number for calculating library complexity")
+    ("thre_pb", value<int32_t>()->default_value(0),	       "PCRbias threshold (default: more than max(1 read, 10 times greater than genome average)) ")
+    ("ncmp",    value<int32_t>()->default_value(10000000), "read number for calculating library complexity")
     ;
   MyOpt::Opts optother("Others",100);
   optother.add_options()
-    ("threads,p",    value<int>()->default_value(1),  "number of threads to launch")
+    ("threads,p",    value<int32_t>()->default_value(1),  "number of threads to launch")
     ("version,v", "print version")
     ("help,h", "show help message")
     ;
@@ -228,18 +228,18 @@ void setOpts(MyOpt::Opts &allopts,MyOpt::Opts &opts4help)
   optignore.add_options()
     ("mp",        value<std::string>(),	  "Mappability file")
     ("mpthre",    value<double>()->default_value(0.3),	  "Threshold of low mappability regions")
-    ("flen",        value<int>()->default_value(150), "predefined fragment length\n(Automatically calculated in paired-end mode)")
+    ("flen",        value<int32_t>()->default_value(150), "predefined fragment length\n(Automatically calculated in paired-end mode)")
     ("nomodel",   "predefine the fragment length (default: estimated by hamming distance plot)")
-    ("binsize,b",   value<int>()->default_value(50),	  "bin size")
-    ("of",        value<int>()->default_value(0),	  "output format\n   0: binary (.bin)\n   1: compressed wig (.wig.gz)\n   2: uncompressed wig (.wig)\n   3: bedGraph (.bedGraph)\n   4: bigWig (.bw)")
-    ("rcenter", value<int>()->default_value(0), "consider length around the center of fragment ")
+    ("binsize,b",   value<int32_t>()->default_value(50),	  "bin size")
+    ("of",        value<int32_t>()->default_value(0),	  "output format\n   0: binary (.bin)\n   1: compressed wig (.wig.gz)\n   2: uncompressed wig (.wig)\n   3: bedGraph (.bedGraph)\n   4: bigWig (.bw)")
+    ("rcenter", value<int32_t>()->default_value(0), "consider length around the center of fragment ")
     ("pair", 	  "add when the input file is paired-end")
-    ("maxins",     value<int>()->default_value(500), "maximum fragment length")
+    ("maxins",     value<int32_t>()->default_value(500), "maximum fragment length")
     ("genome",     value<std::string>(),	  "reference genome sequence for GC content estimation")
-    ("flen4gc",    value<int>()->default_value(120),  "fragment length for calculation of GC distribution")
+    ("flen4gc",    value<int32_t>()->default_value(120),  "fragment length for calculation of GC distribution")
     ("gcdepthoff", "do not consider depth of GC contents")
     ("ntype,n",        value<std::string>()->default_value("NONE"),  "Total read normalization\n{NONE|GR|GD|CR|CD}\n   NONE: not normalize\n   GR: for whole genome, read number\n   GD: for whole genome, read depth\n   CR: for each chromosome, read number\n   CD: for each chromosome, read depth")
-    ("nrpm",        value<int>()->default_value(20000000),	  "Total read number after normalization")
+    ("nrpm",        value<int32_t>()->default_value(20000000),	  "Total read number after normalization")
     ("ndepth",      value<double>()->default_value(1.0),	  "Averaged read depth after normalization")
     ("bed",        value<std::string>(),	  "specify the BED file of enriched regions (e.g., peak regions)")
     ;  
@@ -263,15 +263,18 @@ void init_dump(const MyOpt::Variables &values){
   
   if (!values.count("nofilter")) {
     BPRINT("PCR bias filtering: ON\n");
-    if (values["thre_pb"].as<int>()) BPRINT("PCR bias threshold: > %1%\n") % values["thre_pb"].as<int>();
+    if (values["thre_pb"].as<int32_t>()) BPRINT("PCR bias threshold: > %1%\n") % values["thre_pb"].as<int32_t>();
   } else {
     BPRINT("PCR bias filtering: OFF\n");
   }
   if(values.count("fcsfull")) BPRINT("\tplot full fcs profile.\n");
-  BPRINT("num4ssp %d\n") % values["num4ssp"].as<int>();
-  BPRINT("background region: [%d,%d], step %d\n") % values["ng_from"].as<int>() % values["ng_to"].as<int>() % values["ng_step"].as<int>();
+  BPRINT("num4ssp %d\n") % values["num4ssp"].as<int32_t>();
+  BPRINT("background region: [%d,%d], step %d\n")
+    % values["ng_from"].as<int32_t>()
+    % values["ng_to"].as<int32_t>()
+    % values["ng_step"].as<int32_t>();
   
-  BPRINT("\nNumber of threads: %1%\n") % values["threads"].as<int>();
+  BPRINT("\nNumber of threads: %1%\n") % values["threads"].as<int32_t>();
   printf("======================================\n");
   return;
 }
@@ -364,28 +367,28 @@ std::vector<char> makeGcovArray(const MyOpt::Variables &values, SeqStats &chr, M
   else array = readMpbl_binary(chr.getlen());
   if(values.count("bed")) arraySetBed(array, chr.name, p.genome.getvbed());
 
-  int val(0);
-  int size = array.size();
-  for(int strand=0; strand<STRANDNUM; ++strand) {
+  int32_t val(0);
+  int32_t size = array.size();
+  for (int32_t strand=0; strand<STRANDNUM; ++strand) {
     for (auto &x: chr.seq[strand].vRead) {
       if(x.duplicate) continue;
       
       if(rand() >= r4cmp) val=COVREAD_ALL; else val=COVREAD_NORM;
       
-      int s(std::max(0, std::min(x.F3, x.F5)));
-      int e(std::min(std::max(x.F3, x.F5), size-1));
+      int32_t s(std::max(0, std::min(x.F3, x.F5)));
+      int32_t e(std::min(std::max(x.F3, x.F5), size-1));
       if(s >= size || e < 0) {
 	std::cerr << "Warning: " << chr.name << " read " << s <<"-"<< e << " > array size " << array.size() << std::endl;
       }
-      for(int i=s; i<=e; ++i) if(array[i]==MAPPABLE) array[i]=val;
+      for(int32_t i=s; i<=e; ++i) if(array[i]==MAPPABLE) array[i]=val;
     }
   }
   return array;
 }
 
-void calcGcovchr(const MyOpt::Variables &values, Mapfile &p, int s, int e, double r4cmp, boost::mutex &mtx)
+void calcGcovchr(const MyOpt::Variables &values, Mapfile &p, int32_t s, int32_t e, double r4cmp, boost::mutex &mtx)
 {
-  for(int i=s; i<=e; ++i) {
+  for(int32_t i=s; i<=e; ++i) {
     std::cout << p.genome.chr[i].name << ".." << std::flush;
     auto array = makeGcovArray(values, p.genome.chr[i], p, r4cmp);
     p.genome.chr[i].calcGcov(array);
@@ -397,12 +400,12 @@ void calcFRiP(SeqStats &chr, const std::vector<bed> vbed)
 {
   std::vector<char> array(chr.getlen(), MAPPABLE);
   arraySetBed(array, chr.name, vbed);
-  for(int strand=0; strand<STRANDNUM; ++strand) {
+  for(int32_t strand=0; strand<STRANDNUM; ++strand) {
     for (auto &x: chr.seq[strand].vRead) {
       if(x.duplicate) continue;
-      int s(std::min(x.F3, x.F5));
-      int e(std::max(x.F3, x.F5));
-      for(int i=s; i<=e; ++i) {
+      int32_t s(std::min(x.F3, x.F5));
+      int32_t e(std::max(x.F3, x.F5));
+      for(int32_t i=s; i<=e; ++i) {
 	if(array[i]==INBED) {
 	  x.inpeak = 1;
 	  ++chr.nread_inbed;

@@ -14,7 +14,7 @@ using HashOfGeneDataMap = std::unordered_map<std::string, GeneDataMap>;
 
 enum bpstatus {UNMAPPABLE, INBED, MAPPABLE, COVREAD_ALL, COVREAD_NORM};
 
-int countmp(HashOfGeneDataMap &);
+int32_t countmp(HashOfGeneDataMap &);
 std::vector<std::string> scanGeneName(const HashOfGeneDataMap &);
 HashOfGeneDataMap extract_mp(const HashOfGeneDataMap &, const std::vector<std::string>);
 std::vector<std::string> readGeneList(const std::string&);
@@ -22,14 +22,14 @@ HashOfGeneDataMap parseRefFlat(const std::string&);
 HashOfGeneDataMap parseGtf(const std::string&);
 HashOfGeneDataMap construct_gmp(const HashOfGeneDataMap &);
 void printMap(const HashOfGeneDataMap &);
-void printRefFlat(const HashOfGeneDataMap &, const int nameflag);
+void printRefFlat(const HashOfGeneDataMap &, const int32_t nameflag);
 std::vector<chrsize> read_genometable(const std::string&);
 
-std::vector<int>  readMpbl(std::string, std::string, int, int);
-std::vector<char> readMpbl_binary(int);
-std::vector<char> readMpbl_binary(std::string, std::string, int);
+std::vector<int32_t>  readMpbl(std::string, std::string, int32_t, int32_t);
+std::vector<char> readMpbl_binary(int32_t);
+std::vector<char> readMpbl_binary(std::string, std::string, int32_t);
 std::vector<char> arraySetBed(std::vector<char> &, std::string, std::vector<bed>);
-std::string IntToString(int n);
+std::string IntToString(int64_t n);
 
 template <class T>
 std::vector<T> parseBed(const std::string &fileName)

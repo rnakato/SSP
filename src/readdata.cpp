@@ -7,9 +7,9 @@
 #include <boost/algorithm/string.hpp>
 #include <sstream>
 
-int countmp(HashOfGeneDataMap &mp)
+int32_t countmp(HashOfGeneDataMap &mp)
 {
-  int n(0);
+  int32_t n(0);
   for(auto itr = mp.begin(); itr != mp.end(); ++itr) {
     for(auto itr2 = mp.at(itr->first).begin(); itr2 != mp.at(itr->first).end(); ++itr2) n++;
   }
@@ -95,7 +95,7 @@ HashOfGeneDataMap parseRefFlat(const std::string& fileName)
     boost::split(exonStarts, v[9], boost::algorithm::is_any_of(","));
     boost::split(exonEnds,  v[10], boost::algorithm::is_any_of(","));
 
-    for(int i=0; i<tmp[chr][tname].exonCount; i++){
+    for(int32_t i=0; i<tmp[chr][tname].exonCount; i++){
       range exon(stoi(exonStarts[i]), stoi(exonEnds[i]));
       tmp[chr][tname].exon.push_back(exon);
     }
@@ -126,8 +126,8 @@ HashOfGeneDataMap parseGtf(const std::string& fileName)
     if(feat == "gene" || feat == "transcript" || feat == "three_prime_utr" || feat == "five_prime_utr") continue;
     
     std::string chr = rmchr(v[0]);
-    int start = stoi(v[3]);
-    int end   = stoi(v[4]);
+    int32_t start = stoi(v[3]);
+    int32_t end   = stoi(v[4]);
     std::string strand = v[6];
     std::string annotation = v[8];
 
@@ -217,7 +217,7 @@ void printMap(const HashOfGeneDataMap &mp)
   return;
 }
 
-void printRefFlat(const HashOfGeneDataMap &mp, const int nameflag)
+void printRefFlat(const HashOfGeneDataMap &mp, const int32_t nameflag)
 {
   for(auto itr = mp.begin(); itr != mp.end(); ++itr) {
     for(auto itr2 = itr->second.begin(); itr2 != itr->second.end(); ++itr2) {
@@ -263,10 +263,10 @@ std::vector<chrsize> read_genometable(const std::string& fileName)
   return gt;
 }
 
-std::vector<int> readMpbl(std::string mpfile, std::string chrname, int binsize, int nbin)
+std::vector<int32_t> readMpbl(std::string mpfile, std::string chrname, int32_t binsize, int32_t nbin)
 {
   std::string filename = mpfile + "/map_fragL150_" + chrname + "_bin" + IntToString(binsize) +".txt";
-  std::vector<int> mparray(nbin, 0);
+  std::vector<int32_t> mparray(nbin, 0);
 
   isFile(filename);
   std::ifstream in(filename);
@@ -278,7 +278,7 @@ std::vector<int> readMpbl(std::string mpfile, std::string chrname, int binsize, 
     std::vector<std::string> v;
     boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
 
-    int n(stoi(v[0])/binsize);
+    int32_t n(stoi(v[0])/binsize);
     double val(stof(v[1])*binsize);
     mparray[n] = val;
   }
@@ -286,13 +286,13 @@ std::vector<int> readMpbl(std::string mpfile, std::string chrname, int binsize, 
   return mparray;
 }
 
-std::vector<char> readMpbl_binary(std::string mpfile, std::string chrname, int chrlen)
+std::vector<char> readMpbl_binary(std::string mpfile, std::string chrname, int32_t chrlen)
 {
   std::string filename = mpfile + "/map_" + chrname + "_binary.txt";
   std::vector<char> mparray(chrlen, UNMAPPABLE);
 
   isFile(filename);
-  int n(0);
+  int32_t n(0);
   char c;
   std::ifstream in(filename);
   while (!in.eof()) {
@@ -306,7 +306,7 @@ std::vector<char> readMpbl_binary(std::string mpfile, std::string chrname, int c
   return mparray;
 }
 
-std::vector<char> readMpbl_binary(int chrlen)
+std::vector<char> readMpbl_binary(int32_t chrlen)
 {
   std::vector<char> mparray(chrlen, MAPPABLE);
   return mparray;
@@ -316,20 +316,20 @@ std::vector<char> arraySetBed(std::vector<char> &array, std::string chrname, std
 {
   for(auto bed: vbed) {
     if(bed.chr == chrname) {
-      int s(bed.start);
-      int e(bed.end);
-      if(e>=(int)array.size()) {
+      int32_t s(bed.start);
+      int32_t e(bed.end);
+      if(e>=(int32_t)array.size()) {
 	std::cerr << "Warning: bedfile" << bed.start <<"-"<<bed.end << " > array size " << array.size() << std::endl;
 	e = array.size()-1;
       }
-      for(int i=s; i<=e; ++i) array[i] = INBED;
+      for(int32_t i=s; i<=e; ++i) array[i] = INBED;
     } 
   }
 
   return array;
 }
 
-std::string IntToString(int n)
+std::string IntToString(int64_t n)
 {
   std::ostringstream stream;
   stream << n;

@@ -33,7 +33,6 @@ void read_mapfile(const MyOpt::Variables &values, Mapfile &p)
       else if(isStr(inputfile, ".bowtie"))   parseBowtie(values, inputfile, p);
       else if(isStr(inputfile, ".tagalign")) parseTagAlign(values, inputfile, p);
     }
-    //    printf("done.\n");
   }
   p.genome.setnread();
 
@@ -47,7 +46,7 @@ void read_mapfile(const MyOpt::Variables &values, Mapfile &p)
 template <class T>
 void do_bampe(const MyOpt::Variables &values, Mapfile &p, T &in)
 {
-  int maxins(values["maxins"].as<int>());
+  int32_t maxins(values["maxins"].as<int32_t>());
 
   std::string lineStr;
   while (!in.eof()) {
@@ -56,7 +55,7 @@ void do_bampe(const MyOpt::Variables &values, Mapfile &p, T &in)
 
     std::vector<std::string> v;
     boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
-    int sv(stoi(v[1]));   // bitwise FLAG
+    int32_t sv(stoi(v[1]));   // bitwise FLAG
     if(sv&4 || sv&512 || sv&1024) continue;
     if(!(sv&2)) continue;
     if(sv&128) {
@@ -82,7 +81,7 @@ void do_bamse(const MyOpt::Variables &values, Mapfile &p, T & in)
     if(lineStr.empty() || lineStr[0]=='@') continue;
     std::vector<std::string> v;
     boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
-    int sv(stoi(v[1])); // bitwise FLAG
+    int32_t sv(stoi(v[1])); // bitwise FLAG
     // unmapped reads, low quality reads
     if(sv&4 || sv&512 || sv&1024) continue;
     if(sv&64 || sv&128) std::cerr << "Warning: parsing paired-end file as single-end." << std::endl;
@@ -120,13 +119,13 @@ void parseSam(const MyOpt::Variables &values, const std::string &inputfile, Mapf
 
 void parseBowtie(const MyOpt::Variables &values, const std::string &inputfile, Mapfile &p)
 {
-  int maxins(values["maxins"].as<int>());
+  int32_t maxins(values["maxins"].as<int32_t>());
   std::ifstream in(inputfile);
   if(!in) PRINTERR("Could not open " << inputfile << ".");
   std::cout << "Input format: BOWTIE" << std::endl;
 
   std::string chr_F3(""), chr_F5(""), nametemp("");
-  int F5(0);
+  int32_t F5(0);
   Fragment fragpair;
   
   std::string lineStr;
@@ -204,8 +203,8 @@ void funcTagAlign(const MyOpt::Variables &values, Mapfile &p, T &in)
     
     if (values.count("pair")) PRINTERR("tagAlign format does not support paired-end file.\n");
     else {
-      int start(stoi(v[1]));
-      int end(stoi(v[2]));
+      int32_t start(stoi(v[1]));
+      int32_t end(stoi(v[2]));
       Fragment frag;
       frag.chr = rmchr(v[0]);
       frag.readlen_F3 = abs(end - start);
@@ -240,7 +239,7 @@ void parseTagAlign(const MyOpt::Variables &values, const std::string &inputfile,
   return;
 }
 
-void printDist(std::ofstream &out, const std::vector<int> v, const std::string str, const long nread)
+void printDist(std::ofstream &out, const std::vector<int32_t> v, const std::string str, const uint64_t nread)
 {
   out << "\n" << str << " length distribution" << std::endl;
   out << "length\tnumber\tproportion" << std::endl;
@@ -249,7 +248,7 @@ void printDist(std::ofstream &out, const std::vector<int> v, const std::string s
   return;
 }
 
-void hashFilterAllSingle(std::unordered_map<int, int> &mp, strandData &seq, const int thre)
+void hashFilterAllSingle(std::unordered_map<int32_t, int32_t> &mp, strandData &seq, const int32_t thre)
 {
   for(auto &x:seq.vRead) {
     if(mp.find(x.F3) != mp.end()) {
@@ -268,7 +267,7 @@ void hashFilterAllSingle(std::unordered_map<int, int> &mp, strandData &seq, cons
   return;
 }
 
-void hashFilterCmpSingle(std::unordered_map<int, int> &mp, Mapfile &p, const strandData &seq, const int thre)
+void hashFilterCmpSingle(std::unordered_map<int32_t, int32_t> &mp, Mapfile &p, const strandData &seq, const int32_t thre)
 {
   for(auto x: seq.vRead){
     if(rand() >= p.getr4cmp()) continue;
@@ -288,11 +287,11 @@ void hashFilterCmpSingle(std::unordered_map<int, int> &mp, Mapfile &p, const str
   return;
 }
 
-void hashFilterAllPair(std::unordered_map<std::string, int> &mp, strandData &seq, const int thre)
+void hashFilterAllPair(std::unordered_map<std::string, int32_t> &mp, strandData &seq, const int32_t thre)
 {
   for(auto &x:seq.vRead) {
-    int Fmin = std::min(x.F3, x.F5);
-    int Fmax = std::max(x.F3, x.F5);
+    int32_t Fmin = std::min(x.F3, x.F5);
+    int32_t Fmax = std::max(x.F3, x.F5);
     std::string str = IntToString(Fmin) + "-" + IntToString(Fmax);
     //    std::cout << str << std::endl;
     if(mp.find(str) != mp.end()) {
@@ -311,12 +310,12 @@ void hashFilterAllPair(std::unordered_map<std::string, int> &mp, strandData &seq
   return;
 }
 
-void hashFilterCmpPair(std::unordered_map<std::string, int> &mp, Mapfile &p, const strandData &seq, const int thre)
+void hashFilterCmpPair(std::unordered_map<std::string, int32_t> &mp, Mapfile &p, const strandData &seq, const int32_t thre)
 {
   for(auto x: seq.vRead){
     if(rand() >= p.getr4cmp()) continue;
-    int Fmin = std::min(x.F3, x.F5);
-    int Fmax = std::max(x.F3, x.F5);
+    int32_t Fmin = std::min(x.F3, x.F5);
+    int32_t Fmax = std::max(x.F3, x.F5);
     std::string str = IntToString(Fmin) + "-" + IntToString(Fmax);
     p.incNtAll();
     if(mp.find(str) != mp.end()) {
@@ -339,14 +338,14 @@ void checkRedundantReads(const MyOpt::Variables &values, Mapfile &p)
   p.setthre4filtering(values);
   
   // Library complexity
-  double r = values["ncmp"].as<int>()/static_cast<double>(p.genome.bothnread());
+  double r = values["ncmp"].as<int32_t>()/static_cast<double>(p.genome.bothnread());
   if(r>1){
-    std::cerr << "Warning: number of reads is < "<< (int)(values["ncmp"].as<int>()/NUM_1M) <<" million.\n";
+    std::cerr << "Warning: number of reads is < "<< (int32_t)(values["ncmp"].as<int32_t>()/NUM_1M) <<" million.\n";
     p.lackOfRead4Complexity_on();
   }
   p.setr4cmp(r*RAND_MAX);
   
-  for(uint i=0; i<p.genome.chr.size(); ++i) {
+  for(uint32_t i=0; i<p.genome.chr.size(); ++i) {
     if (values.count("pair")) filtering_eachchr_pair(p, p.genome.chr[i]);
     else                      filtering_eachchr_single(p, p.genome.chr[i]);
   }
@@ -357,12 +356,12 @@ void checkRedundantReads(const MyOpt::Variables &values, Mapfile &p)
 
 void filtering_eachchr_single(Mapfile &p, SeqStats &chr)
 {
-  for(int strand=0; strand<STRANDNUM; strand++) {
+  for(int32_t strand=0; strand<STRANDNUM; strand++) {
 
-    std::unordered_map<int, int> mp;
+    std::unordered_map<int32_t, int32_t> mp;
     hashFilterAllSingle(mp, chr.seq[strand], p.getthre4filtering());
     
-    std::unordered_map<int, int> mp2;
+    std::unordered_map<int32_t, int32_t> mp2;
     hashFilterCmpSingle(mp2, p, chr.seq[strand], p.getthre4filtering());
   }
   
@@ -371,20 +370,20 @@ void filtering_eachchr_single(Mapfile &p, SeqStats &chr)
 
 void filtering_eachchr_pair(Mapfile &p, SeqStats &chr)
 {
-  std::unordered_map<std::string, int> mp;
-  for(int strand=0; strand<STRANDNUM; ++strand) {
+  std::unordered_map<std::string, int32_t> mp;
+  for(int32_t strand=0; strand<STRANDNUM; ++strand) {
     hashFilterAllPair(mp, chr.seq[strand], p.getthre4filtering());
   }
 
   std::unordered_map<std::string, int> mp2;
-  for(int strand=0; strand<STRANDNUM; strand++) {
+  for(int32_t strand=0; strand<STRANDNUM; strand++) {
     hashFilterCmpPair(mp2, p, chr.seq[strand], p.getthre4filtering());
   }
 
   return;
 }
 
-int check_sv(int sv)
+int32_t check_sv(int32_t sv)
 {
   // for paired-end
   /*  LOG("   the read is paired in sequencing: %d\n",sv&1);

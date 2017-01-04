@@ -99,9 +99,9 @@ class ReadShiftProfile {
   double nsc;
   double rlsc;
   int nsci;
-  long long len;
-  long nread;
-  long num4ssp;
+  uint64_t len;
+  uint64_t nread;
+  uint32_t num4ssp;
   double backgroundUniformity;
   
  public:
@@ -113,8 +113,8 @@ class ReadShiftProfile {
 
   double rchr;
 
- ReadShiftProfile(const long len, const int b, const int n4s, int s=0, int e=0, long n=0, long l=0):
-  lenF3(len), r(0), bk(0), bk_from(b), nsc(0), rlsc(0), nsci(0), len(l), nread(n), num4ssp(n4s), backgroundUniformity(0), start(s), end(e), width(e-s), rchr(1) {}
+ ReadShiftProfile(const int lenf3, const int b, const int n4s, int s=0, int e=0, long n=0, long l=0):
+  lenF3(lenf3), r(0), bk(0), bk_from(b), nsc(0), rlsc(0), nsci(0), len(l), nread(n), num4ssp(n4s), backgroundUniformity(0), start(s), end(e), width(e-s), rchr(1) {}
   virtual ~ReadShiftProfile() {}
   void setmp(const int i, const double val, boost::mutex &mtx) {
     boost::mutex::scoped_lock lock(mtx);
@@ -125,6 +125,8 @@ class ReadShiftProfile {
   void setrchr(const long n) { rchr = n ? nread/static_cast<double>(n): 0; }
   int getlenF3() const { return lenF3; }
   int getnsci() const { return nsci; }
+  uint64_t getnread() const { return nread; }
+  uint64_t getlen() const { return len; }
   double getmpsum() const {
     double sum(0);
     for(auto itr = mp.begin(); itr != mp.end(); ++itr) sum += itr->second;
@@ -262,8 +264,6 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
       defSepRange(numthreads);
     }
   virtual ~ReadShiftProfileGenome(){}
-  long getnread() const { return nread; }
-  long getlen() const { return len; }
   void defSepRange(const int numthreads) {
     int length(mp_to+mp_from);
     int sepsize = length/numthreads +1;
@@ -299,6 +299,9 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
     std::string command = "R --vanilla < " + Rscript + " > " + Rscript + ".log 2>&1";
     
     int return_code = system(command.c_str());
+    if(WEXITSTATUS(return_code)) {
+      std::cerr << "Warning: command " << command << "return nonzero status." << std::endl;
+    }
   }
   
   void outputmpGenome(const std::string &prefix) {

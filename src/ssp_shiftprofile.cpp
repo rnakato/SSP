@@ -231,6 +231,9 @@ void makeRscript(const std::string prefix)
   std::string command = "R --vanilla < " + Rscript + " > " + Rscript + ".log 2>&1";
   std::cout << command << std::endl;
   int return_code = system(command.c_str());
+  if(WEXITSTATUS(return_code)) {
+    std::cerr << "Warning: command " << command << "return nonzero status." << std::endl;
+  }
   
   return;
 }
