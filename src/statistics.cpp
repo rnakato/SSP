@@ -10,17 +10,17 @@
 #include <gsl/gsl_multimin.h>
 #include <gsl/gsl_sf.h>
 
-double _getPoisson(int i, double m)
+double _getPoisson(int32_t i, double m)
 {
   return gsl_ran_poisson_pdf(i, m);
 }
 
-double _getNegativeBinomial(int k, double p, double n)
+double _getNegativeBinomial(int32_t k, double p, double n)
 {
   return gsl_ran_negative_binomial_pdf(k, p, n);
 }
 
-double _getZIP(int k, double p, double p0)
+double _getZIP(int32_t k, double p, double p0)
 {
   double r(0);
   if(!k) {
@@ -31,7 +31,7 @@ double _getZIP(int k, double p, double p0)
   return r;
 }
 
-double _getZINB(int k, double p, double n, double p0)
+double _getZINB(int32_t k, double p, double n, double p0)
 {
   double r(0);
   if(!k) {
@@ -49,7 +49,7 @@ gsl_multimin_fminimizer *gsl_multimin_fminimizer_new(size_t ndim)
   return s;
 }
 
-gsl_vector *gsl_vector_new(int ndim, double init)
+gsl_vector *gsl_vector_new(int32_t ndim, double init)
 {
   gsl_vector *p = gsl_vector_alloc(ndim);
   gsl_vector_set_all(p, init);
@@ -68,8 +68,8 @@ double f_zinb_const(const gsl_vector *v, void *params)
   if(p0 > 1) p0 = 1.0;
 
   double r(0), fxy(0);
-  int thre = par[0];
-  for(int i=0; i<thre; ++i) {
+  int32_t thre = par[0];
+  for(int32_t i=0; i<thre; ++i) {
     if(!i) r = p0 + (1 - p0) * gsl_ran_negative_binomial_pdf(0, p, n);
     else   r =      (1 - p0) * gsl_ran_negative_binomial_pdf(i, p, n);
     fxy += (par[i+1] - r)*(par[i+1] - r);
@@ -82,7 +82,7 @@ double f_zinb_const(const gsl_vector *v, void *params)
 void func_iteration(gsl_multimin_fminimizer *s, size_t ndim)
 {
   size_t iter(0);
-  int status;
+  int32_t status;
   double size;
   do {
     ++iter;
@@ -142,9 +142,9 @@ double f_poisson(const gsl_vector *v, void *params)
   if(p >= 1) p = 0.99;
 
   double fxy(0);
-  int thre = par[0];
+  int32_t thre = par[0];
   double r;
-  for(int i=0; i<thre; ++i) {
+  for(int32_t i=0; i<thre; ++i) {
     if(!i) r = p0 + (1 - p0) * _getPoisson(i, p); 
     else   r =      (1 - p0) * _getPoisson(i, p);
     fxy += (par[i+1] - r)*(par[i+1] - r);

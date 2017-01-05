@@ -7,70 +7,70 @@
 #include <map>
 #include <boost/thread.hpp>
 
-void addmp(std::map<int, double> &mpto, const std::map<int, double> &mpfrom, double w)
+void addmp(std::map<int32_t, double> &mpto, const std::map<int32_t, double> &mpfrom, double w)
 {
   for(auto itr = mpfrom.begin(); itr != mpfrom.end(); ++itr) {
     if(!std::isnan(itr->second)) mpto[itr->first] += itr->second * w;
   }
 }
 
-double getJaccard(int step, int to, int xysum, const std::vector<char> &fwd, const std::vector<char> &rev)
+double getJaccard(int32_t step, int32_t to, int32_t xysum, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev)
 {
-  int xy(0);
-  for(int j=mp_from; j<to; ++j) if(fwd[j] * rev[j+step]) xy += std::max(fwd[j], rev[j+step]);
+  int32_t xy(0);
+  for(int32_t j=mp_from; j<to; ++j) if(fwd[j] * rev[j+step]) xy += std::max(fwd[j], rev[j+step]);
   return (xy/static_cast<double>(xysum-xy));
 }
 
-void genThreadJacVec(ReadShiftProfile &chr, int ng_to, int xysum, const std::vector<char> &fwd, const std::vector<char> &rev, int s, int e, boost::mutex &mtx)
+void genThreadJacVec(ReadShiftProfile &chr, int32_t ng_to, int32_t xysum, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev, int32_t s, int32_t e, boost::mutex &mtx)
 {
-  for(int step=s; step<e; ++step) {
+  for(int32_t step=s; step<e; ++step) {
     chr.setmp(step, getJaccard(step, chr.width-ng_to, xysum, fwd, rev), mtx);
   }
 }
 
-void shiftJacVec::setDist(ReadShiftProfile &chr, const std::vector<char> &fwd, const std::vector<char> &rev)
+void shiftJacVec::setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev)
 {
-  int xx = accumulate(fwd.begin(), fwd.end(), 0);
-  int yy = accumulate(rev.begin(), rev.end(), 0);
+  int32_t xx = accumulate(fwd.begin(), fwd.end(), 0);
+  int32_t yy = accumulate(rev.begin(), rev.end(), 0);
 
   boost::thread_group agroup;
   boost::mutex mtx;
-  for(uint i=0; i<seprange.size(); i++) {
+  for(uint32_t i=0; i<seprange.size(); i++) {
     agroup.create_thread(bind(&genThreadJacVec, boost::ref(chr), ng_to, xx+yy, boost::cref(fwd), boost::cref(rev), seprange[i].start, seprange[i].end, boost::ref(mtx)));
   }
   agroup.join_all();
 
-  for(int step=ng_from; step<ng_to; step+=ng_step) {
+  for(int32_t step=ng_from; step<ng_to; step+=ng_step) {
     chr.nc[step] = getJaccard(step, chr.width-ng_to, xx+yy, fwd, rev);
   }
 }
 
-void genThreadCcp(ReadShiftProfile &chr, int ng_to, const std::vector<char> &fwd, const std::vector<char> &rev, double mx, double my, const int s, const int e, boost::mutex &mtx)
+void genThreadCcp(ReadShiftProfile &chr, int32_t ng_to, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev, double mx, double my, const int32_t s, const int32_t e, boost::mutex &mtx)
 {
-  for(int step=s; step<e; ++step) {
+  for(int32_t step=s; step<e; ++step) {
     double xy(0);
-    for(int j=mp_from; j<chr.width-ng_to; ++j) {
+    for(int32_t j=mp_from; j<chr.width-ng_to; ++j) {
       xy += (fwd[j] - mx) * (rev[j+step] - my);
     }
     chr.setmp(step, xy, mtx);
   }
 }
 
-void shiftCcp::setDist(ReadShiftProfile &chr, const std::vector<char> &fwd, const std::vector<char> &rev)
+void shiftCcp::setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev)
 {
-  moment<char> x(fwd, mp_from, chr.width-ng_to);
-  moment<char> y(rev, mp_from, chr.width-ng_to);
+  moment<int8_t> x(fwd, mp_from, chr.width-ng_to);
+  moment<int8_t> y(rev, mp_from, chr.width-ng_to);
 
   boost::thread_group agroup;
   boost::mutex mtx;
-  for(uint i=0; i<seprange.size(); i++) {
+  for(uint32_t i=0; i<seprange.size(); i++) {
     agroup.create_thread(bind(genThreadCcp, boost::ref(chr), ng_to, boost::cref(fwd), boost::cref(rev), x.getmean(), y.getmean(), seprange[i].start, seprange[i].end, boost::ref(mtx)));
   }
   agroup.join_all();
 
-  for(int step=ng_from; step<ng_to; step+=ng_step) {
+  for(int32_t step=ng_from; step<ng_to; step+=ng_step) {
     double xy(0);
-    for(int j=mp_from; j<chr.width-ng_to; ++j) xy += (fwd[j] - x.getmean()) * (rev[j+step] - y.getmean());
+    for(int32_t j=mp_from; j<chr.width-ng_to; ++j) xy += (fwd[j] - x.getmean()) * (rev[j+step] - y.getmean());
     chr.nc[step] = xy;
   }
 
@@ -81,20 +81,20 @@ void shiftCcp::setDist(ReadShiftProfile &chr, const std::vector<char> &fwd, cons
 
 void shiftJacBit::setDist(ReadShiftProfile &chr, const boost::dynamic_bitset<> &fwd, boost::dynamic_bitset<> &rev)
 {
-  int xysum(fwd.count() + rev.count());
+  int32_t xysum(fwd.count() + rev.count());
 
   rev <<= mp_from;
-  for(int step=-mp_from; step<mp_to; ++step) {
+  for(int32_t step=-mp_from; step<mp_to; ++step) {
     rev >>= 1;
-    int xy((fwd & rev).count());
+    int32_t xy((fwd & rev).count());
     //    chr.mp[step] = xy;
     chr.mp[step] = xy/static_cast<double>(xysum-xy);
   }
   rev >>= (ng_from - mp_to);
 
-  for(int step=ng_from; step<ng_to; step+=ng_step) {
+  for(int32_t step=ng_from; step<ng_to; step+=ng_step) {
     rev >>= ng_step;
-    int xy((fwd & rev).count());
+    int32_t xy((fwd & rev).count());
     chr.nc[step] = xy/static_cast<double>(xysum-xy);
   }
 }
@@ -102,31 +102,31 @@ void shiftJacBit::setDist(ReadShiftProfile &chr, const boost::dynamic_bitset<> &
 void shiftHamming::setDist(ReadShiftProfile &chr, const boost::dynamic_bitset<> &fwd, boost::dynamic_bitset<> &rev)
 {
   rev <<= mp_from;
-  for(int step=-mp_from; step<mp_to; ++step) {
+  for(int32_t step=-mp_from; step<mp_to; ++step) {
     rev >>= 1;
     chr.mp[step] = (fwd ^ rev).count();
   }
   rev >>= (ng_from - mp_to);
   
-  for(int step=ng_from; step<ng_to; step+=ng_step) {
+  for(int32_t step=ng_from; step<ng_to; step+=ng_step) {
     rev >>= ng_step;
     chr.nc[step] = (fwd ^ rev).count();
   }
 }
 
-std::vector<char> genVector(const strandData &seq, int start, int end)
+std::vector<int8_t> genVector(const strandData &seq, int32_t start, int32_t end)
 {
-  std::vector<char> array(end-start, 0);
+  std::vector<int8_t> array(end-start, 0);
   for (auto x: seq.vRead) {
     if(!x.duplicate && RANGE(x.F3, start, end-1)) ++array[x.F3 - start];
   }
   return array;
 }
 
-std::vector<char> genVector4FixedReadsNum(const strandData &seq, int start, int end, const double r4cmp)
+std::vector<int8_t> genVector4FixedReadsNum(const strandData &seq, int32_t start, int32_t end, const double r4cmp)
 {
-  int n(0);
-  std::vector<char> array(end-start, 0);
+  int32_t n(0);
+  std::vector<int8_t> array(end-start, 0);
   for (auto x: seq.vRead) {
     if(!x.duplicate && RANGE(x.F3, start, end-1)){
       if(rand() >= r4cmp) continue;
@@ -139,7 +139,7 @@ std::vector<char> genVector4FixedReadsNum(const strandData &seq, int start, int 
   return array;
 }
 
-boost::dynamic_bitset<> genBitset(const strandData &seq, int start, int end)
+boost::dynamic_bitset<> genBitset(const strandData &seq, int32_t start, int32_t end)
 {
   boost::dynamic_bitset<> array(end-start);
   for (auto x: seq.vRead) {
@@ -150,8 +150,8 @@ boost::dynamic_bitset<> genBitset(const strandData &seq, int start, int end)
 }
 
 template <class T>
-void genThread(T &dist, const Mapfile &p, uint chr_s, uint chr_e, std::string typestr, const bool output_eachchr) {
-  for(uint i=chr_s; i<=chr_e; ++i) {
+void genThread(T &dist, const Mapfile &p, uint32_t chr_s, uint32_t chr_e, std::string typestr, const bool output_eachchr) {
+  for(uint32_t i=chr_s; i<=chr_e; ++i) {
     std::cout << p.genome.chr[i].name << ".." << std::flush;
 
     dist.execchr(p, i);
@@ -173,7 +173,7 @@ void makeProfile(Mapfile &p, const std::string &typestr, const MyOpt::Variables 
 
   if(typestr == "hdp" || typestr == "jaccard") {
     //agroup.create_thread(bind(genThread<T>, boost::ref(dist), boost::cref(p), 0, 0, typestr, values.count("eachchr")));
-    for(uint i=0; i<p.genome.vsepchr.size(); i++) {
+    for(uint32_t i=0; i<p.genome.vsepchr.size(); i++) {
       agroup.create_thread(bind(genThread<T>, boost::ref(dist), boost::cref(p), p.genome.vsepchr[i].s, p.genome.vsepchr[i].e, typestr, values.count("eachchr")));
     }
     agroup.join_all();
@@ -183,7 +183,7 @@ void makeProfile(Mapfile &p, const std::string &typestr, const MyOpt::Variables 
   }
 
   // set fragment length;
-  for(uint i=0; i<p.genome.chr.size(); ++i) {
+  for(uint32_t i=0; i<p.genome.chr.size(); ++i) {
     if(p.genome.chr[i].isautosome()) dist.addmp2genome(i);
   }
 
@@ -230,7 +230,7 @@ void makeRscript(const std::string prefix)
 
   std::string command = "R --vanilla < " + Rscript + " > " + Rscript + ".log 2>&1";
   std::cout << command << std::endl;
-  int return_code = system(command.c_str());
+  int32_t return_code = system(command.c_str());
   if(WEXITSTATUS(return_code)) {
     std::cerr << "Warning: command " << command << "return nonzero status." << std::endl;
   }
@@ -243,21 +243,21 @@ void makeFCSProfile(const MyOpt::Variables &values, Mapfile &p, const std::strin
   shiftFragVar dist(p, values, p.getflen(values));
   dist.printStartMessage();
 
-  // double r = (values["num4ssp"].as<int>()/static_cast<double>(dist.getnread())) / (NUM_100M/static_cast<double>(dist.getlen()));
-  double r = values["num4ssp"].as<int>()/static_cast<double>(dist.getnread());
+  // double r = (values["num4ssp"].as<int32_t>()/static_cast<double>(dist.getnread())) / (NUM_100M/static_cast<double>(dist.getlen()));
+  double r = values["num4ssp"].as<int32_t>()/static_cast<double>(dist.getnread());
 
 #ifdef DEBUG
   std::cout << "\nr for FCS\t" << r << "\t reads: " << dist.getnread()<<  std::endl;
 #endif
 
   if(r>1){
-    std::cerr << "\nWarning: number of reads (" << dist.getnread() << ") is less than num4ssp ("<<  values["num4ssp"].as<int>() <<").\n";
+    std::cerr << "\nWarning: number of reads (" << dist.getnread() << ") is less than num4ssp ("<<  values["num4ssp"].as<int32_t>() <<").\n";
     dist.lackOfReads_on();
   }
 
   double r4cmp = r*RAND_MAX;
 
-  for(uint i=0; i<p.genome.chr.size(); ++i) {
+  for(uint32_t i=0; i<p.genome.chr.size(); ++i) {
     if(p.genome.chr[i].isautosome()) {
       std::cout << p.genome.chr[i].name << ".." << std::flush;
       dist.execchr(p, i, r4cmp);
@@ -277,9 +277,9 @@ void makeFCSProfile(const MyOpt::Variables &values, Mapfile &p, const std::strin
   return;
 }
 
-void genThreadFragVar(ReadShiftProfile &chr, std::map<int, FragmentVariability> &acfp, const std::vector<char> &fwd, const std::vector<char> &rev, const std::vector<double> &fvback, const int s, const int e, boost::mutex &mtx)
+void genThreadFragVar(ReadShiftProfile &chr, std::map<int32_t, FragmentVariability> &acfp, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev, const std::vector<double> &fvback, const int32_t s, const int32_t e, boost::mutex &mtx)
 {
-  for(int step=s; step<e; ++step) {
+  for(int32_t step=s; step<e; ++step) {
     FragmentVariability fv;
     fv.setVariability(step, chr.start, chr.end, fwd, rev);
 
@@ -293,14 +293,14 @@ void genThreadFragVar(ReadShiftProfile &chr, std::map<int, FragmentVariability> 
   }
 }
 
-void shiftFragVar::setDist(ReadShiftProfile &chr, const std::vector<char> &fwd, const std::vector<char> &rev)
+void shiftFragVar::setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev)
 {
   boost::thread_group agroup;
   boost::mutex mtx;
 
   std::vector<double> fvback(sizeOfvDistOfDistaneOfFrag,0);
-  int n(0);
-  for(int step=ng_from_fcs; step<ng_to_fcs; step+=ng_step_fcs) {
+  int32_t n(0);
+  for(int32_t step=ng_from_fcs; step<ng_to_fcs; step+=ng_step_fcs) {
     FragmentVariability fv;
     fv.setVariability(step, chr.start, chr.end, fwd, rev);    
     for(size_t k=0; k<sizeOfvDistOfDistaneOfFrag; ++k) {
@@ -311,12 +311,12 @@ void shiftFragVar::setDist(ReadShiftProfile &chr, const std::vector<char> &fwd, 
   for(size_t k=0; k<sizeOfvDistOfDistaneOfFrag; ++k) fvback[k] /= n;
 
   if (fcsfull) {
-    for(uint i=0; i<seprange.size(); i++) {
+    for(uint32_t i=0; i<seprange.size(); i++) {
       agroup.create_thread(bind(&genThreadFragVar, boost::ref(chr), boost::ref(acfp), boost::cref(fwd), boost::cref(rev), boost::cref(fvback), seprange[i].start, seprange[i].end, boost::ref(mtx)));
     }
     agroup.join_all();
   } else {
-    std::vector<int> v{flen, chr.getlenF3()};
+    std::vector<int32_t> v{flen, chr.getlenF3()};
     std::copy(v4acfp.begin(), v4acfp.end(), std::back_inserter(v));
     for(auto x: v) {
     //    for(auto x: v4acfp) {

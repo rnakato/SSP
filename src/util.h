@@ -11,7 +11,7 @@
 
 std::string rmchr(const std::string &chr);
 void isFile(const std::string &);
-int isStr(std::string, std::string);
+int32_t isStr(std::string, std::string);
 
 template <class T>
 void printOpt(boost::program_options::variables_map &values, std::string opt, std::string str)
@@ -25,7 +25,7 @@ void printVOpt(boost::program_options::variables_map &values, std::string opt, s
 {
   if (values.count(opt)) {
     auto v = values[opt].as<std::vector<T>>();
-    for(uint i=0; i<v.size(); ++i) {
+    for(uint32_t i=0; i<v.size(); ++i) {
 	boost::format("%1% %2%: %3%\n") % str % (i+1) % v[i];
     }
   }
@@ -33,7 +33,7 @@ void printVOpt(boost::program_options::variables_map &values, std::string opt, s
 }
 
 template <class T>
-void chkminus(const boost::program_options::variables_map &values, std::string x, int lim)
+void chkminus(const boost::program_options::variables_map &values, std::string x, int32_t lim)
 {
   if (values.count(x)) {
     T val = values[x].as<T>();
@@ -66,12 +66,12 @@ template <class T, class S>
 };
 
 template <class T>
-int getmaxi(std::vector<T> v)
+int32_t getmaxi(std::vector<T> v)
 {
   T max(0);
-  int maxi(0);
-  int size = v.size();
-  for(int i=0; i<size; ++i) {
+  int32_t maxi(0);
+  int32_t size = v.size();
+  for(int32_t i=0; i<size; ++i) {
     if(max < v[i]) {
       max = v[i];
       maxi = i;
@@ -83,18 +83,18 @@ int getmaxi(std::vector<T> v)
 template <class T>
 void GaussianSmoothing(std::vector<T> &v)
 {
-  int size = v.size();
+  int32_t size = v.size();
 
   std::vector<double> w(4,0);
   double var=1;
-  for(int j=0; j<4; ++j) w[j] = exp(static_cast<double>(-j*j)/2*var*var);
+  for(int32_t j=0; j<4; ++j) w[j] = exp(static_cast<double>(-j*j)/2*var*var);
   double r = 1/(w[0] + (w[1]+w[2]+w[3]) *2);
 
   double m0;
   double m1(v[0]);
   double m2(v[1]);
   double m3(v[2]);
-  for(int i=3; i<size-3; ++i) {
+  for(int32_t i=3; i<size-3; ++i) {
     m0 = v[i];
     v[i] = (w[0]*m0 + w[1]*(m1 + v[i+1]) + w[2]*(m2 + v[i+2]) + w[3]*(m3 + v[i+3]))*r;
     m3 = m2;
@@ -105,7 +105,7 @@ void GaussianSmoothing(std::vector<T> &v)
 }
 
 template <class T>
-int findIndex(std::vector<T> array, T value)
+int32_t findIndex(std::vector<T> array, T value)
 {
     auto iter = std::find(array.begin(), array.end(), value);
     size_t index = std::distance(array.begin(), iter);

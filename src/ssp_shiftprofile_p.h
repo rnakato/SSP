@@ -9,32 +9,32 @@
 #include "alglib/alglib.h"
 
 namespace {
-  const int mp_from(500);
-  const int mp_to(1500);
-  const int sizeOfvDistOfDistaneOfFrag = 5000;
-  const std::vector<int> v4acfp{50, 100, 150, 500, 1000, 2000, 3000, 10000, 100000, 1000000};
+  const int32_t mp_from(500);
+  const int32_t mp_to(1500);
+  const int32_t sizeOfvDistOfDistaneOfFrag = 5000;
+  const std::vector<int32_t> v4acfp{50, 100, 150, 500, 1000, 2000, 3000, 10000, 100000, 1000000};
 }
 
-std::vector<char> genVector(const strandData &seq, int start, int end);
-std::vector<char> genVector4FixedReadsNum(const strandData &seq, int start, int end, const double r4cmp);
-boost::dynamic_bitset<> genBitset(const strandData &seq, int, int);
-void addmp(std::map<int, double> &, const std::map<int, double> &, double w);
+std::vector<int8_t> genVector(const strandData &seq, int32_t start, int32_t end);
+std::vector<int8_t> genVector4FixedReadsNum(const strandData &seq, int32_t start, int32_t end, const double r4cmp);
+boost::dynamic_bitset<> genBitset(const strandData &seq, int32_t, int32_t);
+void addmp(std::map<int32_t, double> &, const std::map<int32_t, double> &, double w);
 
 class FragmentVariability {
   double sumOfvDistOfDistaneOfFrag;
-  std::vector<int> vDistOfDistaneOfFrag;
+  std::vector<int32_t> vDistOfDistaneOfFrag;
 
  public:
  FragmentVariability(): sumOfvDistOfDistaneOfFrag(0),
     vDistOfDistaneOfFrag(sizeOfvDistOfDistaneOfFrag, 0) {}
 
-  void setVariability(const int fraglen, const int start, const int end,
-		      const std::vector<char> &fwd, const std::vector<char> &rev) {
-    int s(start);
+  void setVariability(const int32_t fraglen, const int32_t start, const int32_t end,
+		      const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev) {
+    int32_t s(start);
     if(start + fraglen < 0) s = start - fraglen;
-    int e(end - fraglen);
-    int last(s);
-    for(int i=s; i<e; ++i) {
+    int32_t e(end - fraglen);
+    int32_t last(s);
+    for(int32_t i=s; i<e; ++i) {
       if(fwd[i] && rev[i+fraglen]) {
 	if(RANGE(i-last, 0, sizeOfvDistOfDistaneOfFrag-1)) ++vDistOfDistaneOfFrag[i-last];
 	else ++vDistOfDistaneOfFrag[sizeOfvDistOfDistaneOfFrag-1];
@@ -46,7 +46,7 @@ class FragmentVariability {
   }
 
   double getsumOfvDistOfDistaneOfFrag() const { return sumOfvDistOfDistaneOfFrag; }
-  double getDistOfDistanceOfFragment(const int i) const {
+  double getDistOfDistanceOfFragment(const int32_t i) const {
     if(i<0 || i>= sizeOfvDistOfDistaneOfFrag) {
       std::cerr << "error: invalid num " << i << "for getDistOfDistanceOfFragment max: " << sizeOfvDistOfDistaneOfFrag << std::endl;
       return -1;
@@ -55,27 +55,27 @@ class FragmentVariability {
       return sumOfvDistOfDistaneOfFrag ? vDistOfDistaneOfFrag[i] / sumOfvDistOfDistaneOfFrag : 0;
     }
   }
-  double getAccuOfDistanceOfFragment(const int i) const {
+  double getAccuOfDistanceOfFragment(const int32_t i) const {
     if(i<0 || i>= sizeOfvDistOfDistaneOfFrag) {
       std::cerr << "error: invalid num " << i << "for getAccuOfDistanceOfFragment max: " << sizeOfvDistOfDistaneOfFrag << std::endl;
       return -1;
     }
     else {
       double vAccuOfDistaneOfFrag(0);
-      for(int j=0; j<=i; ++j) {
+      for(int32_t j=0; j<=i; ++j) {
 	vAccuOfDistaneOfFrag += getDistOfDistanceOfFragment(j);
       }
       return vAccuOfDistaneOfFrag;
     }
   }
-  double getPvalueOfBinomTest(const int i, const double myu) const {
+  double getPvalueOfBinomTest(const int32_t i, const double myu) const {
     if(i<0 || i>= sizeOfvDistOfDistaneOfFrag) {
       std::cerr << "error: invalid num " << i << "for getPvalueOfBinomTest max: " << sizeOfvDistOfDistaneOfFrag << std::endl;
       return -1;
     }
     else {
       double sum(0);
-      for(int j=0; j<=i; ++j) {
+      for(int32_t j=0; j<=i; ++j) {
 	sum += vDistOfDistaneOfFrag[j];
       }
       std::cout << sum << "," <<  sumOfvDistOfDistaneOfFrag << "," << myu << std::endl;
@@ -84,47 +84,47 @@ class FragmentVariability {
   }
   void add2genome(const FragmentVariability &x, boost::mutex &mtx) {
     boost::mutex::scoped_lock lock(mtx);
-    for(uint i=0; i<vDistOfDistaneOfFrag.size(); ++i) vDistOfDistaneOfFrag[i] += x.vDistOfDistaneOfFrag[i];
+    for(uint32_t i=0; i<vDistOfDistaneOfFrag.size(); ++i) vDistOfDistaneOfFrag[i] += x.vDistOfDistaneOfFrag[i];
     sumOfvDistOfDistaneOfFrag += x.sumOfvDistOfDistaneOfFrag;
   }
 };
 
 class ReadShiftProfile {
-  int lenF3;
+  int32_t lenF3;
   double r;
   double bk;
-  int bk_from;
+  int32_t bk_from;
 
  protected:
   double nsc;
   double rlsc;
-  int nsci;
+  int32_t nsci;
   uint64_t len;
   uint64_t nread;
   uint32_t num4ssp;
   double backgroundUniformity;
   
  public:
-  std::map<int, double> mp;
-  std::map<int, double> nc;
-  int start;
-  int end;
-  int width;
+  std::map<int32_t, double> mp;
+  std::map<int32_t, double> nc;
+  int32_t start;
+  int32_t end;
+  int32_t width;
 
   double rchr;
 
- ReadShiftProfile(const int lenf3, const int b, const int n4s, int s=0, int e=0, long n=0, long l=0):
+ ReadShiftProfile(const int32_t lenf3, const int32_t b, const int32_t n4s, int32_t s=0, int32_t e=0, int64_t n=0, int64_t l=0):
   lenF3(lenf3), r(0), bk(0), bk_from(b), nsc(0), rlsc(0), nsci(0), len(l), nread(n), num4ssp(n4s), backgroundUniformity(0), start(s), end(e), width(e-s), rchr(1) {}
   virtual ~ReadShiftProfile() {}
-  void setmp(const int i, const double val, boost::mutex &mtx) {
+  void setmp(const int32_t i, const double val, boost::mutex &mtx) {
     boost::mutex::scoped_lock lock(mtx);
     mp[i] = val;
   }
 
   double getbackgroundUniformity() const { return backgroundUniformity; }
-  void setrchr(const long n) { rchr = n ? nread/static_cast<double>(n): 0; }
-  int getlenF3() const { return lenF3; }
-  int getnsci() const { return nsci; }
+  void setrchr(const uint64_t n) { rchr = n ? nread/static_cast<double>(n): 0; }
+  int32_t getlenF3() const { return lenF3; }
+  int32_t getnsci() const { return nsci; }
   uint64_t getnread() const { return nread; }
   uint64_t getlen() const { return len; }
   double getmpsum() const {
@@ -133,7 +133,7 @@ class ReadShiftProfile {
     return sum;
   }
   void setControlRatio() {
-    int n(0);
+    int32_t n(0);
     for(auto itr = nc.begin(); itr != nc.end(); ++itr) {
       if(itr->first >= bk_from) {
 	bk += itr->second;
@@ -145,14 +145,14 @@ class ReadShiftProfile {
   }
 
   void setflen(const std::string &name) {
-    int threwidth(5);
+    int32_t threwidth(5);
     
     setControlRatio();
     nsc = mp[mp_to-1];
-    for(int i=mp_to-1-threwidth; i > lenF3*1.3; --i) {
-      int on(1);
+    for(int32_t i=mp_to-1-threwidth; i > lenF3*1.3; --i) {
+      int32_t on(1);
       if(name == "Hamming distance") {
-	for(int j=1; j<=threwidth; ++j) {
+	for(int32_t j=1; j<=threwidth; ++j) {
 	  if (mp[i] > mp[i+j] || mp[i] > mp[i-j]) on=0;
 	}
 	if(on && nsc > mp[i]) {
@@ -160,7 +160,7 @@ class ReadShiftProfile {
 	  nsci = i;
 	}
       } else {
-	for(int j=1; j<=threwidth; ++j) {
+	for(int32_t j=1; j<=threwidth; ++j) {
 	  if (mp[i] < mp[i+j] || mp[i] < mp[i-j]) on=0;
 	}
 	if(on && nsc < mp[i] * r) {
@@ -207,7 +207,7 @@ class ReadShiftProfile {
 	  << (itr->second * rRPKM) << "\t"
 	  << (itr->second * r)     << std::endl;
   }
-  void print2file4fcs(const std::string filename, const std::string name, const int flen, const bool lackOfReads) const {
+  void print2file4fcs(const std::string filename, const std::string name, const int32_t flen, const bool lackOfReads) const {
     if(!nread) {
       std::cerr << filename << ": no read" << std::endl;
     }
@@ -228,12 +228,12 @@ class ReadShiftProfile {
 
 class ReadShiftProfileGenome: public ReadShiftProfile {
  private:
-  int numthreads;
+  int32_t numthreads;
   
  protected:
-  int ng_from;
-  int ng_to;
-  int ng_step;
+  int32_t ng_from;
+  int32_t ng_to;
+  int32_t ng_step;
   std::vector<range> seprange;
   
  public:
@@ -241,11 +241,11 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
   std::vector<ReadShiftProfile> chr;
   
  ReadShiftProfileGenome(std::string n, const Mapfile &p, const MyOpt::Variables &values):
-  ReadShiftProfile(p.getlenF3(), values["ng_from"].as<int>(), values["num4ssp"].as<int>()),
-    numthreads(values["threads"].as<int>()),
+  ReadShiftProfile(p.getlenF3(), values["ng_from"].as<int32_t>(), values["num4ssp"].as<int32_t>()),
+    numthreads(values["threads"].as<int32_t>()),
     ng_from(5000),
-    ng_to(values["ng_to"].as<int>()),
-    ng_step(values["ng_step"].as<int>()),
+    ng_to(values["ng_to"].as<int32_t>()),
+    ng_step(values["ng_step"].as<int32_t>()),
     name(n)
     {
       for(auto x:p.genome.chr) {
@@ -256,7 +256,7 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
 	}
       }
       for(auto x:p.genome.chr) {
-	ReadShiftProfile v(p.getlenF3(), values["ng_from"].as<int>(), values["num4ssp"].as<int>(), 0, x.getlen(), x.bothnread_nonred(), x.getlenmpbl());
+	ReadShiftProfile v(p.getlenF3(), values["ng_from"].as<int32_t>(), values["num4ssp"].as<int32_t>(), 0, x.getlen(), x.bothnread_nonred(), x.getlenmpbl());
 	v.setrchr(nread);
 	chr.push_back(v);
       }
@@ -264,17 +264,17 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
       defSepRange(numthreads);
     }
   virtual ~ReadShiftProfileGenome(){}
-  void defSepRange(const int numthreads) {
-    int length(mp_to+mp_from);
-    int sepsize = length/numthreads +1;
-    for(int i=0; i<numthreads; ++i) {
-      int s = i*sepsize;
-      int e = (i+1)*sepsize;
+  void defSepRange(const int32_t numthreads) {
+    int32_t length(mp_to+mp_from);
+    int32_t sepsize = length/numthreads +1;
+    for(int32_t i=0; i<numthreads; ++i) {
+      int32_t s = i*sepsize;
+      int32_t e = (i+1)*sepsize;
       if(i==numthreads-1) e = length;
       seprange.push_back(range(s - mp_from, e - mp_from));
     }
   }
-  void addmp2genome(const int i) {
+  void addmp2genome(const int32_t i) {
     addmp(mp, chr[i].mp, chr[i].rchr);
     addmp(nc, chr[i].nc, chr[i].rchr);
   }
@@ -298,7 +298,7 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
 
     std::string command = "R --vanilla < " + Rscript + " > " + Rscript + ".log 2>&1";
     
-    int return_code = system(command.c_str());
+    int32_t return_code = system(command.c_str());
     if(WEXITSTATUS(return_code)) {
       std::cerr << "Warning: command " << command << "return nonzero status." << std::endl;
     }
@@ -309,7 +309,7 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
     print2file(filename, name);
     makeRscript(filename, prefix);
   }
-  void outputmpChr(const std::string &filename, const int i) {
+  void outputmpChr(const std::string &filename, const int32_t i) {
     chr[i].print2file(filename, name);
   }
   void printStartMessage() const {
@@ -323,8 +323,8 @@ class shiftJacVec : public ReadShiftProfileGenome {
  public:
  shiftJacVec(const Mapfile &p, const MyOpt::Variables &values): ReadShiftProfileGenome("Jaccard index", p, values) {}
 
-  void setDist(ReadShiftProfile &chr, const std::vector<char> &fwd, const std::vector<char> &rev);
-  void execchr(const Mapfile &p, int i) {
+  void setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev);
+  void execchr(const Mapfile &p, int32_t i) {
     auto fwd = genVector(p.genome.chr[i].seq[STRAND_PLUS],  chr[i].start, chr[i].end);
     auto rev = genVector(p.genome.chr[i].seq[STRAND_MINUS], chr[i].start, chr[i].end);
 
@@ -337,7 +337,7 @@ class shiftJacBit : public ReadShiftProfileGenome {
  shiftJacBit(const Mapfile &p, const MyOpt::Variables &values): ReadShiftProfileGenome("Jaccard index", p, values) {}
 
   void setDist(ReadShiftProfile &chr, const boost::dynamic_bitset<> &fwd, boost::dynamic_bitset<> &rev);
-  void execchr(const Mapfile &p, int i) {
+  void execchr(const Mapfile &p, int32_t i) {
     auto fwd = genBitset(p.genome.chr[i].seq[STRAND_PLUS],  chr[i].start, chr[i].end);
     auto rev = genBitset(p.genome.chr[i].seq[STRAND_MINUS], chr[i].start, chr[i].end);
 
@@ -349,8 +349,8 @@ class shiftCcp : public ReadShiftProfileGenome {
  public:
  shiftCcp(const Mapfile &p, const MyOpt::Variables &values): ReadShiftProfileGenome("Cross correlation", p, values) {}
 
-  void setDist(ReadShiftProfile &chr, const std::vector<char> &fwd, const std::vector<char> &rev);
-  void execchr(const Mapfile &p, int i) {
+  void setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev);
+  void execchr(const Mapfile &p, int32_t i) {
     auto fwd = genVector(p.genome.chr[i].seq[STRAND_PLUS],  chr[i].start, chr[i].end);
     auto rev = genVector(p.genome.chr[i].seq[STRAND_MINUS], chr[i].start, chr[i].end);
 
@@ -363,7 +363,7 @@ class shiftHamming : public ReadShiftProfileGenome {
  shiftHamming(const Mapfile &p, const MyOpt::Variables &values): ReadShiftProfileGenome("Hamming distance", p, values) {}
 
   void setDist(ReadShiftProfile &chr, const boost::dynamic_bitset<> &fwd, boost::dynamic_bitset<> &rev);
-  void execchr(const Mapfile &p, int i) {
+  void execchr(const Mapfile &p, int32_t i) {
     auto fwd = genBitset(p.genome.chr[i].seq[STRAND_PLUS],  chr[i].start, chr[i].end);
     auto rev = genBitset(p.genome.chr[i].seq[STRAND_MINUS], chr[i].start, chr[i].end);
     
@@ -372,23 +372,23 @@ class shiftHamming : public ReadShiftProfileGenome {
 };
 
 class shiftFragVar : public ReadShiftProfileGenome {
-  std::map<int, FragmentVariability> acfp;
-  int flen;
+  std::map<int32_t, FragmentVariability> acfp;
+  int32_t flen;
   bool lackOfReads;
   bool fcsfull;
-  int ng_from_fcs;
-  int ng_to_fcs;
-  int ng_step_fcs;
+  int32_t ng_from_fcs;
+  int32_t ng_to_fcs;
+  int32_t ng_step_fcs;
 
  public:
- shiftFragVar(const Mapfile &p, const MyOpt::Variables &values, const int fl):
+ shiftFragVar(const Mapfile &p, const MyOpt::Variables &values, const int32_t fl):
   ReadShiftProfileGenome("Fragment Variability", p, values), flen(fl), lackOfReads(false), fcsfull(values.count("fcsfull")),
-    ng_from_fcs(values["ng_from_fcs"].as<int>()),
-    ng_to_fcs(values["ng_to_fcs"].as<int>()),
-    ng_step_fcs(values["ng_step_fcs"].as<int>()) {}
+    ng_from_fcs(values["ng_from_fcs"].as<int32_t>()),
+    ng_to_fcs(values["ng_to_fcs"].as<int32_t>()),
+    ng_step_fcs(values["ng_step_fcs"].as<int32_t>()) {}
 
-  void setDist(ReadShiftProfile &chr, const std::vector<char> &fwd, const std::vector<char> &rev);
-  void execchr(const Mapfile &p, const int i, const double r4cmp) {
+  void setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev);
+  void execchr(const Mapfile &p, const int32_t i, const double r4cmp) {
     auto fwd = genVector4FixedReadsNum(p.genome.chr[i].seq[STRAND_PLUS],  chr[i].start, chr[i].end, r4cmp);
     auto rev = genVector4FixedReadsNum(p.genome.chr[i].seq[STRAND_MINUS], chr[i].start, chr[i].end, r4cmp);
 
@@ -426,7 +426,7 @@ class shiftFragVar : public ReadShiftProfileGenome {
   void outputmpGenome(const std::string &filename) const {
     print2file4fcs(filename, name, flen, lackOfReads);
   }
-  void outputmpChr(const std::string &filename, const int i) const {  
+  void outputmpChr(const std::string &filename, const int32_t i) const {  
     chr[i].print2file4fcs(filename, name, flen, lackOfReads);
   }
 };

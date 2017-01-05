@@ -22,7 +22,7 @@ void isFile(const std::string &str)
   }
 }
 
-int isStr(std::string str, std::string query)
+int32_t isStr(std::string str, std::string query)
 {
   std::transform(str.begin(), str.end(), str.begin(), ::tolower);
   std::transform(query.begin(), query.end(), query.begin(), ::tolower);

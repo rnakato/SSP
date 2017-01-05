@@ -286,14 +286,14 @@ std::vector<int32_t> readMpbl(std::string mpfile, std::string chrname, int32_t b
   return mparray;
 }
 
-std::vector<char> readMpbl_binary(std::string mpfile, std::string chrname, int32_t chrlen)
+std::vector<int8_t> readMpbl_binary(std::string mpfile, std::string chrname, int32_t chrlen)
 {
   std::string filename = mpfile + "/map_" + chrname + "_binary.txt";
-  std::vector<char> mparray(chrlen, UNMAPPABLE);
+  std::vector<int8_t> mparray(chrlen, UNMAPPABLE);
 
   isFile(filename);
   int32_t n(0);
-  char c;
+  int8_t c;
   std::ifstream in(filename);
   while (!in.eof()) {
     c = in.get();
@@ -306,13 +306,13 @@ std::vector<char> readMpbl_binary(std::string mpfile, std::string chrname, int32
   return mparray;
 }
 
-std::vector<char> readMpbl_binary(int32_t chrlen)
+std::vector<int8_t> readMpbl_binary(int32_t chrlen)
 {
-  std::vector<char> mparray(chrlen, MAPPABLE);
+  std::vector<int8_t> mparray(chrlen, MAPPABLE);
   return mparray;
 }
 
-std::vector<char> arraySetBed(std::vector<char> &array, std::string chrname, std::vector<bed> vbed)
+std::vector<int8_t> arraySetBed(std::vector<int8_t> &array, std::string chrname, std::vector<bed> vbed)
 {
   for(auto bed: vbed) {
     if(bed.chr == chrname) {

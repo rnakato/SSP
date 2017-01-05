@@ -6,12 +6,13 @@
 
 #include <vector>
 #include <cmath>
+#include <cstdint>
 
-double _getNegativeBinomial(int k, double p, double n);
-double _getZIP(int k, double p, double p0);
-double _getZINB(int k, double p, double n, double p0);
+double _getNegativeBinomial(int32_t k, double p, double n);
+double _getZIP(int32_t k, double p, double p0);
+double _getZINB(int32_t k, double p, double n, double p0);
 void iterateZINB(void *, double, double, double &, double &, double &);
-double _getPoisson(int i, double m);
+double _getPoisson(int32_t i, double m);
 void iteratePoisson(void *par, double ave_pre, double &ave, double &p0);
 double getlogpZINB(double k, double p, double n);
 
@@ -22,13 +23,13 @@ class moment {
   double sd;
 
  public:
- moment(const std::vector<T> v, int from, int to=0): mean(0), var(0), sd(0) {
+ moment(const std::vector<T> v, int32_t from, int32_t to=0): mean(0), var(0), sd(0) {
     if(!to) to = v.size();
-    int size(to - from);
+    int32_t size(to - from);
     if(size) {
-      for(int i=from; i<to; ++i) mean += v[i];
+      for(int32_t i=from; i<to; ++i) mean += v[i];
       mean /= static_cast<double>(size);
-      for(int i=from; i<to; ++i) var += (v[i] - mean)*(v[i] - mean);
+      for(int32_t i=from; i<to; ++i) var += (v[i] - mean)*(v[i] - mean);
       var /= static_cast<double>(size -1);
       sd = sqrt(var);
     }
@@ -40,19 +41,19 @@ class moment {
 };
 
 template <class T>
-T getPercentile(std::vector<T> array, double per, int binnum=0)
+T getPercentile(std::vector<T> array, double per, int32_t binnum=0)
 {
   if(!binnum) binnum = array.size();
   std::vector<T> sortarray;
 
-  for(int i=0; i<binnum; ++i) {
+  for(int32_t i=0; i<binnum; ++i) {
     if(array[i]) sortarray.push_back(array[i]);
   }
   if(!sortarray.size()) return 0;
   
   sort(sortarray.begin(), sortarray.end());
 
-  return sortarray[(int)(sortarray.size()*per)];
+  return sortarray[(int32_t)(sortarray.size()*per)];
 };
 
 #endif /* _STATISTICS_H_ */

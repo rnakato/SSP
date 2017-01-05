@@ -253,7 +253,7 @@ class SeqStats {
     weight4rpm = weight;
     for(int32_t i=0; i<STRANDNUM; i++) seq[i].nread_rpm = seq[i].nread_nonred * weight4rpm;
   }
-  void calcGcov(const std::vector<char> &array) {
+  void calcGcov(const std::vector<int8_t> &array) {
     for(auto x:array) {
       if(x >= MAPPABLE)     ++nbp;      // MAPPABLE || COVREAD_ALL || COVREAD_NORM
       if(x >= COVREAD_ALL)  ++ncov;     // COVREAD_ALL || COVREAD_NORM

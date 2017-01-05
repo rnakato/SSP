@@ -36,62 +36,62 @@ class var {
 
 class chrsize {
   std::string name;
-  int len;
+  int32_t len;
 
  public:
  chrsize(): name(""), len(0) {}
- chrsize(const std::string &n, const int l): name(n), len(l) {}
+ chrsize(const std::string &n, const int32_t l): name(n), len(l) {}
   std::string getname() const { return name; }
-  int getlen() const { return len; }
+  int32_t getlen() const { return len; }
 };
 
 class sepchr {
  public:
-  uint s;
-  uint e;
- sepchr(uint start, uint end): s(start), e(end) {}
+  uint32_t s;
+  uint32_t e;
+ sepchr(uint32_t start, uint32_t end): s(start), e(end) {}
 };
 
 class range {
  public:
-  int start;
-  int end;
+  int32_t start;
+  int32_t end;
  range(): start(0), end(0) {}
- range(int s, int e): start(s), end(e) {}
+ range(int32_t s, int32_t e): start(s), end(e) {}
 };
 
 class bed {
  public:
   std::string chr;
-  int start;
-  int end;
-  int summit;
+  int32_t start;
+  int32_t end;
+  int32_t summit;
  bed(): start(0), end(0), summit(0) {}
   virtual ~bed(){}
- bed(int s, int e, std::string c): chr(c), start(s), end(e) {}
+ bed(int32_t s, int32_t e, std::string c): chr(c), start(s), end(e) {}
  bed(std::vector<std::string> s): start(stoi(s[1])), end(stoi(s[2])), summit((start + end)/2) {
     if(!s[0].find("chr")) chr = s[0].substr(3);
     else chr = s[0];
   }
   void print()      const { std::cout << "chr" << chr << "\t" << start  << "\t" << end ; }
   void printHead () const { std::cout << "chromosome\tstart\tend"; }
-  int length() const { return abs(end - start); }
+  int32_t length() const { return abs(end - start); }
 };
 
 class bed12 : public bed {
  public:
   std::string name;
-  int score;
+  int32_t score;
   std::string strand;
-  int thickStart;
-  int thickEnd;
+  int32_t thickStart;
+  int32_t thickEnd;
   std::string itemRgb;
-  int blockCount;
-  int blockSizes;
-  int blockStarts;
+  int32_t blockCount;
+  int32_t blockSizes;
+  int32_t blockStarts;
  bed12(): bed() {}
  bed12(std::vector<std::string> s): bed(s) {
-   int num = s.size();
+   int32_t num = s.size();
    if(num > 3)  name        = s[3];
    if(num > 4)  score       = stoi(s[4]);
    if(num > 5)  strand      = s[5];
@@ -115,8 +115,8 @@ class bed12 : public bed {
 
 class macsxls : public bed {
  public:
-  int len;
-  int summit;
+  int32_t len;
+  int32_t summit;
   double pileup;
   double p;
   double enrich;
@@ -150,11 +150,11 @@ class genedata {
   std::string tid;
   std::string gid;
   std::string chr;
-  int txStart;   // "Transcription start position"
-  int txEnd;     // "Transcription end position"
-  int cdsStart;  // "Coding region start"
-  int cdsEnd;    // "Coding region end"
-  int exonCount; // "Number of exons"
+  int32_t txStart;   // "Transcription start position"
+  int32_t txEnd;     // "Transcription end position"
+  int32_t cdsStart;  // "Coding region start"
+  int32_t cdsEnd;    // "Coding region end"
+  int32_t exonCount; // "Number of exons"
   std::string strand;
   std::vector<range> exon;
 
@@ -167,7 +167,7 @@ class genedata {
 
   genedata(): txStart(0), txEnd(0), cdsStart(0), cdsEnd(0), exonCount(0) {}
 
-  int length() const { return (txEnd - txStart); }
+  int32_t length() const { return (txEnd - txStart); }
   void printall() const {
     if(this){
       std::cout << tname << "\t" << gname << "\t" << tid << "\t" << gid << "\t" << chr << "\t" << strand << "\t" << txStart << "\t" << txEnd << "\t" << cdsStart << "\t" << cdsEnd << "\t" << exonCount << "\tgene source: " << gsrc << "\ttranscript source: "<< tsrc << "\tgene biotype: "<< gtype << "\ttranscript biotype: "<< ttype  << "\ttranscript tag: "<< ttag << "\t";
@@ -182,7 +182,7 @@ class genedata {
 class hitGene {
  public:
   status st;
-  int d;
+  int32_t d;
   const genedata *gene;
  hitGene(): st(INTERGENIC), d(0), gene(nullptr) {}
 };
@@ -269,40 +269,40 @@ class strRange : public bed {
   std::string strand;
   const genedata *gene;
  strRange(): bed(), strand(0), gene(0) {}
- strRange(int s, int e, std::string c, std::string str, const genedata &pgene): bed(s,e,c), strand(str), gene(&pgene) {}
+ strRange(int32_t s, int32_t e, std::string c, std::string str, const genedata &pgene): bed(s,e,c), strand(str), gene(&pgene) {}
 };
 
 class convsite : public bed {
  public:
   status st;
   const genedata *gene;
- convsite(int s, int e, std::string c, const genedata *pgene): bed(s,e,c), gene(pgene) {}
+ convsite(int32_t s, int32_t e, std::string c, const genedata *pgene): bed(s,e,c), gene(pgene) {}
 };
 
 class fasta {
  public:
   std::string name;
-  long len, len_mpbl;
-  int nbin;
+  uint64_t len, len_mpbl;
+  int32_t nbin;
   double p_mpbl;  /* mappability */
   double gcov;    /* genome coverage for bin */
-  fasta (std::string str, int l=0): name(str), len(l), len_mpbl(0), nbin(0), p_mpbl(0), gcov(0) {}
+  fasta (std::string str, int32_t l=0): name(str), len(l), len_mpbl(0), nbin(0), p_mpbl(0), gcov(0) {}
   fasta (std::vector<std::string> &v): name(v[0]), len(stoi(v[1])), len_mpbl(0), p_mpbl(0), gcov(0) {}
-  void print () const {
+  void print() const {
     std::cout << name << "\t" << len << "\t" << nbin << "\t" << len_mpbl << "\t"<< p_mpbl << "\t" << gcov << std::endl;
   }
 };
 
 class Peak : public bed {
  public:
-  int summit;
+  int32_t summit;
   double pileup;
   double enrich;
   double p_inter, p_enr;
   double q;
- Peak(int s, int e, std::string c, double val, double p):
+ Peak(int32_t s, int32_t e, std::string c, double val, double p):
   bed(s,e,c), summit(s), pileup(val), enrich(0), p_inter(p), p_enr(0), q(0) {}
-  void renew(int i, double val, double p) {
+  void renew(int32_t i, double val, double p) {
     end = i;
     pileup += val;
     if(p_inter > p) {
@@ -310,7 +310,7 @@ class Peak : public bed {
       summit = i;
     }
   }
-  void print(std::ofstream &out, int id, int binsize) const {
+  void print(std::ofstream &out, int32_t id, int32_t binsize) const {
     out << chr << "\t" << start*binsize << "\t" << end*binsize << "\t"
 	<< ((end - start +1)*binsize-1) << "\t" << (summit*binsize -binsize/2) << "\t" << pileup << "\t"
 	<< p_inter << "\t" << enrich << "\t" << q << "\tpeak " << id << std::endl;

@@ -19,7 +19,7 @@ namespace {
   const int32_t numGcov(5000000);
 }
 
-MyOpt::Variables getOpts(int32_t argc, char* argv[]);
+MyOpt::Variables getOpts(int argc, char* argv[]);
 void setOpts(MyOpt::Opts &, MyOpt::Opts &);
 void init_dump(const MyOpt::Variables &);
 void output_stats(const MyOpt::Variables &values, const Mapfile &p);
@@ -360,9 +360,9 @@ void output_stats(const MyOpt::Variables &values, const Mapfile &p)
   return;
 }
 
-std::vector<char> makeGcovArray(const MyOpt::Variables &values, SeqStats &chr, Mapfile &p, double r4cmp)
+std::vector<int8_t> makeGcovArray(const MyOpt::Variables &values, SeqStats &chr, Mapfile &p, double r4cmp)
 {
-  std::vector<char> array;
+  std::vector<int8_t> array;
   if(values.count("mp")) array = readMpbl_binary(values["mp"].as<std::string>(), ("chr" + p.lchr->name), chr.getlen());
   else array = readMpbl_binary(chr.getlen());
   if(values.count("bed")) arraySetBed(array, chr.name, p.genome.getvbed());
@@ -398,7 +398,7 @@ void calcGcovchr(const MyOpt::Variables &values, Mapfile &p, int32_t s, int32_t 
 
 void calcFRiP(SeqStats &chr, const std::vector<bed> vbed)
 {
-  std::vector<char> array(chr.getlen(), MAPPABLE);
+  std::vector<int8_t> array(chr.getlen(), MAPPABLE);
   arraySetBed(array, chr.name, vbed);
   for(int32_t strand=0; strand<STRANDNUM; ++strand) {
     for (auto &x: chr.seq[strand].vRead) {
