@@ -125,7 +125,7 @@ std::vector<int8_t> genVector(const strandData &seq, int32_t start, int32_t end)
 
 std::vector<int8_t> genVector4FixedReadsNum(const strandData &seq, int32_t start, int32_t end, const double r4cmp)
 {
-  int32_t n(0);
+  static int32_t n(0);
   std::vector<int8_t> array(end-start, 0);
   for (auto x: seq.vRead) {
     if(!x.duplicate && RANGE(x.F3, start, end-1)){
@@ -134,7 +134,7 @@ std::vector<int8_t> genVector4FixedReadsNum(const strandData &seq, int32_t start
       ++n;
     }
   }
-  //  std::cout << "\nfkf   " << n << std::endl;
+  std::cout << "\nfkf   " << n << std::endl;
   
   return array;
 }
@@ -243,7 +243,7 @@ void makeFCSProfile(const MyOpt::Variables &values, Mapfile &p, const std::strin
   shiftFragVar dist(p, values, p.getflen(values));
   dist.printStartMessage();
 
-  // double r = (values["num4ssp"].as<int32_t>()/static_cast<double>(dist.getnread())) / (NUM_100M/static_cast<double>(dist.getlen()));
+  //double r = (values["num4ssp"].as<int32_t>()/static_cast<double>(dist.getnread())) / (NUM_100M/static_cast<double>(dist.getlen()));
   double r = values["num4ssp"].as<int32_t>()/static_cast<double>(dist.getnread());
 
 #ifdef DEBUG

@@ -97,6 +97,7 @@ class ReadShiftProfile {
 
  protected:
   double nsc;
+  double rsc;
   double rlsc;
   int32_t nsci;
   uint64_t len;
@@ -114,7 +115,7 @@ class ReadShiftProfile {
   double rchr;
 
  ReadShiftProfile(const int32_t lenf3, const int32_t b, const int32_t n4s, int32_t s=0, int32_t e=0, int64_t n=0, int64_t l=0):
-  lenF3(lenf3), r(0), bk(0), bk_from(b), nsc(0), rlsc(0), nsci(0), len(l), nread(n), num4ssp(n4s), backgroundUniformity(0), start(s), end(e), width(e-s), rchr(1) {}
+  lenF3(lenf3), r(0), bk(0), bk_from(b), nsc(0), rsc(0), rlsc(0), nsci(0), len(l), nread(n), num4ssp(n4s), backgroundUniformity(0), start(s), end(e), width(e-s), rchr(1) {}
   virtual ~ReadShiftProfile() {}
   void setmp(const int32_t i, const double val, boost::mutex &mtx) {
     boost::mutex::scoped_lock lock(mtx);
@@ -165,6 +166,7 @@ class ReadShiftProfile {
 	}
 	if(on && nsc < mp[i] * r) {
 	  nsc  = mp[i] * r;
+	  rsc  = (mp[i] - bk)/(mp.at(lenF3) - bk);
 	  nsci = i;
 	}
       }
@@ -177,17 +179,17 @@ class ReadShiftProfile {
     }
     double sum(getmpsum());
     double rRPKM = (num4ssp/static_cast<double>(nread)) / (NUM_100M/static_cast<double>(len));
-    //double rRPM(num4ssp/static_cast<double>(nread));
 
     double be(bk * rRPKM);
     double const_bu = num4ssp/static_cast<double>(4*NUM_100M - num4ssp);  // 1/39 N/(4*L-N), N=10M, L=100M
     //    std::cout << "####### " << num4ssp << "\t  " << const_bu << "\t" << rRPKM << "\t" << bk << std::endl;
     //    std::cout << "####### " << nread << "\t  " << NUM_100M << "\t" << len << std::endl;
-      rlsc = mp.at(lenF3) *r;
+    rlsc = mp.at(lenF3) *r;
     backgroundUniformity = const_bu / be;
 
     std::ofstream out(filename);
     out << "NSC\t" << nsc  << std::endl;
+    out << "RSC\t"<< rsc << std::endl;
     out << "RLSC\t"<< rlsc << std::endl;
     out << "Estimated fragment length\t" << nsci << std::endl;
     out << "Background enrichment\t" << be << std::endl;
@@ -283,13 +285,13 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
     std::string Rscript(prefix + ".R");
     std::ofstream out(Rscript);
 
-    out << "data <- read.csv('" << filename << "', header=TRUE, skip=5, sep='\t', quote='')" << std::endl;
+    out << "data <- read.csv('" << filename << "', header=TRUE, skip=6, sep='\t', quote='')" << std::endl;
     out << "output <- '" << prefix << "'" << std::endl;
     out << "pdf(paste(output, '.pdf', sep=''), height=7, width=14)" << std::endl;
     out << "par(mfrow=c(1,2))" << std::endl;
     out << "plot(data[1:" << mp_from+mp_to << ",1], data[1:" << mp_from+mp_to << ",5], type='l', xlab='Strand shift', ylab='Score relative to background', xlim=c(" << -mp_from << "," << mp_to << "), main='" << -mp_from << " bp ~ " << mp_to << " bp', ";
-    if(name == "Jaccard index") out << "sub=sprintf('NSC=%g, RLSC=%g, Bu=%g', " << nsc << "," << rlsc << "," << backgroundUniformity << "))" << std::endl;
-    else if(name == "Cross correlation") out << "sub=sprintf('NSC=%g, RLSC=%g', " << nsc << "," << rlsc << "))" << std::endl;
+    if(name == "Jaccard index") out << "sub=sprintf('NSC=%g, RSC=%g, RLSC=%g, Bu=%g', " << nsc << "," << rsc << ","  << rlsc << "," << backgroundUniformity << "))" << std::endl;
+    else if(name == "Cross correlation") out << "sub=sprintf('NSC=%g, RSC=%g, RLSC=%g', " << nsc << "," << rsc << ","  << rlsc << "))" << std::endl;
     else out << ")" << std::endl;
     out << "abline(v=" << nsci <<",lty=2,col=2)" << std::endl;
     out << "legend('bottomright', legend=paste('Estimated fragment length = ', " << nsci << "))" << std::endl;
