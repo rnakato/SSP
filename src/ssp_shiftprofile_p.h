@@ -16,7 +16,7 @@ namespace {
 }
 
 std::vector<int8_t> genVector(const strandData &seq, int32_t start, int32_t end);
-std::vector<int8_t> genVector4FixedReadsNum(const strandData &seq, int32_t start, int32_t end, const double r4cmp);
+std::vector<int8_t> genVector4FixedReadsNum(const strandData &seq, int32_t start, int32_t end, const double r4cmp, uint32_t &);
 boost::dynamic_bitset<> genBitset(const strandData &seq, int32_t, int32_t);
 void addmp(std::map<int32_t, double> &, const std::map<int32_t, double> &, double w);
 
@@ -390,11 +390,13 @@ class shiftFragVar : public ReadShiftProfileGenome {
     ng_step_fcs(values["ng_step_fcs"].as<int32_t>()) {}
 
   void setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev);
-  void execchr(const Mapfile &p, const int32_t i, const double r4cmp) {
-    auto fwd = genVector4FixedReadsNum(p.genome.chr[i].seq[STRAND_PLUS],  chr[i].start, chr[i].end, r4cmp);
-    auto rev = genVector4FixedReadsNum(p.genome.chr[i].seq[STRAND_MINUS], chr[i].start, chr[i].end, r4cmp);
+  void execchr(const Mapfile &p, const int32_t i, const double r4cmp, uint32_t &numUsed4FCS) {
+    auto fwd = genVector4FixedReadsNum(p.genome.chr[i].seq[STRAND_PLUS],  chr[i].start, chr[i].end, r4cmp, numUsed4FCS);
+    auto rev = genVector4FixedReadsNum(p.genome.chr[i].seq[STRAND_MINUS], chr[i].start, chr[i].end, r4cmp, numUsed4FCS);
 
     setDist(chr[i], fwd, rev);
+
+    addmp2genome(i);
   }
 
   void lackOfReads_on() { lackOfReads=true; }
@@ -406,13 +408,6 @@ class shiftFragVar : public ReadShiftProfileGenome {
       out << "\tlen" << x;
     }
     out << std::endl;
-
-    /*    for(auto x: v4acfp) {
-      double myu(acfp.at(100000).getAccuOfDistanceOfFragment(sizeOfvDistOfDistaneOfFrag-2));
-      if(fcsfull && x > mp_to) continue;
-      out << "\t" << acfp.at(x).getPvalueOfBinomTest(sizeOfvDistOfDistaneOfFrag-2, myu);
-    }
-    out << std::endl;*/
 
     for(size_t k=0; k<sizeOfvDistOfDistaneOfFrag-1; ++k) {
       out << k << "\t";

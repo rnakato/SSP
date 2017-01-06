@@ -123,18 +123,16 @@ std::vector<int8_t> genVector(const strandData &seq, int32_t start, int32_t end)
   return array;
 }
 
-std::vector<int8_t> genVector4FixedReadsNum(const strandData &seq, int32_t start, int32_t end, const double r4cmp)
+std::vector<int8_t> genVector4FixedReadsNum(const strandData &seq, int32_t start, int32_t end, const double r4cmp, uint32_t &numUsed4FCS)
 {
-  static int32_t n(0);
   std::vector<int8_t> array(end-start, 0);
   for (auto x: seq.vRead) {
     if(!x.duplicate && RANGE(x.F3, start, end-1)){
       if(rand() >= r4cmp) continue;
       ++array[x.F3 - start];
-      ++n;
+      ++numUsed4FCS;
     }
   }
-  std::cout << "\nfkf   " << n << std::endl;
   
   return array;
 }
@@ -257,15 +255,18 @@ void makeFCSProfile(const MyOpt::Variables &values, Mapfile &p, const std::strin
 
   double r4cmp = r*RAND_MAX;
 
+  uint32_t numUsed4FCS(0);
   for(uint32_t i=0; i<p.genome.chr.size(); ++i) {
     if(p.genome.chr[i].isautosome()) {
       std::cout << p.genome.chr[i].name << ".." << std::flush;
-      dist.execchr(p, i, r4cmp);
-      std::string filename = p.getprefix() + "." + typestr + "." + p.genome.chr[i].name + ".csv";
-      if(values.count("eachchr")) dist.outputmpChr(filename, i);
-      dist.addmp2genome(i);
+      dist.execchr(p, i, r4cmp, numUsed4FCS);
+      if(values.count("eachchr")) {
+	std::string filename = p.getprefix() + "." + typestr + "." + p.genome.chr[i].name + ".csv";
+	dist.outputmpChr(filename, i);
+      }
     }
   }
+  std::cout << "\nread number for calculating FCS: " << numUsed4FCS << std::endl;
 
   std::string filename1 = p.getprefix() + ".acfp.csv";
   dist.printacfp(filename1);
