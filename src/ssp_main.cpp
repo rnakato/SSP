@@ -211,7 +211,6 @@ void setOpts(MyOpt::Opts &allopts,MyOpt::Opts &opts4help)
   optIO.add_options()
     ("ftype,f", value<std::string>(), "{SAM|BAM|BOWTIE|TAGALIGN}: format of input file\nTAGALIGN could be gzip'ed (extension: tagAlign.gz)")
     ("odir",    value<std::string>()->default_value("sspout"),	  "output directory name")
-    ("fcsfull",  "outout full fragment variability profile")
     ("nofilter", "do not filter PCR bias")
     ("thre_pb", value<int32_t>()->default_value(0),	       "PCRbias threshold (default: more than max(1 read, 10 times greater than genome average)) ")
     ("ncmp",    value<int32_t>()->default_value(10000000), "read number for calculating library complexity")
@@ -267,7 +266,6 @@ void init_dump(const MyOpt::Variables &values){
   } else {
     BPRINT("PCR bias filtering: OFF\n");
   }
-  if(values.count("fcsfull")) BPRINT("\tplot full fcs profile.\n");
   BPRINT("num4ssp %d\n") % values["num4ssp"].as<int32_t>();
   BPRINT("background region: [%d,%d], step %d\n")
     % values["ng_from"].as<int32_t>()

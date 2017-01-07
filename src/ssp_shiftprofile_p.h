@@ -376,21 +376,33 @@ class shiftHamming : public ReadShiftProfileGenome {
 class shiftFragVar : public ReadShiftProfileGenome {
   std::map<int32_t, FragmentVariability> acfp;
   int32_t flen;
+  double r4cmp;
   bool lackOfReads;
-  bool fcsfull;
   int32_t ng_from_fcs;
   int32_t ng_to_fcs;
   int32_t ng_step_fcs;
 
  public:
  shiftFragVar(const Mapfile &p, const MyOpt::Variables &values, const int32_t fl):
-  ReadShiftProfileGenome("Fragment Variability", p, values), flen(fl), lackOfReads(false), fcsfull(values.count("fcsfull")),
+  ReadShiftProfileGenome("Fragment Variability", p, values), flen(fl), r4cmp(0), lackOfReads(false),
     ng_from_fcs(values["ng_from_fcs"].as<int32_t>()),
     ng_to_fcs(values["ng_to_fcs"].as<int32_t>()),
-    ng_step_fcs(values["ng_step_fcs"].as<int32_t>()) {}
+    ng_step_fcs(values["ng_step_fcs"].as<int32_t>())
+      {
+	//double r = (values["num4ssp"].as<int32_t>()/static_cast<double>(dist.getnread())) / (NUM_100M/static_cast<double>(dist.getlen()));
+	double r = values["num4ssp"].as<int32_t>()/static_cast<double>(getnread());
+#ifdef DEBUG
+	std::cout << "\nr for FCS\t" << r << "\t reads: " << dist.getnread()<<  std::endl;
+#endif
+	if(r>1){
+	  std::cerr << "\nWarning: number of reads (" << getnread() << ") is less than num4ssp ("<<  values["num4ssp"].as<int32_t>() <<").\n";
+	  lackOfReads=true;
+	}
+	r4cmp = r*RAND_MAX;
+      }
 
   void setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev);
-  void execchr(const Mapfile &p, const int32_t i, const double r4cmp, uint32_t &numUsed4FCS) {
+  void execchr(const Mapfile &p, const int32_t i, uint32_t &numUsed4FCS) {
     auto fwd = genVector4FixedReadsNum(p.genome.chr[i].seq[STRAND_PLUS],  chr[i].start, chr[i].end, r4cmp, numUsed4FCS);
     auto rev = genVector4FixedReadsNum(p.genome.chr[i].seq[STRAND_MINUS], chr[i].start, chr[i].end, r4cmp, numUsed4FCS);
 
@@ -399,23 +411,15 @@ class shiftFragVar : public ReadShiftProfileGenome {
     addmp2genome(i);
   }
 
-  void lackOfReads_on() { lackOfReads=true; }
   void printacfp(const std::string &filename) const {
     std::ofstream out(filename);
 
-    for(auto x: v4acfp) {
-      if(fcsfull && x > mp_to) continue;
-      out << "\tlen" << x;
-    }
+    for(auto x: v4acfp) out << "\tlen" << x;
     out << std::endl;
 
     for(size_t k=0; k<sizeOfvDistOfDistaneOfFrag-1; ++k) {
       out << k << "\t";
-
-      for(auto x: v4acfp) {
-	if(fcsfull && x > mp_to) continue;
-	out << acfp.at(x).getAccuOfDistanceOfFragment(k) << "\t";
-      }
+      for(auto x: v4acfp) out << acfp.at(x).getAccuOfDistanceOfFragment(k) << "\t";
       out << std::endl;
     }
   }

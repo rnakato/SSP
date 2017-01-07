@@ -241,25 +241,11 @@ void makeFCSProfile(const MyOpt::Variables &values, Mapfile &p, const std::strin
   shiftFragVar dist(p, values, p.getflen(values));
   dist.printStartMessage();
 
-  //double r = (values["num4ssp"].as<int32_t>()/static_cast<double>(dist.getnread())) / (NUM_100M/static_cast<double>(dist.getlen()));
-  double r = values["num4ssp"].as<int32_t>()/static_cast<double>(dist.getnread());
-
-#ifdef DEBUG
-  std::cout << "\nr for FCS\t" << r << "\t reads: " << dist.getnread()<<  std::endl;
-#endif
-
-  if(r>1){
-    std::cerr << "\nWarning: number of reads (" << dist.getnread() << ") is less than num4ssp ("<<  values["num4ssp"].as<int32_t>() <<").\n";
-    dist.lackOfReads_on();
-  }
-
-  double r4cmp = r*RAND_MAX;
-
   uint32_t numUsed4FCS(0);
   for(uint32_t i=0; i<p.genome.chr.size(); ++i) {
     if(p.genome.chr[i].isautosome()) {
       std::cout << p.genome.chr[i].name << ".." << std::flush;
-      dist.execchr(p, i, r4cmp, numUsed4FCS);
+      dist.execchr(p, i, numUsed4FCS);
       if(values.count("eachchr")) {
 	std::string filename = p.getprefix() + "." + typestr + "." + p.genome.chr[i].name + ".csv";
 	dist.outputmpChr(filename, i);
@@ -311,28 +297,20 @@ void shiftFragVar::setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd
   }
   for(size_t k=0; k<sizeOfvDistOfDistaneOfFrag; ++k) fvback[k] /= n;
 
-  if (fcsfull) {
-    for(uint32_t i=0; i<seprange.size(); i++) {
-      agroup.create_thread(bind(&genThreadFragVar, boost::ref(chr), boost::ref(acfp), boost::cref(fwd), boost::cref(rev), boost::cref(fvback), seprange[i].start, seprange[i].end, boost::ref(mtx)));
+  std::vector<int32_t> v{flen, chr.getlenF3()};
+  std::copy(v4acfp.begin(), v4acfp.end(), std::back_inserter(v));
+  for(auto x: v) {
+    FragmentVariability fv;
+    fv.setVariability(x, chr.start, chr.end, fwd, rev);
+    
+    double diffMax(0);
+    for(size_t k=0; k<sizeOfvDistOfDistaneOfFrag; ++k) {
+      //      std::cout << fv.getAccuOfDistanceOfFragment(k) << "\t" << fvback[k] << std::endl;
+      diffMax = std::max(diffMax, fv.getAccuOfDistanceOfFragment(k) - fvback[k]);
     }
-    agroup.join_all();
-  } else {
-    std::vector<int32_t> v{flen, chr.getlenF3()};
-    std::copy(v4acfp.begin(), v4acfp.end(), std::back_inserter(v));
-    for(auto x: v) {
-    //    for(auto x: v4acfp) {
-      FragmentVariability fv;
-      fv.setVariability(x, chr.start, chr.end, fwd, rev);
-      
-      double diffMax(0);
-      for(size_t k=0; k<sizeOfvDistOfDistaneOfFrag; ++k) {
-	//      std::cout << fv.getAccuOfDistanceOfFragment(k) << "\t" << fvback[k] << std::endl;
-	diffMax = std::max(diffMax, fv.getAccuOfDistanceOfFragment(k) - fvback[k]);
-      }
-      chr.setmp(x, diffMax, mtx);
-      acfp[x].add2genome(fv, mtx);
-    }
+    chr.setmp(x, diffMax, mtx);
+    acfp[x].add2genome(fv, mtx);
   }
-
+  
   return;
 }
