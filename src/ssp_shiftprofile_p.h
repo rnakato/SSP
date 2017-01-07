@@ -27,10 +27,10 @@ class PropNeighborFrag {
  public:
  PropNeighborFrag(): sumOfvNeighborFrag(0), vNeighborFrag(sizeOfvNeighborFrag, 0) {}
 
-  void setVariability(const int32_t flen, const int32_t start, const int32_t end,
+  void setNeighborFrag(const int32_t flen, const int32_t start, const int32_t end,
 		      const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev) {
     if(start < 0 || flen < 0) {
-      std::cerr << "error: invalid start " << start << "or flen " << flen << "for setVariability." <<std::endl;
+      std::cerr << "error: invalid start " << start << "or flen " << flen << "for setNeighborFrag." << std::endl;
       return;
     }
     
@@ -386,7 +386,6 @@ class shiftFragVar : public ReadShiftProfileGenome {
 	}
 	r4cmp = r*RAND_MAX;
       }
-
   std::vector<int8_t> genVector4FixedReadsNum(const strandData &seq, int32_t start, int32_t end);
   
   void setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev);
@@ -400,7 +399,7 @@ class shiftFragVar : public ReadShiftProfileGenome {
 
   uint32_t getnumUsed4FCS() const { return numUsed4FCS; }
 
-  void printpnf(const std::string &filename) const {
+  void printdistpnf(const std::string &filename) const {
     std::ofstream out(filename);
 
     for(auto x: v4pnf) out << "\tlen" << x;
@@ -413,10 +412,10 @@ class shiftFragVar : public ReadShiftProfileGenome {
     }
   }
   
-  void outputmpGenome(const std::string &filename) const {
+  void outputfcsGenome(const std::string &filename) const {
     print2file4fcs(filename, name, flen, lackOfReads);
   }
-  void outputmpChr(const std::string &filename, const int32_t i) const {  
+  void outputfcsChr(const std::string &filename, const int32_t i) const {  
     chr[i].print2file4fcs(filename, name, flen, lackOfReads);
   }
 };

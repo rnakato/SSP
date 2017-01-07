@@ -241,21 +241,20 @@ void makeFCSProfile(const MyOpt::Variables &values, Mapfile &p, const std::strin
   dist.printStartMessage();
 
   for(uint32_t i=0; i<p.genome.chr.size(); ++i) {
-    if(p.genome.chr[i].isautosome()) {
-      std::cout << p.genome.chr[i].name << ".." << std::flush;
-      dist.execchr(p, i);
-      if(values.count("eachchr")) {
-	std::string filename = p.getprefix() + "." + typestr + "." + p.genome.chr[i].name + ".csv";
-	dist.outputmpChr(filename, i);
-      }
+    if(!p.genome.chr[i].isautosome()) continue;
+    std::cout << p.genome.chr[i].name << ".." << std::flush;
+    dist.execchr(p, i);
+    if(values.count("eachchr")) {
+      std::string filename = p.getprefix() + "." + typestr + "." + p.genome.chr[i].name + ".csv";
+      dist.outputfcsChr(filename, i);
     }
   }
   std::cout << "\nread number for calculating FCS: " << dist.getnumUsed4FCS() << std::endl;
 
   std::string filename1 = p.getprefix() + ".pnf.csv";
-  dist.printpnf(filename1);
+  dist.printdistpnf(filename1);
   std::string filename2 = p.getprefix() + "." + typestr + ".csv";
-  dist.outputmpGenome(filename2);
+  dist.outputfcsGenome(filename2);
 
   makeRscript(p.getprefix());
 
@@ -277,11 +276,11 @@ void shiftFragVar::setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd
   boost::mutex mtx;
 
   // make fv for background
-  std::vector<double> fvbg(sizeOfvNeighborFrag,0);
+  std::vector<double> fvbg(sizeOfvNeighborFrag, 0);
   int32_t n(0);
-  for(int32_t step=ng_from_fcs; step<ng_to_fcs; step+=ng_step_fcs) {
+  for(int32_t flen=ng_from_fcs; flen<ng_to_fcs; flen += ng_step_fcs) {
     PropNeighborFrag fv;
-    fv.setVariability(step, chr.start, chr.end, fwd, rev);    
+    fv.setNeighborFrag(flen, chr.start, chr.end, fwd, rev);    
     for(size_t k=0; k<sizeOfvNeighborFrag; ++k) {
       fvbg[k] += fv.getCumulativePNF(k);
     }
@@ -292,13 +291,13 @@ void shiftFragVar::setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd
   // calculate FCS for each step
   std::vector<int32_t> v{flen, chr.getlenF3()};
   std::copy(v4pnf.begin(), v4pnf.end(), std::back_inserter(v));
-  for(auto flen: v) {
+  for(auto len: v) {
     PropNeighborFrag fv;
-    fv.setVariability(flen, chr.start, chr.end, fwd, rev);
+    fv.setNeighborFrag(len, chr.start, chr.end, fwd, rev);
 
     double fcs = getFCS(fv, fvbg);
-    chr.setmp(flen, fcs, mtx);
-    distpnf[flen].add2genome(fv, mtx);
+    chr.setmp(len, fcs, mtx);
+    distpnf[len].add2genome(fv, mtx);
   }
   return;
 }
