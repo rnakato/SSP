@@ -377,6 +377,7 @@ class shiftFragVar : public ReadShiftProfileGenome {
   std::map<int32_t, FragmentVariability> acfp;
   int32_t flen;
   double r4cmp;
+  uint32_t numUsed4FCS;
   bool lackOfReads;
   int32_t ng_from_fcs;
   int32_t ng_to_fcs;
@@ -384,7 +385,7 @@ class shiftFragVar : public ReadShiftProfileGenome {
 
  public:
  shiftFragVar(const Mapfile &p, const MyOpt::Variables &values, const int32_t fl):
-  ReadShiftProfileGenome("Fragment Variability", p, values), flen(fl), r4cmp(0), lackOfReads(false),
+  ReadShiftProfileGenome("Fragment Variability", p, values), flen(fl), r4cmp(0), numUsed4FCS(0), lackOfReads(false),
     ng_from_fcs(values["ng_from_fcs"].as<int32_t>()),
     ng_to_fcs(values["ng_to_fcs"].as<int32_t>()),
     ng_step_fcs(values["ng_step_fcs"].as<int32_t>())
@@ -401,15 +402,17 @@ class shiftFragVar : public ReadShiftProfileGenome {
 	r4cmp = r*RAND_MAX;
       }
 
+  std::vector<int8_t> genVector4FixedReadsNum(const strandData &seq, int32_t start, int32_t end);
   void setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev);
-  void execchr(const Mapfile &p, const int32_t i, uint32_t &numUsed4FCS) {
-    auto fwd = genVector4FixedReadsNum(p.genome.chr[i].seq[STRAND_PLUS],  chr[i].start, chr[i].end, r4cmp, numUsed4FCS);
-    auto rev = genVector4FixedReadsNum(p.genome.chr[i].seq[STRAND_MINUS], chr[i].start, chr[i].end, r4cmp, numUsed4FCS);
+  void execchr(const Mapfile &p, const int32_t i) {
+    auto fwd = genVector4FixedReadsNum(p.genome.chr[i].seq[STRAND_PLUS],  chr[i].start, chr[i].end);
+    auto rev = genVector4FixedReadsNum(p.genome.chr[i].seq[STRAND_MINUS], chr[i].start, chr[i].end);
 
     setDist(chr[i], fwd, rev);
-
     addmp2genome(i);
   }
+
+  uint32_t getnumUsed4FCS() const { return numUsed4FCS; }
 
   void printacfp(const std::string &filename) const {
     std::ofstream out(filename);
