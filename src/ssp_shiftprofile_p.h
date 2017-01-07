@@ -11,8 +11,8 @@
 namespace {
   const int32_t mp_from(500);
   const int32_t mp_to(1500);
-  const int32_t sizeOfvDistOfDistaneOfFrag = 5000;
-  const std::vector<int32_t> v4acfp{50, 100, 150, 500, 1000, 2000, 3000, 10000, 100000, 1000000};
+  const int32_t sizeOfvNeighborFrag = 5000;
+  const std::vector<int32_t> v4pnf{50, 100, 150, 500, 1000, 2000, 3000, 10000, 100000, 1000000};
 }
 
 std::vector<int8_t> genVector(const strandData &seq, int32_t start, int32_t end);
@@ -20,72 +20,58 @@ std::vector<int8_t> genVector4FixedReadsNum(const strandData &seq, int32_t start
 boost::dynamic_bitset<> genBitset(const strandData &seq, int32_t, int32_t);
 void addmp(std::map<int32_t, double> &, const std::map<int32_t, double> &, double w);
 
-class FragmentVariability {
-  double sumOfvDistOfDistaneOfFrag;
-  std::vector<int32_t> vDistOfDistaneOfFrag;
+class PropNeighborFrag {
+  double sumOfvNeighborFrag;
+  std::vector<int32_t> vNeighborFrag;
 
  public:
- FragmentVariability(): sumOfvDistOfDistaneOfFrag(0),
-    vDistOfDistaneOfFrag(sizeOfvDistOfDistaneOfFrag, 0) {}
+ PropNeighborFrag(): sumOfvNeighborFrag(0), vNeighborFrag(sizeOfvNeighborFrag, 0) {}
 
-  void setVariability(const int32_t fraglen, const int32_t start, const int32_t end,
+  void setVariability(const int32_t flen, const int32_t start, const int32_t end,
 		      const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev) {
-    int32_t s(start);
-    if(start + fraglen < 0) s = start - fraglen;
-    int32_t e(end - fraglen);
-    int32_t last(s);
-    for(int32_t i=s; i<e; ++i) {
-      if(fwd[i] && rev[i+fraglen]) {
-	if(RANGE(i-last, 0, sizeOfvDistOfDistaneOfFrag-1)) ++vDistOfDistaneOfFrag[i-last];
-	else ++vDistOfDistaneOfFrag[sizeOfvDistOfDistaneOfFrag-1];
+    if(start < 0 || flen < 0) {
+      std::cerr << "error: invalid start " << start << "or flen " << flen << "for setVariability." <<std::endl;
+      return;
+    }
+    
+    int32_t last(start);
+    for(int32_t i=start; i<end-flen; ++i) {
+      if(fwd[i] && rev[i+flen]) {
+	int32_t distance = i-last;
+	if(distance <= 0) {
+	  //	  std::cerr << "error: invalid distance " << distance << std::endl;
+	}else if(distance < sizeOfvNeighborFrag-1) ++vNeighborFrag[distance];
+	else ++vNeighborFrag[sizeOfvNeighborFrag-1];
 	last = i;
       }
     }
-
-    sumOfvDistOfDistaneOfFrag = accumulate(vDistOfDistaneOfFrag.begin(), vDistOfDistaneOfFrag.end(), 0);
+    sumOfvNeighborFrag = accumulate(vNeighborFrag.begin(), vNeighborFrag.end(), 0);
   }
-
-  double getsumOfvDistOfDistaneOfFrag() const { return sumOfvDistOfDistaneOfFrag; }
-  double getDistOfDistanceOfFragment(const int32_t i) const {
-    if(i<0 || i>= sizeOfvDistOfDistaneOfFrag) {
-      std::cerr << "error: invalid num " << i << "for getDistOfDistanceOfFragment max: " << sizeOfvDistOfDistaneOfFrag << std::endl;
+  
+  double getPNF(const int32_t i) const {
+    if(i<0 || i>= sizeOfvNeighborFrag) {
+      std::cerr << "error: invalid num " << i << "for getPNF max: " << sizeOfvNeighborFrag << std::endl;
       return -1;
     }
     else {
-      return sumOfvDistOfDistaneOfFrag ? vDistOfDistaneOfFrag[i] / sumOfvDistOfDistaneOfFrag : 0;
+      return sumOfvNeighborFrag ? vNeighborFrag[i] / sumOfvNeighborFrag : 0;
     }
   }
-  double getAccuOfDistanceOfFragment(const int32_t i) const {
-    if(i<0 || i>= sizeOfvDistOfDistaneOfFrag) {
-      std::cerr << "error: invalid num " << i << "for getAccuOfDistanceOfFragment max: " << sizeOfvDistOfDistaneOfFrag << std::endl;
+  double getCumulativePNF(const int32_t i) const {
+    if(i<0 || i>= sizeOfvNeighborFrag) {
+      std::cerr << "error: invalid num " << i << "for getCumulativePNF max: " << sizeOfvNeighborFrag << std::endl;
       return -1;
     }
     else {
-      double vAccuOfDistaneOfFrag(0);
-      for(int32_t j=0; j<=i; ++j) {
-	vAccuOfDistaneOfFrag += getDistOfDistanceOfFragment(j);
-      }
-      return vAccuOfDistaneOfFrag;
+      double cpnf(0);
+      for(int32_t j=0; j<=i; ++j) cpnf += getPNF(j);
+      return cpnf;
     }
   }
-  double getPvalueOfBinomTest(const int32_t i, const double myu) const {
-    if(i<0 || i>= sizeOfvDistOfDistaneOfFrag) {
-      std::cerr << "error: invalid num " << i << "for getPvalueOfBinomTest max: " << sizeOfvDistOfDistaneOfFrag << std::endl;
-      return -1;
-    }
-    else {
-      double sum(0);
-      for(int32_t j=0; j<=i; ++j) {
-	sum += vDistOfDistaneOfFrag[j];
-      }
-      std::cout << sum << "," <<  sumOfvDistOfDistaneOfFrag << "," << myu << std::endl;
-      return stdNormdist(sum, sumOfvDistOfDistaneOfFrag*myu, sqrt(sumOfvDistOfDistaneOfFrag*myu*(1-myu))); 
-    }
-  }
-  void add2genome(const FragmentVariability &x, boost::mutex &mtx) {
+  void add2genome(const PropNeighborFrag &x, boost::mutex &mtx) {
     boost::mutex::scoped_lock lock(mtx);
-    for(uint32_t i=0; i<vDistOfDistaneOfFrag.size(); ++i) vDistOfDistaneOfFrag[i] += x.vDistOfDistaneOfFrag[i];
-    sumOfvDistOfDistaneOfFrag += x.sumOfvDistOfDistaneOfFrag;
+    for(size_t i=0; i<vNeighborFrag.size(); ++i) vNeighborFrag[i] += x.vNeighborFrag[i];
+    sumOfvNeighborFrag += x.sumOfvNeighborFrag;
   }
 };
 
@@ -317,8 +303,7 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
   void printStartMessage() const {
     std::cout << "Making " << name << " profile..." << std::flush;
   }
-  
-  void printacfp(const std::string &){};
+
 };
 
 class shiftJacVec : public ReadShiftProfileGenome {
@@ -374,7 +359,7 @@ class shiftHamming : public ReadShiftProfileGenome {
 };
 
 class shiftFragVar : public ReadShiftProfileGenome {
-  std::map<int32_t, FragmentVariability> acfp;
+  std::map<int32_t, PropNeighborFrag> distpnf;
   int32_t flen;
   double r4cmp;
   uint32_t numUsed4FCS;
@@ -403,6 +388,7 @@ class shiftFragVar : public ReadShiftProfileGenome {
       }
 
   std::vector<int8_t> genVector4FixedReadsNum(const strandData &seq, int32_t start, int32_t end);
+  
   void setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev);
   void execchr(const Mapfile &p, const int32_t i) {
     auto fwd = genVector4FixedReadsNum(p.genome.chr[i].seq[STRAND_PLUS],  chr[i].start, chr[i].end);
@@ -414,15 +400,15 @@ class shiftFragVar : public ReadShiftProfileGenome {
 
   uint32_t getnumUsed4FCS() const { return numUsed4FCS; }
 
-  void printacfp(const std::string &filename) const {
+  void printpnf(const std::string &filename) const {
     std::ofstream out(filename);
 
-    for(auto x: v4acfp) out << "\tlen" << x;
+    for(auto x: v4pnf) out << "\tlen" << x;
     out << std::endl;
 
-    for(size_t k=0; k<sizeOfvDistOfDistaneOfFrag-1; ++k) {
+    for(size_t k=0; k<sizeOfvNeighborFrag-1; ++k) {
       out << k << "\t";
-      for(auto x: v4acfp) out << acfp.at(x).getAccuOfDistanceOfFragment(k) << "\t";
+      for(auto x: v4pnf) out << distpnf.at(x).getCumulativePNF(k) << "\t";
       out << std::endl;
     }
   }

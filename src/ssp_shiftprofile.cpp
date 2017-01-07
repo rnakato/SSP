@@ -203,7 +203,7 @@ void strShiftProfile(const MyOpt::Variables &values, Mapfile &p, std::string typ
   else if(typestr=="jaccard") makeProfile<shiftJacBit>(p, typestr, values);
   else if(typestr=="ccp")     makeProfile<shiftCcp>(p, typestr, values);
   else if(typestr=="hdp")     makeProfile<shiftHamming>(p, typestr, values);
-  
+
   return;
 }
 
@@ -211,14 +211,14 @@ void makeRscript(const std::string prefix)
 {
   std::string Rscript(prefix + ".FCS.R");
   std::ofstream out(Rscript);
-  out << "data <- read.csv('" << prefix << ".acfp.csv', header=TRUE, row.names=1, sep='\t', quote='')" << std::endl;
+  out << "data <- read.csv('" << prefix << ".pnf.csv', header=TRUE, row.names=1, sep='\t', quote='')" << std::endl;
   out << "colname <- colnames(data)" << std::endl;
   out << "colnames(data) <- colname[-1]" << std::endl;
   out << "data <- data[,-11]" << std::endl;
   out << "pdf('" << prefix << ".FCS.pdf', height=7, width=14)" << std::endl;
   out << "par(mfrow=c(1,2))" << std::endl;
   out << "cols <- rainbow(10)" << std::endl;
-  out << "plot(0, 0, type = 'n', xlim = range(1:nrow(data)), ylim = range(data), xlab = 'Neighboring distance (bp)', ylab = 'Accumulated prop')" << std::endl;
+  out << "plot(0, 0, type = 'n', xlim = range(1:nrow(data)), ylim = range(data), xlab = 'Neighboring distance (bp)', ylab = 'Cumulative proportion')" << std::endl;
   out << "for (i in 1:ncol(data)) { lines(1:nrow(data), data[,i], col=cols[i])}" << std::endl;
   out << "legend('bottomright', legend = colnames(data), lty = 1, col = cols)" << std::endl;
   out << "data <- read.csv('" << prefix << ".fcs.csv', header=TRUE, skip=2, sep='\t', quote='')" << std::endl;
@@ -252,8 +252,8 @@ void makeFCSProfile(const MyOpt::Variables &values, Mapfile &p, const std::strin
   }
   std::cout << "\nread number for calculating FCS: " << dist.getnumUsed4FCS() << std::endl;
 
-  std::string filename1 = p.getprefix() + ".acfp.csv";
-  dist.printacfp(filename1);
+  std::string filename1 = p.getprefix() + ".pnf.csv";
+  dist.printpnf(filename1);
   std::string filename2 = p.getprefix() + "." + typestr + ".csv";
   dist.outputmpGenome(filename2);
 
@@ -262,20 +262,13 @@ void makeFCSProfile(const MyOpt::Variables &values, Mapfile &p, const std::strin
   return;
 }
 
-void genThreadFragVar(ReadShiftProfile &chr, std::map<int32_t, FragmentVariability> &acfp, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev, const std::vector<double> &fvback, const int32_t s, const int32_t e, boost::mutex &mtx)
+double getFCS(PropNeighborFrag &fv, std::vector<double> &fvbg)
 {
-  for(int32_t step=s; step<e; ++step) {
-    FragmentVariability fv;
-    fv.setVariability(step, chr.start, chr.end, fwd, rev);
-
-    double diffMax(0);
-    for(size_t k=0; k<sizeOfvDistOfDistaneOfFrag; ++k) {
-      //      std::cout << fv.getAccuOfDistanceOfFragment(k) << "\t" << fvback[k] << std::endl;
-      diffMax = std::max(diffMax, fv.getAccuOfDistanceOfFragment(k) - fvback[k]);
-    }
-    chr.setmp(step, diffMax, mtx);
-    acfp[step].add2genome(fv, mtx);
+  double diffMax(0);
+  for(size_t k=0; k<sizeOfvNeighborFrag; ++k) {
+    diffMax = std::max(diffMax, fv.getCumulativePNF(k) - fvbg[k]);
   }
+  return diffMax;
 }
 
 void shiftFragVar::setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev)
@@ -283,32 +276,29 @@ void shiftFragVar::setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd
   boost::thread_group agroup;
   boost::mutex mtx;
 
-  std::vector<double> fvback(sizeOfvDistOfDistaneOfFrag,0);
+  // make fv for background
+  std::vector<double> fvbg(sizeOfvNeighborFrag,0);
   int32_t n(0);
   for(int32_t step=ng_from_fcs; step<ng_to_fcs; step+=ng_step_fcs) {
-    FragmentVariability fv;
+    PropNeighborFrag fv;
     fv.setVariability(step, chr.start, chr.end, fwd, rev);    
-    for(size_t k=0; k<sizeOfvDistOfDistaneOfFrag; ++k) {
-      fvback[k] += fv.getAccuOfDistanceOfFragment(k);
+    for(size_t k=0; k<sizeOfvNeighborFrag; ++k) {
+      fvbg[k] += fv.getCumulativePNF(k);
     }
     ++n;
   }
-  for(size_t k=0; k<sizeOfvDistOfDistaneOfFrag; ++k) fvback[k] /= n;
+  for(size_t k=0; k<sizeOfvNeighborFrag; ++k) fvbg[k] /= n;
 
+  // calculate FCS for each step
   std::vector<int32_t> v{flen, chr.getlenF3()};
-  std::copy(v4acfp.begin(), v4acfp.end(), std::back_inserter(v));
-  for(auto x: v) {
-    FragmentVariability fv;
-    fv.setVariability(x, chr.start, chr.end, fwd, rev);
-    
-    double diffMax(0);
-    for(size_t k=0; k<sizeOfvDistOfDistaneOfFrag; ++k) {
-      //      std::cout << fv.getAccuOfDistanceOfFragment(k) << "\t" << fvback[k] << std::endl;
-      diffMax = std::max(diffMax, fv.getAccuOfDistanceOfFragment(k) - fvback[k]);
-    }
-    chr.setmp(x, diffMax, mtx);
-    acfp[x].add2genome(fv, mtx);
+  std::copy(v4pnf.begin(), v4pnf.end(), std::back_inserter(v));
+  for(auto flen: v) {
+    PropNeighborFrag fv;
+    fv.setVariability(flen, chr.start, chr.end, fwd, rev);
+
+    double fcs = getFCS(fv, fvbg);
+    chr.setmp(flen, fcs, mtx);
+    distpnf[flen].add2genome(fv, mtx);
   }
-  
   return;
 }
