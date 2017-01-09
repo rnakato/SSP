@@ -111,6 +111,8 @@ class ReadShiftProfile {
   double getbackgroundUniformity() const { return backgroundUniformity; }
   void setrchr(const uint64_t n) { rchr = n ? nread/static_cast<double>(n): 0; }
   int32_t getlenF3() const { return lenF3; }
+  double getnsc() const { return nsc; }
+  double getrsc() const { return rsc; }
   int32_t getnsci() const { return nsci; }
   uint64_t getnread() const { return nread; }
   uint64_t getlen() const { return len; }
@@ -159,6 +161,11 @@ class ReadShiftProfile {
     }
   }
 
+  
+  double getMPread() const { return  mp.at(lenF3); }
+  double getMP1k()   const { return  mp.at(1000); }
+  double getMP10k()  const { return  mp.at(10000); }
+
   void print2file(const std::string &filename, const std::string &name) {
     if(!nread) {
       std::cerr << filename << ": no read" << std::endl;
@@ -170,12 +177,12 @@ class ReadShiftProfile {
     double const_bu = num4ssp/static_cast<double>(4*NUM_100M - num4ssp);  // 1/39 N/(4*L-N), N=10M, L=100M
     //    std::cout << "####### " << num4ssp << "\t  " << const_bu << "\t" << rRPKM << "\t" << bk << std::endl;
     //    std::cout << "####### " << nread << "\t  " << NUM_100M << "\t" << len << std::endl;
-    rlsc = mp.at(lenF3) *r;
+    rlsc = getMPread() *r;
     backgroundUniformity = const_bu / be;
 
     std::ofstream out(filename);
-    out << "NSC\t" << nsc  << std::endl;
-    out << "RSC\t"<< rsc << std::endl;
+    out << "NSC\t" << nsc << std::endl;
+    out << "RSC\t" << rsc << std::endl;
     out << "RLSC\t"<< rlsc << std::endl;
     out << "Estimated fragment length\t" << nsci << std::endl;
     out << "Background enrichment\t" << be << std::endl;
@@ -195,21 +202,21 @@ class ReadShiftProfile {
 	  << (itr->second * rRPKM) << "\t"
 	  << (itr->second * r)     << std::endl;
   }
-  void print2file4fcs(const std::string filename, const std::string name, const int32_t flen, const bool lackOfReads) const {
-    if(!nread) {
-      std::cerr << filename << ": no read" << std::endl;
-    }
-    std::ofstream out(filename);
+  void print2file4fcs(const std::string &filename, const std::string &name, const int32_t flen, const bool lackOfReads) const {
+    if(!nread) std::cerr << filename << ": no read" << std::endl;
 
     //    std::cout << flen <<"," << lenF3 <<std::endl;
 
+    std::ofstream out(filename);
     std::string str("");
     if(lackOfReads) str = " (read number is insufficient)";
-    out << "Fragment score" << str << "\t" << mp.at(flen) << std::endl;
-    out << "Read score" << str << "\t" << mp.at(lenF3) << std::endl;
-    out << "Strand shift\t" << name << std::endl;
+    out << "Read length"     << str << "\t" << getMPread() << std::endl;
+    out << "Fragment length" << str << "\t" << mp.at(flen) << std::endl;
+    out << "Broad (1 kbp)"   << str << "\t" << getMP1k()   << std::endl;
+    out << "Broad (10 kbp)"  << str << "\t" << getMP10k()  << std::endl;
+    out << "Strand shift\t"  << name << std::endl;
     for(auto itr = mp.begin(); itr != mp.end(); ++itr)
-      if(itr->first != flen && itr->first != lenF3)
+      //     if(itr->first != flen && itr->first != lenF3)
 	out << itr->first << "\t" << itr->second << std::endl;
   }
 };
@@ -418,6 +425,10 @@ class shiftFragVar : public ReadShiftProfileGenome {
   void outputfcsChr(const std::string &filename, const int32_t i) const {  
     chr[i].print2file4fcs(filename, name, flen, lackOfReads);
   }
+
+  double getMPflen() const { return  mp.at(flen); }
+
+  
 };
 
 #endif /* _SSP_SHIFTPROFILE_P_H_ */

@@ -169,14 +169,12 @@ void makeProfile(Mapfile &p, const std::string &typestr, const MyOpt::Variables 
   boost::mutex mtx;
 
   if(typestr == "hdp" || typestr == "jaccard") {
-    //agroup.create_thread(bind(genThread<T>, boost::ref(dist), boost::cref(p), 0, 0, typestr, values.count("eachchr")));
-    for(uint32_t i=0; i<p.genome.vsepchr.size(); i++) {
+    for(size_t i=0; i<p.genome.vsepchr.size(); i++) {
       agroup.create_thread(bind(genThread<T>, boost::ref(dist), boost::cref(p), p.genome.vsepchr[i].s, p.genome.vsepchr[i].e, typestr, values.count("eachchr")));
     }
     agroup.join_all();
   } else {
     genThread(dist, p, 0, p.genome.chr.size()-1, typestr, values.count("eachchr"));
-    //genThread(dist, p, 0, 0, typestr);
   }
 
   // set fragment length;
@@ -191,7 +189,7 @@ void makeProfile(Mapfile &p, const std::string &typestr, const MyOpt::Variables 
   dist.outputmpGenome(prefix);
 
   if(typestr == "jaccard") {
-    p.setbackgroundUniformity(dist.getbackgroundUniformity());
+    p.setSSPstats(dist.getbackgroundUniformity(), dist.getnsc(), dist.getrsc());
   }
 
   return;
@@ -221,7 +219,7 @@ void makeRscript(const std::string prefix)
   out << "plot(0, 0, type = 'n', xlim = range(1:nrow(data)), ylim = range(data), xlab = 'Neighboring distance (bp)', ylab = 'Cumulative proportion')" << std::endl;
   out << "for (i in 1:ncol(data)) { lines(1:nrow(data), data[,i], col=cols[i])}" << std::endl;
   out << "legend('bottomright', legend = colnames(data), lty = 1, col = cols)" << std::endl;
-  out << "data <- read.csv('" << prefix << ".fcs.csv', header=TRUE, skip=2, sep='\t', quote='')" << std::endl;
+  out << "data <- read.csv('" << prefix << ".fcs.csv', header=TRUE, skip=4, sep='\t', quote='')" << std::endl;
   out << "plot(data[,1],data[,2], log='x', type='l', xlab = 'Read-pair distance (bp)', ylab = 'Fragment cluster score')" << std::endl;
   out << "dev.off()" << std::endl;
 
@@ -257,6 +255,8 @@ void makeFCSProfile(const MyOpt::Variables &values, Mapfile &p, const std::strin
   dist.outputfcsGenome(filename2);
 
   makeRscript(p.getprefix());
+
+  p.setFCSstats(dist.getMPread(), dist.getMPflen(), dist.getMP1k(), dist.getMP10k());
 
   return;
 }

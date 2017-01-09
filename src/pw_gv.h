@@ -399,6 +399,38 @@ class SeqStatsGenome: public SeqStats {
   }
 };
 
+class SSPstats {
+  double nsc;
+  double rsc;
+  double backgroundUniformity;
+  double fcsread;
+  double fcsflen;
+  double fcs1k;
+  double fcs10k;
+
+ public:
+ SSPstats(): nsc(0), rsc(0), backgroundUniformity(0), fcsflen(0), fcs1k(0), fcs10k(0) {}
+
+  void setnsc(const double c) { nsc = c; }
+  void setrsc(const double c) { rsc = c; }
+  void setbu(const double c) { backgroundUniformity = c; }
+  void setfcsread(const double c) { fcsread = c; }
+  void setfcsflen(const double c) { fcsflen = c; }
+  void setfcs1k(const double c) { fcs1k = c; }
+  void setfcs10k(const double c) { fcs10k = c; }
+
+  void printhead(std::ofstream &out) {
+    out << "NSC\tRSC\tbackground uniformity\t"
+	<< "FCS(read)\tFCS(flen)\tFCS(1k)\tFCS(10k)"
+	<< std::endl;
+  }
+  void print(std::ofstream &out) {
+    out << nsc << "\t" << rsc << "\t" << backgroundUniformity << "\t"
+	<< fcsread << "\t" << fcsflen << "\t" << fcs1k << "\t" << fcs10k
+	<< std::endl;
+  }
+};
+
 class Mapfile {
   bool yeast;
   const int32_t ReadMax=200;
@@ -411,6 +443,7 @@ class Mapfile {
   std::vector<int32_t> vlenF5;
   std::vector<int32_t> vflen;
 
+  std::string samplename;
   std::string oprefix;
   std::string obinprefix;
   
@@ -426,8 +459,9 @@ class Mapfile {
   // GC bias
   int32_t maxGC;
 
-  double backgroundUniformity;
-
+  // for SSP
+  SSPstats sspst;
+  
  public:
   SeqStatsGenome genome;
   std::vector<SeqStats>::iterator lchr; // longest chromosome
@@ -440,8 +474,9 @@ class Mapfile {
   yeast(false),
     lenF3(0), lenF5(0), eflen(0), flen_def(values["flen"].as<int32_t>()),
     vlenF3(ReadMax,0), vlenF5(ReadMax,0), vflen(FragMax,0),
+    samplename(values["output"].as<std::string>()),
     thre4filtering(0), nt_all(0), nt_nonred(0), nt_red(0),
-    lackOfRead4Complexity(false), lackOfRead4GenomeCov(false), lackOfRead4FragmentVar(false), r4cmp(0), maxGC(0), backgroundUniformity(0), genome(values)
+    lackOfRead4Complexity(false), lackOfRead4GenomeCov(false), lackOfRead4FragmentVar(false), r4cmp(0), maxGC(0), genome(values)
     {
       uint64_t lenmax(0);
       for(auto itr = genome.chr.begin(); itr != genome.chr.end(); ++itr) {
@@ -455,16 +490,35 @@ class Mapfile {
       obinprefix = oprefix + "." + IntToString(values["binsize"].as<int32_t>());
     }
 
-  void setbackgroundUniformity(const double bu) { backgroundUniformity = bu; }
-  double getbackgroundUniformity() const { return backgroundUniformity; }
+  void setSSPstats(const double bu, const double nsc, const double rsc) {
+    sspst.setnsc(nsc);
+    sspst.setrsc(rsc);
+    sspst.setbu(bu);
+  }
+  void setFCSstats(const double fcsread, const double fcsflen, const double fcs1k, const double fcs10k) {
+    sspst.setfcsread(fcsread);
+    sspst.setfcsflen(fcsflen);
+    sspst.setfcs1k(fcs1k);
+    sspst.setfcs10k(fcs10k);
+  }
+  void printSSPstats() {
+    std::string filename = getprefix() + ".stats.txt";
+    std::ofstream out(filename);
+    out << "Sample\ttotal read number\tnonredundant read number\t"
+	<< "read length\tfragment length\t";
+    sspst.printhead(out);
+    out << samplename << "\t" << genome.bothnread() << "\t" << genome.bothnread_nonred() << "\t"
+	<< lenF3 << "\t" << eflen << "\t";
+    sspst.print(out);
+  }
+  
   void setmaxGC(const int32_t m) { maxGC = m; }
   int32_t getmaxGC() const {return maxGC; }
   void readGenomeTable(const MyOpt::Variables &values);
 
   void lackOfRead4Complexity_on() { lackOfRead4Complexity = true; }
   void lackOfRead4GenomeCov_on() { lackOfRead4GenomeCov = true; }
-  void lackOfRead4FragmentVar_on() { lackOfRead4FragmentVar = true; }
-  int32_t islackOfRead4GenomeCov() const { return lackOfRead4GenomeCov; };
+  bool islackOfRead4GenomeCov() const { return lackOfRead4GenomeCov; };
   void setthre4filtering(const MyOpt::Variables &values) {
     if(values["thre_pb"].as<int32_t>()) thre4filtering = values["thre_pb"].as<int32_t>();
     else thre4filtering = std::max(1, (int32_t)(genome.bothnread() *10/static_cast<double>(genome.getlenmpbl())));
