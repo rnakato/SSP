@@ -165,6 +165,7 @@ class ReadShiftProfile {
   double getMPread() const { return  mp.at(lenF3); }
   double getMP1k()   const { return  mp.at(1000); }
   double getMP10k()  const { return  mp.at(10000); }
+  double getMP100k()  const { return  mp.at(100000); }
 
   void print2file(const std::string &filename, const std::string &name) {
     if(!nread) {

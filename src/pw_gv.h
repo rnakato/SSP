@@ -407,9 +407,10 @@ class SSPstats {
   double fcsflen;
   double fcs1k;
   double fcs10k;
+  double fcs100k;
 
  public:
- SSPstats(): nsc(0), rsc(0), backgroundUniformity(0), fcsflen(0), fcs1k(0), fcs10k(0) {}
+ SSPstats(): nsc(0), rsc(0), backgroundUniformity(0), fcsflen(0), fcs1k(0), fcs10k(0), fcs100k(0) {}
 
   void setnsc(const double c) { nsc = c; }
   void setrsc(const double c) { rsc = c; }
@@ -418,16 +419,17 @@ class SSPstats {
   void setfcsflen(const double c) { fcsflen = c; }
   void setfcs1k(const double c) { fcs1k = c; }
   void setfcs10k(const double c) { fcs10k = c; }
+  void setfcs100k(const double c) { fcs100k = c; }
 
   void printhead(std::ofstream &out) {
     out << "NSC\tRSC\tbackground uniformity\t"
-	<< "FCS(read)\tFCS(flen)\tFCS(1k)\tFCS(10k)"
+	<< "FCS(read)\tFCS(flen)\tFCS(1k)\tFCS(10k)\tFCS(100k)"
 	<< std::endl;
   }
   void print(std::ofstream &out) {
     out << nsc << "\t" << rsc << "\t" << backgroundUniformity << "\t"
 	<< fcsread << "\t" << fcsflen << "\t" << fcs1k << "\t" << fcs10k
-	<< std::endl;
+	<< "\t" << fcs100k << std::endl;
   }
 };
 
@@ -495,11 +497,12 @@ class Mapfile {
     sspst.setrsc(rsc);
     sspst.setbu(bu);
   }
-  void setFCSstats(const double fcsread, const double fcsflen, const double fcs1k, const double fcs10k) {
+  void setFCSstats(const double fcsread, const double fcsflen, const double fcs1k, const double fcs10k, const double fcs100k) {
     sspst.setfcsread(fcsread);
     sspst.setfcsflen(fcsflen);
     sspst.setfcs1k(fcs1k);
     sspst.setfcs10k(fcs10k);
+    sspst.setfcs100k(fcs100k);
   }
   void printSSPstats() {
     std::string filename = getprefix() + ".stats.txt";

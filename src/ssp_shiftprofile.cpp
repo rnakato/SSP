@@ -256,7 +256,7 @@ void makeFCSProfile(const MyOpt::Variables &values, Mapfile &p, const std::strin
 
   makeRscript(p.getprefix());
 
-  p.setFCSstats(dist.getMPread(), dist.getMPflen(), dist.getMP1k(), dist.getMP10k());
+  p.setFCSstats(dist.getMPread(), dist.getMPflen(), dist.getMP1k(), dist.getMP10k(), dist.getMP100k());
 
   return;
 }
