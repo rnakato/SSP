@@ -134,8 +134,8 @@ class ReadShiftProfile {
   }
 
   void setflen(const std::string &name) {
-    int32_t threwidth(5);
-    
+    int32_t threwidth(2);
+
     setControlRatio();
     nsc = mp[mp_to-1];
     for(int32_t i=mp_to-1-threwidth; i > lenF3*1.3; --i) {
@@ -149,12 +149,17 @@ class ReadShiftProfile {
 	  nsci = i;
 	}
       } else {
-	/*	for(int32_t j=1; j<=threwidth; ++j) {
+	for(int32_t j=1; j<=threwidth; ++j) {
 	  if (mp[i] < mp[i+j] || mp[i] < mp[i-j]) on=0;
-	  }*/
-	if(on && nsc < mp[i] * r) {
-	  nsc  = mp[i] * r;
-	  rsc  = (mp[i] - bk)/(mp.at(lenF3) - bk);
+	}
+	
+	//	double s = mp[i]*r;
+	double s(mp[i]);
+	for(int32_t j=1; j<=4; ++j) s += mp[i+j] + mp[i-j];
+	s *= r/9;
+	if(on && nsc < s) {
+	  nsc  = s;
+	  rsc  = (s - bk)/(mp.at(lenF3) - bk);
 	  nsci = i;
 	}
       }
