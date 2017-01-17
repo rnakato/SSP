@@ -135,10 +135,14 @@ class ReadShiftProfile {
 
   void setflen(const std::string &name) {
     int32_t threwidth(2);
-
+    int32_t leftend(lenF3*1.3);  // readが 短い時は*1.3 長い時は100 readlenが100より長い時はreadlen
+    if(leftend>100) leftend=100;
+    if(leftend<lenF3) leftend=lenF3;
+    
     setControlRatio();
     nsc = mp[mp_to-1];
-    for(int32_t i=mp_to-1-threwidth; i > lenF3*1.3; --i) {
+
+    for(int32_t i=mp_to-1-threwidth; i > leftend; --i) {
       int32_t on(1);
       if(name == "Hamming distance") {
 	for(int32_t j=1; j<=threwidth; ++j) {
@@ -149,10 +153,11 @@ class ReadShiftProfile {
 	  nsci = i;
 	}
       } else {
-	for(int32_t j=1; j<=threwidth; ++j) {
-	  if (mp[i] < mp[i+j] || mp[i] < mp[i-j]) on=0;
-	}
-	
+	//	for(int32_t j=1; j<=threwidth; ++j) {
+	if (mp[i] < mp[i+10] || mp[i] < mp[i-10]) on=0;
+	if (mp[i] < mp[i+5] || mp[i] < mp[i-5]) on=0;
+	  //	}
+	  
 	//	double s = mp[i]*r;
 	double s(mp[i]);
 	for(int32_t j=1; j<=4; ++j) s += mp[i+j] + mp[i-j];
@@ -164,6 +169,26 @@ class ReadShiftProfile {
 	}
       }
     }
+
+    
+    double nsc2(0);
+    int32_t nsci2(0);
+  
+    for(int32_t i=leftend+1; i <=mp_to-1-threwidth; ++i) {
+      int32_t on(1);
+      if (mp[i] < mp[i+10] || mp[i] < mp[i-10]) on=0;
+      if (mp[i] < mp[i+5] || mp[i] < mp[i-5]) on=0;
+      double s(mp[i]);
+      for(int32_t j=1; j<=4; ++j) s += mp[i+j] + mp[i-j];
+      s *= r/9;
+      if(on && nsc2 < s) {
+	nsc2  = s;
+	nsci2 = i;
+      }
+    }
+
+    std::cout << "sci  " << nsci << "   nsci2   " << nsci2 << std::endl;
+    if(abs(nsci -nsci2)>5)std::cout << "\n\n\nfgkgkgkgkgkgkg!!!!!!!!!!!!" << std::endl;
   }
 
   
@@ -415,11 +440,13 @@ class shiftFragVar : public ReadShiftProfileGenome {
   void printdistpnf(const std::string &filename) const {
     std::ofstream out(filename);
 
-    for(auto x: v4pnf) out << "\tlen" << x;
+    for(auto x: v4pnf) out << "\tPNF len" << x;
+    for(auto x: v4pnf) out << "\tCPNF len" << x;
     out << std::endl;
 
     for(size_t k=0; k<sizeOfvNeighborFrag-1; ++k) {
       out << k << "\t";
+      for(auto x: v4pnf) out << distpnf.at(x).getPNF(k) << "\t";
       for(auto x: v4pnf) out << distpnf.at(x).getCumulativePNF(k) << "\t";
       out << std::endl;
     }
