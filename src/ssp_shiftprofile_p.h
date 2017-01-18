@@ -135,9 +135,9 @@ class ReadShiftProfile {
 
   void setflen(const std::string &name) {
     int32_t threwidth(2);
-    int32_t leftend(lenF3*1.3);  // readが 短い時は*1.3 長い時は100 readlenが100より長い時はreadlen
-    if(leftend>100) leftend=100;
-    if(leftend<lenF3) leftend=lenF3;
+    int32_t leftend(lenF3*1.2);  // readが 短い時は*1.3 長い時は100 readlenが100より長い時はreadlen
+    if(leftend>150) leftend=150;
+    //    if(leftend<lenF3) leftend=lenF3;
     
     setControlRatio();
     nsc = mp[mp_to-1];
@@ -154,14 +154,14 @@ class ReadShiftProfile {
 	}
       } else {
 	//	for(int32_t j=1; j<=threwidth; ++j) {
-	if (mp[i] < mp[i+10] || mp[i] < mp[i-10]) on=0;
+	//	if (mp[i] < mp[i+10] || mp[i] < mp[i-10]) on=0;
 	if (mp[i] < mp[i+5] || mp[i] < mp[i-5]) on=0;
 	  //	}
 	  
 	//	double s = mp[i]*r;
 	double s(mp[i]);
-	for(int32_t j=1; j<=4; ++j) s += mp[i+j] + mp[i-j];
-	s *= r/9;
+	for(int32_t j=1; j<=2; ++j) s += mp[i+j] + mp[i-j];
+	s *= r/5;
 	if(on && nsc < s) {
 	  nsc  = s;
 	  rsc  = (s - bk)/(mp.at(lenF3) - bk);
@@ -170,17 +170,17 @@ class ReadShiftProfile {
       }
     }
 
-    
+
     double nsc2(0);
     int32_t nsci2(0);
   
     for(int32_t i=leftend+1; i <=mp_to-1-threwidth; ++i) {
       int32_t on(1);
-      if (mp[i] < mp[i+10] || mp[i] < mp[i-10]) on=0;
+      //      if (mp[i] < mp[i+10] || mp[i] < mp[i-10]) on=0;
       if (mp[i] < mp[i+5] || mp[i] < mp[i-5]) on=0;
       double s(mp[i]);
-      for(int32_t j=1; j<=4; ++j) s += mp[i+j] + mp[i-j];
-      s *= r/9;
+      for(int32_t j=1; j<=2; ++j) s += mp[i+j] + mp[i-j];
+      s *= r/5;
       if(on && nsc2 < s) {
 	nsc2  = s;
 	nsci2 = i;
