@@ -11,11 +11,11 @@ SSP is written in C++ and requires the following programs and libraries:
 * [SAMtools](http://samtools.sourceforge.net/) (for BAM formatted input)
 
 #### 2.1. Install required libraries
-for Ubuntu:
+for Ubuntu and Debian:
 
     sudo apt-get install git build-essential libboost-all-dev libgsl-dev libz-dev samtools
  
-for CentOS:
+for CentOS and Red Hat:
 
     sudo yum -y install git gcc-c++ boost-devel zlib-devel gsl-devel
 and install samtools from [the website](http://samtools.sourceforge.net/).
