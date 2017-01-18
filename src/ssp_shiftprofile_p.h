@@ -159,9 +159,9 @@ class ReadShiftProfile {
 	  //	}
 	  
 	//	double s = mp[i]*r;
-	double s(mp[i]);
-	for(int32_t j=1; j<=2; ++j) s += mp[i+j] + mp[i-j];
-	s *= r/5;
+	double s(mp[i]*r);
+	//	for(int32_t j=1; j<=2; ++j) s += mp[i+j] + mp[i-j];
+	//	s *= r/5;
 	if(on && nsc < s) {
 	  nsc  = s;
 	  rsc  = (s - bk)/(mp.at(lenF3) - bk);
@@ -178,9 +178,9 @@ class ReadShiftProfile {
       int32_t on(1);
       //      if (mp[i] < mp[i+10] || mp[i] < mp[i-10]) on=0;
       if (mp[i] < mp[i+5] || mp[i] < mp[i-5]) on=0;
-      double s(mp[i]);
-      for(int32_t j=1; j<=2; ++j) s += mp[i+j] + mp[i-j];
-      s *= r/5;
+      double s(mp[i]*r);
+      //      for(int32_t j=1; j<=2; ++j) s += mp[i+j] + mp[i-j];
+      //s *= r/5;
       if(on && nsc2 < s) {
 	nsc2  = s;
 	nsci2 = i;
