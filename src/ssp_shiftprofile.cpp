@@ -210,7 +210,7 @@ void makeRscript(const std::string prefix)
   std::string Rscript(prefix + ".FCS.R");
   std::ofstream out(Rscript);
   out << "data <- read.csv('" << prefix << ".pnf.csv', header=TRUE, row.names=1, sep='\t', quote='')" << std::endl;
-  out << "colname <- colnames(data)[-1]" << std::endl;
+  out << "colnames(data) <- colnames(data)[-1]" << std::endl;
   out << "data <- data[,-ncol(data)]" << std::endl;
   out << "ncol <- ncol(data)/2" << std::endl;
   out << "nrow <- nrow(data)" << std::endl;
