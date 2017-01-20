@@ -20,6 +20,20 @@ std::vector<int8_t> genVector4FixedReadsNum(const strandData &seq, int32_t start
 boost::dynamic_bitset<> genBitset(const strandData &seq, int32_t, int32_t);
 void addmp(std::map<int32_t, double> &, const std::map<int32_t, double> &, double w);
 
+double getmpmean(const std::map<int32_t, double> mp, int32_t s, int32_t e) {
+  double m(0);
+  int32_t n(0);
+  if(s > e) {
+    std::cerr << "Error: s " << s << "> e " << e <<"for getmpmean" << std::endl;
+    return -1;
+  }
+  for(int32_t i=s; i <= e; ++i) {
+    m += mp.at(i);
+    ++n;
+  }
+  return m/n;
+}
+
 class PropNeighborFrag {
   double sumOfvNeighborFrag;
   std::vector<int32_t> vNeighborFrag;
@@ -142,16 +156,21 @@ class ReadShiftProfile {
     setControlRatio();
     nsc = mp[mp_to-1];
 
-    for(int32_t i=mp_to-1-threwidth; i > leftend; --i) {
+    std::map<int32_t, double> mpsmooth;
+    for(int32_t i=mp_to-1-2; i > leftend-threwidth; --i) {
+      mpsmooth[i] = getmpmean(mp, i-2, i+2);
+    }
+
+    for(int32_t i=mp_to-1-threwidth-2; i > leftend; --i) {
       if(name == "Hamming distance") {
-	if (mp[i] < mp.at(i+threwidth) || mp[i] < mp.at(i-threwidth/2) || mp[i] < mp.at(i-threwidth)) continue;
-	if(nsc > mp[i]) {
-	  nsc  = mp[i];
+	if(mpsmooth.at(i) < mpsmooth.at(i+threwidth) || mpsmooth.at(i) < mpsmooth.at(i-threwidth)) continue;
+	if(nsc > mp.at(i)) {
+	  nsc  = mp.at(i);
 	  nsci = i;
 	}
       } else {
-	if (mp[i] < mp.at(i+threwidth) || mp[i] < mp.at(i-threwidth/2) || mp[i] < mp.at(i-threwidth)) continue;
-	double s(mp[i]*r);
+	if(mpsmooth.at(i) < mpsmooth.at(i+threwidth) || mpsmooth.at(i) < mpsmooth.at(i-threwidth)) continue;
+	double s(mp.at(i)*r);
 	if(nsc < s) {
 	  nsc  = s;
 	  rsc  = (s - bk)/(mp.at(lenF3) - bk);
@@ -160,7 +179,7 @@ class ReadShiftProfile {
       }
     }
 
-    double nsc2(0);
+    /*    double nsc2(0);
     int32_t nsci2(0);
 
     for(int32_t i=leftend+1; i <=mp_to-1-threwidth; ++i) {
@@ -173,7 +192,7 @@ class ReadShiftProfile {
     }
 
     std::cout << "sci  " << nsci << "   nsci2   " << nsci2 << std::endl;
-    if(abs(nsci -nsci2)>5)std::cout << "\n\n\nfgkgkgkgkgkgkg!!!!!!!!!!!!" << std::endl;
+    if(abs(nsci -nsci2)>5)std::cout << "\n\n\nfgkgkgkgkgkgkg!!!!!!!!!!!!" << std::endl;*/
   }
 
   
