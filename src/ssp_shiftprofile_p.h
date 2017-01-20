@@ -178,24 +178,8 @@ class ReadShiftProfile {
 	}
       }
     }
-
-    /*    double nsc2(0);
-    int32_t nsci2(0);
-
-    for(int32_t i=leftend+1; i <=mp_to-1-threwidth; ++i) {
-      if (mp[i] < mp.at(i+threwidth) || mp[i] < mp.at(i-threwidth/2) || mp[i] < mp.at(i-threwidth)) continue;
-      double s(mp[i]*r);
-      if(nsc2 < s) {
-	nsc2  = s;
-	nsci2 = i;
-      }
-    }
-
-    std::cout << "sci  " << nsci << "   nsci2   " << nsci2 << std::endl;
-    if(abs(nsci -nsci2)>5)std::cout << "\n\n\nfgkgkgkgkgkgkg!!!!!!!!!!!!" << std::endl;*/
   }
 
-  
   double getMPread() const { return  mp.at(lenF3); }
   double getMP1k()   const { return  mp.at(1000); }
   double getMP10k()  const { return  mp.at(10000); }
@@ -345,12 +329,12 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
   void printStartMessage() const {
     std::cout << "Making " << name << " profile..." << std::flush;
   }
-
 };
 
 class shiftJacVec : public ReadShiftProfileGenome {
  public:
- shiftJacVec(const Mapfile &p, const MyOpt::Variables &values): ReadShiftProfileGenome("Jaccard index", p, values) {}
+ shiftJacVec(const Mapfile &p, const MyOpt::Variables &values):
+  ReadShiftProfileGenome("Jaccard index", p, values) {}
 
   void setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev);
   void execchr(const Mapfile &p, int32_t i) {
@@ -363,7 +347,8 @@ class shiftJacVec : public ReadShiftProfileGenome {
 
 class shiftJacBit : public ReadShiftProfileGenome {
  public:
- shiftJacBit(const Mapfile &p, const MyOpt::Variables &values): ReadShiftProfileGenome("Jaccard index", p, values) {}
+ shiftJacBit(const Mapfile &p, const MyOpt::Variables &values):
+  ReadShiftProfileGenome("Jaccard index", p, values) {}
 
   void setDist(ReadShiftProfile &chr, const boost::dynamic_bitset<> &fwd, boost::dynamic_bitset<> &rev);
   void execchr(const Mapfile &p, int32_t i) {
@@ -376,7 +361,8 @@ class shiftJacBit : public ReadShiftProfileGenome {
 
 class shiftCcp : public ReadShiftProfileGenome {
  public:
- shiftCcp(const Mapfile &p, const MyOpt::Variables &values): ReadShiftProfileGenome("Cross correlation", p, values) {}
+ shiftCcp(const Mapfile &p, const MyOpt::Variables &values):
+  ReadShiftProfileGenome("Cross correlation", p, values) {}
 
   void setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev);
   void execchr(const Mapfile &p, int32_t i) {
@@ -389,7 +375,8 @@ class shiftCcp : public ReadShiftProfileGenome {
 
 class shiftHamming : public ReadShiftProfileGenome {
  public:
- shiftHamming(const Mapfile &p, const MyOpt::Variables &values): ReadShiftProfileGenome("Hamming distance", p, values) {}
+ shiftHamming(const Mapfile &p, const MyOpt::Variables &values):
+  ReadShiftProfileGenome("Hamming distance", p, values) {}
 
   void setDist(ReadShiftProfile &chr, const boost::dynamic_bitset<> &fwd, boost::dynamic_bitset<> &rev);
   void execchr(const Mapfile &p, int32_t i) {
