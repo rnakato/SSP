@@ -173,7 +173,7 @@ class ReadShiftProfile {
 	double s(mp.at(i)*r);
 	if(nsc < s) {
 	  nsc  = s;
-	  rsc  = (s - bk)/(mp.at(lenF3) - bk);
+	  rsc  = (mp.at(i) - bk)/(mp.at(lenF3) - bk);
 	  nsci = i;
 	}
       }
