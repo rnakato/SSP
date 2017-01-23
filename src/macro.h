@@ -24,7 +24,7 @@ enum PWfile_Type {
 
 #define BPRINT std::cout << boost::format
 #define RANGE(i, min, max) (((i) >=(min)) && ((i) <=(max)) ? 1: 0)
-#define overlap(s1,e1,s2,e2) ((e1 >= s2) && (e2 >= s1))
+//#define overlap(s1,e1,s2,e2) ((e1 >= s2) && (e2 >= s1))
 #define PRINTERR(...) do{ std::cerr << "Error: " << __VA_ARGS__ << std::endl; std::exit(1); }while(0)
 
 #endif /* _MACRO_H_ */
