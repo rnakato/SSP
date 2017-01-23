@@ -50,7 +50,7 @@ void chkrange(const boost::program_options::variables_map &values, std::string x
 {
   if (values.count(x)) {
     T val = values[x].as<T>();
-    if(!RANGE(val, s, e)) {
+    if(!my_range(val, s, e)) {
       std::cerr << "Error: invalid " << x << ": " << val << std::endl;
       exit(1);
     }

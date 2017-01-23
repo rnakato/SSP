@@ -118,7 +118,7 @@ std::vector<int8_t> genVector(const strandData &seq, int32_t start, int32_t end)
 {
   std::vector<int8_t> array(end-start, 0);
   for (auto x: seq.vRead) {
-    if(!x.duplicate && RANGE(x.F3, start, end-1)) ++array[x.F3 - start];
+    if(!x.duplicate && my_range(x.F3, start, end-1)) ++array[x.F3 - start];
   }
   return array;
 }
@@ -127,7 +127,7 @@ std::vector<int8_t> shiftFragVar::genVector4FixedReadsNum(const strandData &seq,
 {
   std::vector<int8_t> array(end-start, 0);
   for (auto x: seq.vRead) {
-    if(!x.duplicate && RANGE(x.F3, start, end-1)){
+    if(!x.duplicate && my_range(x.F3, start, end-1)){
       if(rand() >= r4cmp) continue;
       ++array[x.F3 - start];
       ++numUsed4FCS;
@@ -140,7 +140,7 @@ boost::dynamic_bitset<> genBitset(const strandData &seq, int32_t start, int32_t 
 {
   boost::dynamic_bitset<> array(end-start);
   for (auto x: seq.vRead) {
-    if(!x.duplicate && RANGE(x.F3, start, end-1))
+    if(!x.duplicate && my_range(x.F3, start, end-1))
       array.set(x.F3 - start);
   }
   return array;

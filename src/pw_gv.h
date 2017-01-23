@@ -8,6 +8,7 @@
 #include <numeric>
 #include <boost/format.hpp>
 #include <boost/thread.hpp>
+#include "macro.h"
 #include "util.h"
 #include "readdata.h"
 #include "statistics.h"
@@ -167,7 +168,7 @@ class Wigstats {
     out << boost::format("%1%\t%2%\t") % wigDist[i] % pwigDist[i];
   }
   void addmpDist(const double p) {
-    if(!RANGE(p,0,1)) std::cout << "Warning: mappability " << p << " should be [0,1]" << std::endl;
+    if(!my_range(p,0,1)) std::cout << "Warning: mappability " << p << " should be [0,1]" << std::endl;
     else ++mpDist[(int32_t)(p*n_mpDist)];
   }
   void addWigDist(const Wigstats &x) {
