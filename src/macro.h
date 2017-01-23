@@ -11,7 +11,7 @@ enum {NUM_1K=1000,
       NUM_100M=100000000};
 
 #define VALUE2WIGARRAY(v) ((v) * 1000.0)
-#define WIGARRAY2VALUE(v) ((v) * (1.0/1000.0))
+#define WIGARRAY2VALUE(v) ((v) / 1000.0)
 
 enum PWfile_Type {
   TYPE_BINARY,
@@ -34,7 +34,7 @@ inline bool my_range(const T i, const S min, const S max)
 }
 
 template <class T>
-inline bool overlap(const T s1, const T e1, const T s2, const T e2)
+inline bool my_overlap(const T s1, const T e1, const T s2, const T e2)
 {
   return (e1 >= s2) && (e2 >= s1);
 }
