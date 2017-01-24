@@ -189,14 +189,21 @@ class Wigstats {
   }
 };
 
+template <class T>
+void calcdepth(T &obj, const int32_t flen) {
+  uint64_t lenmpbl = obj.getlenmpbl();
+  double d = lenmpbl ? obj.bothnread_nonred() * flen / static_cast<double>(lenmpbl): 0;
+  obj.setdepth(d);
+}
+
 class SeqStats {
  protected:
   bool yeast;
   uint64_t len, len_mpbl;
   double weight4rpm;
+  double depth;
   /* FRiP */
   uint64_t nread_inbed;
-  //  GenomeCoverage gcov;
   uint64_t nbp, ncov, ncovnorm;
   double gcovRaw, gcovNorm;
  public:
@@ -206,9 +213,8 @@ class SeqStats {
   Wigstats ws;
   
   strandData seq[STRANDNUM];
-  double depth;
   
- SeqStats(std::string s, int32_t l=0): yeast(false), len(l), len_mpbl(l), weight4rpm(0), nread_inbed(0), nbp(0), ncov(0), ncovnorm(0), gcovRaw(0), gcovNorm(0) , nbin(0), depth(0) {
+ SeqStats(std::string s, int32_t l=0): yeast(false), len(l), len_mpbl(l), weight4rpm(0), depth(0), nread_inbed(0), nbp(0), ncov(0), ncovnorm(0), gcovRaw(0), gcovNorm(0) , nbin(0) {
     name = rmchr(s);
   }
   virtual ~SeqStats(){}
@@ -231,15 +237,14 @@ class SeqStats {
   double getpmpbl()  const { return static_cast<double>(len_mpbl)/len; }
   int32_t getnbin()      const { return nbin; }
   double getweight4rpm() const { return weight4rpm; }
+  void setdepth(const double d) { depth = d; }
+  double getdepth() const { return depth; }
   void print() const {
-    std::cout << name << "\t" << len << "\t" << len_mpbl << "\t" << bothnread() << "\t" << bothnread_nonred() << "\t" << bothnread_red() << "\t" << bothnread_rpm() << "\t" << bothnread_afterGC()<< "\t" << depth << std::endl;
+    std::cout << name << "\t" << getlen() << "\t" << getlenmpbl() << "\t" << bothnread() << "\t" << bothnread_nonred() << "\t" << bothnread_red() << "\t" << bothnread_rpm() << "\t" << bothnread_afterGC()<< "\t" << depth << std::endl;
   }
   void printGcov(std::ofstream &out, const bool lackOfRead4GenomeCov) const {
       if(lackOfRead4GenomeCov) out << boost::format("%1$.3f\t(%2$.3f)\t") % gcovRaw % gcovNorm;
       else out << boost::format("%1$.3f\t%2$.3f\t")   % gcovRaw % gcovNorm;
-  }
-  void calcdepth(const int32_t flen) {
-    depth = len_mpbl ? bothnread_nonred() * flen / static_cast<double>(len_mpbl): 0;
   }
   void setF5(int32_t flen) {
     int32_t d;
@@ -316,12 +321,12 @@ class SeqStatsGenome: public SeqStats {
   std::vector<sepchr> getVsepchr(const int32_t numthreads){
     std::vector<sepchr> vsep;
     
-    uint32_t sepsize = len/numthreads;
+    uint32_t sepsize = getlen()/numthreads;
     for(uint32_t i=0; i<chr.size(); ++i) {
       uint32_t s = i;
-      uint64_t len(0);
-      while(len < sepsize && i<chr.size()) {
-	len += chr[i].getlen();
+      uint64_t l(0);
+      while(l < sepsize && i<chr.size()) {
+	l += chr[i].getlen();
 	i++;
       }
       i--;
@@ -333,20 +338,16 @@ class SeqStatsGenome: public SeqStats {
   }
   
  public:
+  std::string name;
   std::vector<SeqStats> chr;
   std::vector<sepchr> vsepchr;
   
- SeqStatsGenome(const MyOpt::Variables &values): SeqStats("Genome") {
+ SeqStatsGenome(const MyOpt::Variables &values): SeqStats("Genome"), name("Genome") {
     
     readGenomeTable(values["gt"].as<std::string>(), values["binsize"].as<int32_t>());
     if(values.count("mp")) getMpbl(values["mp"].as<std::string>(), chr);
     else if(values.count("mptable")) getMpbltable(values["mptable"].as<std::string>(), chr);
-    for(auto &x:chr) {
-      len      += x.getlen();
-      //     len_mpbl += x.getlenmpbl();
-      // nbin     += x.getnbin();
-    }
-  
+
     // yeast
     for(auto x:chr) if(x.name == "I" || x.name == "II" || x.name == "III") yeast = true;
     for(auto &x:chr) if(yeast) x.yeaston();
@@ -365,6 +366,11 @@ class SeqStatsGenome: public SeqStats {
 #endif
   }
 
+  uint64_t getlen() const {
+    uint64_t len(0);
+    for(auto &x:chr) len += x.getlen();
+    return len;
+  }
   uint64_t getlenmpbl() const {
     uint64_t len_mpbl(0);
     for(auto &x:chr) len_mpbl += x.getlenmpbl();
@@ -375,7 +381,7 @@ class SeqStatsGenome: public SeqStats {
     for(auto &x:chr) nbin += x.getnbin();
     return nbin;
   }
-  double getpmpbl() const { return static_cast<double>(getlenmpbl())/len; }
+  double getpmpbl() const { return static_cast<double>(getlenmpbl())/getlen(); }
 
   void setnread() {
     for(auto &x:chr) {
@@ -411,10 +417,6 @@ class SeqStatsGenome: public SeqStats {
     }
     std::cout << "done." << std::endl;
     return;
-  }
-   void calcdepthAll(const int32_t flen) {
-     for (auto &x:chr) x.calcdepth(flen);
-     calcdepth(flen);
   }
    void setF5All(const int32_t flen) {
     for (auto &x:chr) x.setF5(flen);

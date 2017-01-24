@@ -282,7 +282,7 @@ void print_SeqStats(const MyOpt::Variables &values, std::ofstream &out, const Se
     p.seq[STRAND_PLUS].printafterGC(out);
     p.seq[STRAND_MINUS].printafterGC(out);
   }
-  out << boost::format("%1$.3f\t") % p.depth;
+  out << boost::format("%1$.3f\t") % p.getdepth();
   if(p.getweight4rpm()) out << boost::format("%1$.3f\t") % p.getweight4rpm(); else out << " - \t";
   if(values["ntype"].as<std::string>() == "NONE") out << p.bothnread_nonred() << "\t"; else out << p.bothnread_rpm() << "\t";
 
