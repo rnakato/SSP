@@ -16,6 +16,41 @@ void parseTagAlign(const MyOpt::Variables &, const std::string &, Mapfile &);
 void filtering_eachchr_single(Mapfile &, SeqStats &);
 void filtering_eachchr_pair(Mapfile &, SeqStats &);
 
+void getMpbl(const std::string mpdir, std::vector<SeqStats> &chr)
+{
+  std::string lineStr;
+  std::vector<std::string> v;
+  std::string mpfile = mpdir + "/map_fragL150_genome.txt";
+  std::ifstream in(mpfile);
+  if(!in) PRINTERR("Could nome open " << mpfile << ".");
+  while (!in.eof()) {
+    getline(in, lineStr);
+    if(lineStr.empty() || lineStr[0] == '#') continue;
+    boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
+    for(auto &x: chr) {
+      if(x.name == rmchr(v[0])) x.len_mpbl = stoi(v[1]);
+    }
+  }
+  return;
+}
+
+void getMpbltable(const std::string mptable, std::vector<SeqStats> &chr)
+{
+  std::string lineStr;
+  std::vector<std::string> v;
+  std::ifstream in(mptable);
+  if(!in) PRINTERR("Could nome open " << mptable << ".");
+  while (!in.eof()) {
+    getline(in, lineStr);
+    if(lineStr.empty() || lineStr[0] == '#') continue;
+    boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
+    for(auto &x: chr) {
+      if(x.name == rmchr(v[0])) x.len_mpbl = stoi(v[1]);
+    }
+  }
+  return;
+}
+
 void read_mapfile(const MyOpt::Variables &values, Mapfile &p)
 {
   std::vector<std::string> v;

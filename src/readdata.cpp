@@ -40,7 +40,6 @@ HashOfGeneDataMap extract_mp(const HashOfGeneDataMap &tmp, const std::vector<std
       }
     }
   }
-
   return mp;
 }
 
@@ -100,7 +99,6 @@ HashOfGeneDataMap parseRefFlat(const std::string& fileName)
       tmp[chr][tname].exon.push_back(exon);
     }
   }
-
   return tmp;
 }
 
