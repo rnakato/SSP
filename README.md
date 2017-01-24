@@ -55,6 +55,12 @@ Note that the chromosome length should be enough longer than the background leng
      
 In this parameter, the background region for FCS is the average ranging from 10k to 50k at steps of 500 bp.
 
+In default, FCS is calcutated for 10M reads. If the number of nonredundant reads are smaller than 10M, specify smaller number for fair comparison among samples as follows:
+
+     ssp -i ChIP1.bam -o ChIP --gt genometable.txt --num4ssp 5000000
+
+When specifying smaller read number for --num4ssp, FCS score becomes smaller, but the magnitude relation among samples is consistent.
+
 #4. Reference
 
 Under preparation.
