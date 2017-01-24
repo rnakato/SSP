@@ -312,7 +312,26 @@ class SeqStatsGenome: public SeqStats {
     print();
     for(auto x:chr) x.print();
   }
-
+  
+  std::vector<sepchr> getVsepchr(const int32_t numthreads){
+    std::vector<sepchr> vsep;
+    
+    uint32_t sepsize = len/numthreads;
+    for(uint32_t i=0; i<chr.size(); ++i) {
+      uint32_t s = i;
+      uint64_t len(0);
+      while(len < sepsize && i<chr.size()) {
+	len += chr[i].getlen();
+	i++;
+      }
+      i--;
+      uint32_t e = i;
+      sepchr sep(s,e);
+      vsep.push_back(sep);
+    }
+    return vsep;
+  }
+  
  public:
   std::vector<SeqStats> chr;
   std::vector<sepchr> vsepchr;
@@ -324,10 +343,10 @@ class SeqStatsGenome: public SeqStats {
     else if(values.count("mptable")) getMpbltable(values["mptable"].as<std::string>(), chr);
     for(auto &x:chr) {
       len      += x.getlen();
-      len_mpbl += x.getlenmpbl();
-      nbin     += x.getnbin();
+      //     len_mpbl += x.getlenmpbl();
+      // nbin     += x.getnbin();
     }
- 
+  
     // yeast
     for(auto x:chr) if(x.name == "I" || x.name == "II" || x.name == "III") yeast = true;
     for(auto &x:chr) if(yeast) x.yeaston();
@@ -346,7 +365,18 @@ class SeqStatsGenome: public SeqStats {
 #endif
   }
 
-  std::vector<sepchr> getVsepchr(const int32_t);
+  uint64_t getlenmpbl() const {
+    uint64_t len_mpbl(0);
+    for(auto &x:chr) len_mpbl += x.getlenmpbl();
+    return len_mpbl;
+  }
+  int32_t getnbin() const {
+    int32_t nbin(0);
+    for(auto &x:chr) nbin += x.getnbin();
+    return nbin;
+  }
+  double getpmpbl() const { return static_cast<double>(getlenmpbl())/len; }
+
   void setnread() {
     for(auto &x:chr) {
       for(int32_t i=0; i<STRANDNUM; i++) {
@@ -591,15 +621,6 @@ class Mapfile: private Uncopyable {
     }
   }
 
-  /*   void setnread() {
-    for (auto &x:chr) {
-      for(int i=0; i<STRANDNUM; i++) x.seq[i].setnread();
-      genome.addnread(x);
-    }
-  }
-  void setnread_red() {
-    for (auto &x:chr) genome.addnread_red(x);
-    }*/
   void printComplexity(std::ofstream &out) const {
     if(lackOfRead4Complexity) out << boost::format("Library complexity: (%1$.3f) (%2%/%3%)\n") % complexity() % nt_nonred % nt_all;
     else out << boost::format("Library complexity: %1$.3f (%2%/%3%)\n") % complexity() % nt_nonred % nt_all;
@@ -610,17 +631,6 @@ class Mapfile: private Uncopyable {
     genome.print();
     for (auto x:genome.chr) x.print();
   }
-  /*  void setFRiP() {
-    std::cout << "calculate FRiP score.." << std::flush;
-    for(auto &c: chr) {
-      calcFRiP(c, vbed);
-      genome.addNreadInBed(c.getNreadInbed());
-    }
-    //    genome.FRiP = genome.nread_inbed/static_cast<double>(genome.bothnread_nonred());
-    
-    std::cout << "done." << std::endl;
-    return;
-    }*/
   void seteflen(const int32_t len) { eflen = len; }
   int32_t getlenF3() const { return lenF3; }
   int32_t getflen(const MyOpt::Variables &values) const {

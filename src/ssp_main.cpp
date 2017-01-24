@@ -44,26 +44,6 @@ void SeqStatsGenome::readGenomeTable(const std::string &gt, const int32_t binsiz
   return;
 }
 
-std::vector<sepchr> SeqStatsGenome::getVsepchr(const int32_t numthreads)
-{
-  std::vector<sepchr> vsepchr;
-
-  uint32_t sepsize = len/numthreads;
-  for(uint32_t i=0; i<chr.size(); ++i) {
-    uint32_t s = i;
-    uint64_t len(0);
-    while(len < sepsize && i<chr.size()) {
-      len += chr[i].getlen();
-      i++;
-    }
-    i--;
-    uint32_t e = i;
-    sepchr sep(s,e);
-    vsepchr.push_back(sep);
-  }
-  return vsepchr;
-}
-
 void printVersion()
 {
   std::cerr << "SSP version " << VERSION << std::endl;
