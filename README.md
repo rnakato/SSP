@@ -49,6 +49,12 @@ Multiple input files are allowed (separated by ",")
      ssp -i ChIP1.bam,ChIP2.bam,ChIP3.bam -o ChIP --gt genometable.txt 
 
 
+Note that the chromosome length should be enough longer than the background length specified. For small genomes (e.g., yeast), the background should be shorten:
+
+     ssp -i ChIP1.bam,ChIP2.bam,ChIP3.bam -o ChIP --gt genometable.txt --ng_from 10000 --ng_to 50000 --ng_step 500
+     
+In this parameter, the background region for FCS is the average ranging from 10k to 50k at steps of 500 bp.
+
 #4. Reference
 
 Under preparation.
