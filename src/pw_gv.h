@@ -435,7 +435,7 @@ class SSPstats {
   }
 };
 
-class Mapfile {
+class Mapfile: private Uncopyable {
   bool yeast;
   const int32_t ReadMax=200;
   const int32_t FragMax=1000;
