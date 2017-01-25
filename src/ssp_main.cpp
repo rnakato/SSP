@@ -343,37 +343,6 @@ void calcFRiP(SeqStats &chr, const std::vector<bed> vbed)
   return;
 }
 
-/*void output_wigstats(Mapfile &p)
-{
-  std::string filename = p.getbinprefix() + ".binarray_dist.csv";
-  std::ofstream out(filename);
-
-  std::cout << "generate " << filename << ".." << std::flush;
-
-  out << "\tGenome\t\t\t";
-  for (auto &x: p.genome.chr) out << x.name << "\t\t\t\t";
-  out << std::endl;
-  out << "read number\tnum of bins genome\tprop\tZINB estimated\t";
-  for (auto &x: p.genome.chr) out << "num of bins\tprop\tPoisson estimated\tZINB estimated\t";
-  out << std::endl;
-
-  for(size_t i=0; i<p.genome.ws.wigDist.size(); ++i) {
-    out << i << "\t";
-    p.genome.ws.printwigDist(out, i);
-    out << p.genome.ws.getZINB(i) << "\t";
-    //    out << p.genome.getZIP(i) << "\t";
-    for (auto &x:p.genome.chr) {
-      x.ws.printwigDist(out, i);
-      out << x.ws.getPoisson(i) << "\t";
-      out << x.ws.getZINB(i) << "\t";
-    }
-    out << std::endl;
-  }
-
-  std::cout << "done." << std::endl;
-  return;
-  }*/
-
 void estimateFragLength(const MyOpt::Variables &values, Mapfile &p)
 {
   if(values.count("pair") || values.count("nomodel")) return;
