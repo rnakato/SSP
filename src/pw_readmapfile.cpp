@@ -71,7 +71,7 @@ void read_mapfile(const MyOpt::Variables &values, Mapfile &p)
   }
   //  p.genome.setnread();
 
-  if(!p.genome.bothnread()) PRINTERR("no read in input file.");
+  if(!p.genome.getnread(STRAND_BOTH)) PRINTERR("no read in input file.");
 
   p.setFraglen(values);
 
@@ -373,7 +373,7 @@ void checkRedundantReads(const MyOpt::Variables &values, Mapfile &p)
   p.setthre4filtering(values);
   
   // Library complexity
-  double r = values["ncmp"].as<int32_t>()/static_cast<double>(p.genome.bothnread());
+  double r = values["ncmp"].as<int32_t>()/static_cast<double>(p.genome.getnread(STRAND_BOTH));
   if(r>1){
     std::cerr << "Warning: number of reads is < "<< (int32_t)(values["ncmp"].as<int32_t>()/NUM_1M) <<" million.\n";
     p.lackOfRead4Complexity_on();
@@ -394,10 +394,10 @@ void filtering_eachchr_single(Mapfile &p, SeqStats &chr)
   for(int32_t strand=0; strand<STRANDNUM; strand++) {
 
     std::unordered_map<int32_t, int32_t> mp;
-    hashFilterAllSingle(mp, chr.seq[strand], p.getthre4filtering());
+    hashFilterAllSingle(mp, chr.getStrandref((Strand)strand), p.getthre4filtering());
     
     std::unordered_map<int32_t, int32_t> mp2;
-    hashFilterCmpSingle(mp2, p, chr.seq[strand], p.getthre4filtering());
+    hashFilterCmpSingle(mp2, p, chr.getStrandref((Strand)strand), p.getthre4filtering());
   }
   
   return;
@@ -407,12 +407,12 @@ void filtering_eachchr_pair(Mapfile &p, SeqStats &chr)
 {
   std::unordered_map<std::string, int32_t> mp;
   for(int32_t strand=0; strand<STRANDNUM; ++strand) {
-    hashFilterAllPair(mp, chr.seq[strand], p.getthre4filtering());
+    hashFilterAllPair(mp, chr.getStrandref((Strand)strand), p.getthre4filtering());
   }
 
   std::unordered_map<std::string, int> mp2;
   for(int32_t strand=0; strand<STRANDNUM; strand++) {
-    hashFilterCmpPair(mp2, p, chr.seq[strand], p.getthre4filtering());
+    hashFilterCmpPair(mp2, p, chr.getStrandref((Strand)strand), p.getthre4filtering());
   }
 
   return;

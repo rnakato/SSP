@@ -114,19 +114,18 @@ void shiftHamming::setDist(ReadShiftProfile &chr, const boost::dynamic_bitset<> 
   }
 }
 
-std::vector<int8_t> genVector(const strandData &seq, int32_t start, int32_t end)
+std::vector<int8_t> genVector(const std::vector<Read> &vReadref, int32_t start, int32_t end)
 {
   std::vector<int8_t> array(end-start, 0);
-  for (auto x: seq.vRead) {
+  for (auto &x: vReadref) {
     if(!x.duplicate && my_range(x.F3, start, end-1)) ++array[x.F3 - start];
   }
   return array;
 }
 
-std::vector<int8_t> shiftFragVar::genVector4FixedReadsNum(const strandData &seq, int32_t start, int32_t end)
-{
+std::vector<int8_t> shiftFragVar::genVector4FixedReadsNum(const std::vector<Read> &vReadref, int32_t start, int32_t end) {
   std::vector<int8_t> array(end-start, 0);
-  for (auto x: seq.vRead) {
+  for (auto &x: vReadref) {
     if(!x.duplicate && my_range(x.F3, start, end-1)){
       if(rand() >= r4cmp) continue;
       ++array[x.F3 - start];
@@ -136,10 +135,10 @@ std::vector<int8_t> shiftFragVar::genVector4FixedReadsNum(const strandData &seq,
   return array;
 }
 
-boost::dynamic_bitset<> genBitset(const strandData &seq, int32_t start, int32_t end)
+boost::dynamic_bitset<> genBitset(const std::vector<Read> &vReadref, int32_t start, int32_t end)
 {
   boost::dynamic_bitset<> array(end-start);
-  for (auto x: seq.vRead) {
+  for (auto &x: vReadref) {
     if(!x.duplicate && my_range(x.F3, start, end-1))
       array.set(x.F3 - start);
   }

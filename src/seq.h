@@ -11,7 +11,7 @@
 
 std::string rmchr(const std::string &chr);
 
-enum Strand {STRAND_PLUS, STRAND_MINUS, STRANDNUM};
+enum Strand {STRAND_PLUS, STRAND_MINUS, STRANDNUM, STRAND_BOTH};
 enum status {INTERGENIC, GENIC, INTRON, EXON, DOWNSTREAM, UPSTREAM, TSS, PARALLEL, DIVERGENT, CONVERGENT};
 
 template <class T>

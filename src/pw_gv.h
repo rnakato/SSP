@@ -34,9 +34,9 @@ class strandData {
   void print() const {
     std::cout << nread << "\t" << nread_nonred << "\t" << nread_red << "\t" << nread_rpm << "\t" << nread_afterGC << std::endl;
   }
-  void printnonred(std::ofstream &out)  const { printr(out, nread_nonred,  nread); }
-  void printred(std::ofstream &out)     const { printr(out, nread_red,     nread); }
-  void printafterGC(std::ofstream &out) const { printr(out, nread_afterGC, nread); }
+  //  void printnonred(std::ofstream &out)  const { printr(out, nread_nonred,  nread); }
+  //  void printred(std::ofstream &out)     const { printr(out, nread_red,     nread); }
+  //  void printafterGC(std::ofstream &out) const { printr(out, nread_afterGC, nread); }
   void addReadAfterGC(const double w, boost::mutex &mtx) {
     boost::mutex::scoped_lock lock(mtx);
     nread_afterGC += w;
@@ -146,13 +146,14 @@ class Wigstats {
 template <class T>
 void calcdepth(T &obj, const int32_t flen) {
   uint64_t lenmpbl = obj.getlenmpbl();
-  double d = lenmpbl ? obj.bothnread_nonred() * flen / static_cast<double>(lenmpbl): 0;
+  double d = lenmpbl ? obj.getnread_nonred(STRAND_BOTH) * flen / static_cast<double>(lenmpbl): 0;
   obj.setdepth(d);
 }
 
 class SeqStats {
   uint64_t len, len_mpbl;
   int32_t nbin;
+  strandData seq[STRANDNUM];
  protected:
   bool yeast;
   double weight4rpm;
@@ -164,9 +165,7 @@ class SeqStats {
  public:
   std::string name;
   Wigstats ws;
-  
-  strandData seq[STRANDNUM];
-  
+    
  SeqStats(std::string s, int32_t l=0, int32_t binsize=0):
   len(l), len_mpbl(l), 
     yeast(false), weight4rpm(0), depth(0),
@@ -182,13 +181,32 @@ class SeqStats {
     Read r(frag);
     seq[frag.strand].vRead.push_back(r);
   }
-  uint64_t bothnread ()         const { return seq[STRAND_PLUS].nread         + seq[STRAND_MINUS].nread; }
-  uint64_t bothnread_nonred ()  const { return seq[STRAND_PLUS].nread_nonred  + seq[STRAND_MINUS].nread_nonred; }
-  uint64_t bothnread_red ()     const { return seq[STRAND_PLUS].nread_red     + seq[STRAND_MINUS].nread_red; }
-  uint64_t bothnread_rpm ()     const { return seq[STRAND_PLUS].nread_rpm     + seq[STRAND_MINUS].nread_rpm; }
-  uint64_t bothnread_afterGC () const { return seq[STRAND_PLUS].nread_afterGC + seq[STRAND_MINUS].nread_afterGC; }
-
-  void setnbin(const int32_t b) { nbin = b; }
+  uint64_t getnread (const Strand strand) const {
+    if(strand==STRAND_BOTH) return seq[STRAND_PLUS].nread + seq[STRAND_MINUS].nread;
+    else return seq[strand].nread;
+  }
+  uint64_t getnread_nonred (const Strand strand) const {
+    if(strand==STRAND_BOTH) return seq[STRAND_PLUS].nread_nonred + seq[STRAND_MINUS].nread_nonred;
+    else return seq[strand].nread_nonred;
+  }
+  uint64_t getnread_red (const Strand strand) const {
+    if(strand==STRAND_BOTH) return seq[STRAND_PLUS].nread_red + seq[STRAND_MINUS].nread_red;
+    else return seq[strand].nread_red;
+  }
+  uint64_t getnread_rpm (const Strand strand) const {
+    if(strand==STRAND_BOTH) return seq[STRAND_PLUS].nread_rpm + seq[STRAND_MINUS].nread_rpm;
+    else return seq[strand].nread_rpm;
+  }
+  uint64_t getnread_afterGC (const Strand strand) const {
+    if(strand==STRAND_BOTH) return seq[STRAND_PLUS].nread_afterGC + seq[STRAND_MINUS].nread_afterGC;
+    else return seq[strand].nread_afterGC;
+  }
+  strandData & getStrandref (const Strand strand) {
+    return seq[strand];
+  }
+  const std::vector<Read> & getvReadref (const Strand strand) const {
+    return seq[strand].vRead;
+  }
   void setdepth(const double d) { depth = d; }
   
   uint64_t getlen()      const { return len; }
@@ -202,7 +220,13 @@ class SeqStats {
   double getdepth()      const { return depth; }
 
   void print() const {
-    std::cout << name << "\t" << getlen() << "\t" << getlenmpbl() << "\t" << bothnread() << "\t" << bothnread_nonred() << "\t" << bothnread_red() << "\t" << bothnread_rpm() << "\t" << bothnread_afterGC()<< "\t" << depth << std::endl;
+    std::cout << name << "\t" << getlen() << "\t" << getlenmpbl() << "\t"
+	      << getnread(STRAND_BOTH)    << "\t"
+	      << getnread_nonred(STRAND_BOTH) << "\t"
+	      << getnread_red(STRAND_BOTH)    << "\t"
+	      << getnread_rpm(STRAND_BOTH)    << "\t"
+	      << getnread_afterGC(STRAND_BOTH)<< "\t"
+	      << depth << std::endl;
   }
   void printGcov(std::ofstream &out, const bool lackOfRead4GenomeCov) const {
       if(lackOfRead4GenomeCov) out << boost::format("%1$.3f\t(%2$.3f)\t") % gcovRaw % gcovNorm;
@@ -216,7 +240,7 @@ class SeqStats {
     }
   }
   double getFRiP() const {
-    return nread_inbed/static_cast<double>(bothnread_nonred());
+    return nread_inbed/static_cast<double>(getnread_nonred(STRAND_BOTH));
   }
   void setWeight(const double weight) {
     weight4rpm = weight;
@@ -360,29 +384,30 @@ class SeqStatsGenome: public SeqStats {
     for(auto &x:chr) nbin += x.getnbin();
     return nbin;
   }
-  uint64_t bothnread() const {
+  
+  uint64_t getnread (const Strand strand) const {
     uint64_t nread(0);
-    for(auto &x:chr) nread += x.bothnread();
+    for(auto &x:chr) nread += x.getnread(strand);
     return nread;
   }
-  uint64_t bothnread_nonred() const {
+  uint64_t getnread_nonred (const Strand strand) const {
     uint64_t nread(0);
-    for(auto &x:chr) nread += x.bothnread_nonred();
+    for(auto &x:chr) nread += x.getnread_nonred(strand);
     return nread;
   }
-  uint64_t bothnread_red() const {
+  uint64_t getnread_red (const Strand strand) const {
     uint64_t nread(0);
-    for(auto &x:chr) nread += x.bothnread_red();
+    for(auto &x:chr) nread += x.getnread_red(strand);
     return nread;
   }
-  uint64_t bothnread_rpm() const {
+  uint64_t getnread_rpm (const Strand strand) const {
     uint64_t nread(0);
-    for(auto &x:chr) nread += x.bothnread_rpm();
+    for(auto &x:chr) nread += x.getnread_rpm(strand);
     return nread;
   }
-  uint64_t bothnread_afterGC() const {
+  uint64_t getnread_afterGC (const Strand strand) const {
     uint64_t nread(0);
-    for(auto &x:chr) nread += x.bothnread_afterGC();
+    for(auto &x:chr) nread += x.getnread_afterGC(strand);
     return nread;
   }
 
@@ -547,7 +572,7 @@ class Mapfile: private Uncopyable {
     out << "Sample\ttotal read number\tnonredundant read number\t"
 	<< "read length\tfragment length\t";
     sspst.printhead(out);
-    out << samplename << "\t" << genome.bothnread() << "\t" << genome.bothnread_nonred() << "\t"
+    out << samplename << "\t" << genome.getnread(STRAND_BOTH) << "\t" << genome.getnread_nonred(STRAND_BOTH) << "\t"
 	<< lenF3 << "\t" << eflen << "\t";
     sspst.print(out);
   }
@@ -560,7 +585,7 @@ class Mapfile: private Uncopyable {
   bool islackOfRead4GenomeCov() const { return lackOfRead4GenomeCov; };
   void setthre4filtering(const MyOpt::Variables &values) {
     if(values["thre_pb"].as<int32_t>()) thre4filtering = values["thre_pb"].as<int32_t>();
-    else thre4filtering = std::max(1, (int32_t)(genome.bothnread() *10/static_cast<double>(genome.getlenmpbl())));
+    else thre4filtering = std::max(1, (int32_t)(genome.getnread(STRAND_BOTH) *10/static_cast<double>(genome.getlenmpbl())));
     std::cout << "Checking redundant reads: redundancy threshold " << thre4filtering << std::endl;
   }
   int32_t getthre4filtering() const { return thre4filtering; };
@@ -614,14 +639,14 @@ class Mapfile: private Uncopyable {
   {
     std::string outputfile = oprefix + ".readlength_dist.csv";
     std::ofstream out(outputfile);
-    printDist(out, vlenF3, "F3", genome.bothnread());
-    if(values.count("pair")) printDist(out, vlenF5, "F5", genome.bothnread());
+    printDist(out, vlenF3, "F3", genome.getnread(STRAND_BOTH));
+    if(values.count("pair")) printDist(out, vlenF5, "F5", genome.getnread(STRAND_BOTH));
     out.close();
     
     if(values.count("pair")) {
       outputfile = oprefix + ".fraglen_dist.xls";
       std::ofstream out(outputfile);
-      printDist(out, vflen, "Fragmemt", genome.bothnread());
+      printDist(out, vflen, "Fragmemt", genome.getnread(STRAND_BOTH));
     }
   }
 

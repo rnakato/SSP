@@ -246,26 +246,27 @@ void print_SeqStats(const MyOpt::Variables &values, std::ofstream &out, const Se
   out << p.name << "\t" << p.getlen()  << "\t" << p.getlenmpbl() << "\t" << p.getpmpbl() << "\t";
   /* total reads*/
   out << boost::format("%1%\t%2%\t%3%\t%4$.1f%%\t")
-    % p.bothnread() % p.seq[STRAND_PLUS].nread % p.seq[STRAND_MINUS].nread
-    % (p.bothnread()*100/static_cast<double>(mapfile.genome.bothnread()));
+    % p.getnread(STRAND_BOTH) % p.getnread(STRAND_PLUS) % p.getnread(STRAND_MINUS)
+    % (p.getnread(STRAND_BOTH)*100/static_cast<double>(mapfile.genome.getnread(STRAND_BOTH)));
 
   /* nonredundant reads */
-  printr(out, p.bothnread_nonred(), p.bothnread());
-  p.seq[STRAND_PLUS].printnonred(out);
-  p.seq[STRAND_MINUS].printnonred(out);
-  printr(out, p.bothnread_red(), p.bothnread());
-  p.seq[STRAND_PLUS].printred(out);
-  p.seq[STRAND_MINUS].printred(out);
+  printr(out, p.getnread_nonred(STRAND_BOTH), p.getnread(STRAND_BOTH));
+  //  p.seq[STRAND_PLUS].printnonred(out);
+  // p.seq[STRAND_MINUS].printnonred(out);
+  printr(out, p.getnread_red(STRAND_BOTH), p.getnread(STRAND_BOTH));
+  //  p.seq[STRAND_PLUS].printred(out);
+  // p.seq[STRAND_MINUS].printred(out);
 
   /* reads after GCnorm */
   if(values.count("genome")) {
-    printr(out, p.bothnread_afterGC(), p.bothnread());
-    p.seq[STRAND_PLUS].printafterGC(out);
-    p.seq[STRAND_MINUS].printafterGC(out);
+    printr(out, p.getnread_afterGC(STRAND_BOTH), p.getnread(STRAND_BOTH));
+    //  p.seq[STRAND_PLUS].printafterGC(out);
+    // p.seq[STRAND_MINUS].printafterGC(out);
   }
   out << boost::format("%1$.3f\t") % p.getdepth();
   if(p.getweight4rpm()) out << boost::format("%1$.3f\t") % p.getweight4rpm(); else out << " - \t";
-  if(values["ntype"].as<std::string>() == "NONE") out << p.bothnread_nonred() << "\t"; else out << p.bothnread_rpm() << "\t";
+  if(values["ntype"].as<std::string>() == "NONE") out << p.getnread_nonred(STRAND_BOTH) << "\t";
+  else out << p.getnread_rpm(STRAND_BOTH) << "\t";
 
   p.printGcov(out, mapfile.islackOfRead4GenomeCov());
   
@@ -331,7 +332,8 @@ std::vector<int8_t> makeGcovArray(const MyOpt::Variables &values, SeqStats &chr,
   int32_t val(0);
   int32_t size = array.size();
   for (int32_t strand=0; strand<STRANDNUM; ++strand) {
-    for (auto &x: chr.seq[strand].vRead) {
+    const std::vector<Read> &vReadref = chr.getvReadref((Strand)strand);
+    for (auto &x: vReadref) {
       if(x.duplicate) continue;
       
       if(rand() >= r4cmp) val=COVREAD_ALL; else val=COVREAD_NORM;
