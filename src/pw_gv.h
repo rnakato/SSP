@@ -195,11 +195,17 @@ void calcdepth(T &obj, const int32_t flen) {
   double d = lenmpbl ? obj.bothnread_nonred() * flen / static_cast<double>(lenmpbl): 0;
   obj.setdepth(d);
 }
+template <class T>
+double getpmpbl(const T &obj)
+{
+  return static_cast<double>(obj.getlenmpbl())/obj.getlen();
+}
 
 class SeqStats {
+  uint64_t len, len_mpbl;
+  int32_t nbin;
  protected:
   bool yeast;
-  uint64_t len, len_mpbl;
   double weight4rpm;
   double depth;
   /* FRiP */
@@ -208,16 +214,18 @@ class SeqStats {
   double gcovRaw, gcovNorm;
  public:
   std::string name;
-  int32_t nbin;
-
   Wigstats ws;
   
   strandData seq[STRANDNUM];
   
- SeqStats(std::string s, int32_t l=0): yeast(false), len(l), len_mpbl(l), weight4rpm(0), depth(0), nread_inbed(0), nbp(0), ncov(0), ncovnorm(0), gcovRaw(0), gcovNorm(0) , nbin(0) {
-    name = rmchr(s);
-  }
+ SeqStats(std::string s, int32_t l=0, int32_t binsize=0):
+  len(l), len_mpbl(l), nbin(l/binsize +1),
+    yeast(false), weight4rpm(0), depth(0),
+    nread_inbed(0), nbp(0), ncov(0), ncovnorm(0),
+    gcovRaw(0), gcovNorm(0), name(rmchr(s)) {}
+  
   virtual ~SeqStats(){}
+
   uint64_t getNreadInbed() const { return nread_inbed; }
   void addfrag(const Fragment &frag) {
     Read r(frag);
@@ -229,16 +237,18 @@ class SeqStats {
   uint64_t bothnread_rpm ()     const { return seq[STRAND_PLUS].nread_rpm     + seq[STRAND_MINUS].nread_rpm; }
   uint64_t bothnread_afterGC () const { return seq[STRAND_PLUS].nread_afterGC + seq[STRAND_MINUS].nread_afterGC; }
 
+  void setnbin(const int32_t b) { nbin = b; }
+  void setdepth(const double d) { depth = d; }
+  
   uint64_t getlen()      const { return len; }
   uint64_t getlenmpbl()  const { return len_mpbl; }
   uint64_t getnbp()      const { return nbp; }
   uint64_t getncov()     const { return ncov; }
   uint64_t getncovnorm() const { return ncovnorm; }
-  double getpmpbl()  const { return static_cast<double>(len_mpbl)/len; }
   int32_t getnbin()      const { return nbin; }
   double getweight4rpm() const { return weight4rpm; }
-  void setdepth(const double d) { depth = d; }
-  double getdepth() const { return depth; }
+  double getdepth()      const { return depth; }
+
   void print() const {
     std::cout << name << "\t" << getlen() << "\t" << getlenmpbl() << "\t" << bothnread() << "\t" << bothnread_nonred() << "\t" << bothnread_red() << "\t" << bothnread_rpm() << "\t" << bothnread_afterGC()<< "\t" << depth << std::endl;
   }
@@ -310,7 +320,22 @@ class SeqStats {
 
 class SeqStatsGenome: public SeqStats {
   std::vector<bed> vbed;
-  void readGenomeTable(const std::string &, const int32_t);
+  void readGenomeTable(const std::string &gt, const int binsize) {
+    std::vector<std::string> v;
+    std::string lineStr;
+    std::ifstream in(gt);
+    if(!in) PRINTERR("Could nome open " << gt << ".");
+    
+    while (!in.eof()) {
+      getline(in, lineStr);
+      if(lineStr.empty() || lineStr[0] == '#') continue;
+      boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
+      SeqStats s(v[0], stoi(v[1]), binsize);
+      chr.push_back(s);
+    }
+    return;
+  }
+
   
   void printstats() const {
     std::cout << "name\tlength\tlen_mpbl\tread num\tnonred num\tred num\tnormed\tafterGC\tdepth" << std::endl;
@@ -381,7 +406,6 @@ class SeqStatsGenome: public SeqStats {
     for(auto &x:chr) nbin += x.getnbin();
     return nbin;
   }
-  double getpmpbl() const { return static_cast<double>(getlenmpbl())/getlen(); }
 
   void setnread() {
     for(auto &x:chr) {
@@ -551,7 +575,6 @@ class Mapfile: private Uncopyable {
   
   void setmaxGC(const int32_t m) { maxGC = m; }
   int32_t getmaxGC() const {return maxGC; }
-  void readGenomeTable(const MyOpt::Variables &values);
 
   void lackOfRead4Complexity_on() { lackOfRead4Complexity = true; }
   void lackOfRead4GenomeCov_on() { lackOfRead4GenomeCov = true; }
