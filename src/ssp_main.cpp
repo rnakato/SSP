@@ -24,7 +24,6 @@ MyOpt::Variables getOpts(int argc, char* argv[]);
 void setOpts(MyOpt::Opts &, MyOpt::Opts &);
 void init_dump(const MyOpt::Variables &);
 void output_stats(const MyOpt::Variables &values, const Mapfile &p);
-//void output_wigstats(Mapfile &p);
 void estimateFragLength(const MyOpt::Variables &values, Mapfile &p);
 
 void printVersion()
@@ -243,7 +242,7 @@ void init_dump(const MyOpt::Variables &values){
 void print_SeqStats(const MyOpt::Variables &values, std::ofstream &out, const SeqStats &p, const Mapfile &mapfile)
 {
   /* genome data */
-  out << p.name << "\t" << p.getlen()  << "\t" << p.getlenmpbl() << "\t" << p.getpmpbl() << "\t";
+  out << p.getname() << "\t" << p.getlen()  << "\t" << p.getlenmpbl() << "\t" << p.getpmpbl() << "\t";
   /* total reads*/
   out << boost::format("%1%\t%2%\t%3%\t%4$.1f%%\t")
     % p.getnread(STRAND_BOTH) % p.getnread(STRAND_PLUS) % p.getnread(STRAND_MINUS)
@@ -319,27 +318,6 @@ void output_stats(const MyOpt::Variables &values, const Mapfile &p)
   
   std::cout << "stats is output in " << filename << "." << std::endl;
 
-  return;
-}
-
-void calcFRiP(SeqStats &chr, const std::vector<bed> vbed)
-{
-  std::vector<int8_t> array(chr.getlen(), MAPPABLE);
-  arraySetBed(array, chr.name, vbed);
-  for(int32_t strand=0; strand<STRANDNUM; ++strand) {
-    for (auto &x: chr.seq[strand].vRead) {
-      if(x.duplicate) continue;
-      int32_t s(std::min(x.F3, x.F5));
-      int32_t e(std::max(x.F3, x.F5));
-      for(int32_t i=s; i<=e; ++i) {
-	if(array[i]==INBED) {
-	  x.inpeak = 1;
-	  ++chr.nread_inbed;
-	  break;
-	}
-      }
-    }
-  }
   return;
 }
 

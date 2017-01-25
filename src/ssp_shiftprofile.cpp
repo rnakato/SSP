@@ -148,12 +148,12 @@ boost::dynamic_bitset<> genBitset(const std::vector<Read> &vReadref, int32_t sta
 template <class T>
 void genThread(T &dist, const Mapfile &p, uint32_t chr_s, uint32_t chr_e, std::string typestr, const bool output_eachchr) {
   for(uint32_t i=chr_s; i<=chr_e; ++i) {
-    std::cout << p.genome.chr[i].name << ".." << std::flush;
+    std::cout << p.genome.chr[i].getname() << ".." << std::flush;
 
     dist.execchr(p, i);
     dist.chr[i].setflen(dist.name);
     
-    std::string filename = p.getprefix() + "." + typestr + "." + p.genome.chr[i].name + ".csv";
+    std::string filename = p.getprefix() + "." + typestr + "." + p.genome.chr[i].getname() + ".csv";
     if(output_eachchr) dist.outputmpChr(filename, i);
   }
 }
@@ -250,10 +250,10 @@ void makeFCSProfile(const MyOpt::Variables &values, Mapfile &p, const std::strin
 
   for(uint32_t i=0; i<p.genome.chr.size(); ++i) {
     if(!p.genome.chr[i].isautosome()) continue;
-    std::cout << p.genome.chr[i].name << ".." << std::flush;
+    std::cout << p.genome.chr[i].getname() << ".." << std::flush;
     dist.execchr(p, i);
     if(values.count("eachchr")) {
-      std::string filename = p.getprefix() + "." + typestr + "." + p.genome.chr[i].name + ".csv";
+      std::string filename = p.getprefix() + "." + typestr + "." + p.genome.chr[i].getname() + ".csv";
       dist.outputfcsChr(filename, i);
     }
   }

@@ -310,9 +310,9 @@ std::vector<int8_t> readMpbl_binary(int32_t chrlen)
   return mparray;
 }
 
-std::vector<int8_t> arraySetBed(std::vector<int8_t> &array, std::string chrname, std::vector<bed> vbed)
+std::vector<int8_t> arraySetBed(std::vector<int8_t> &array, std::string chrname, const std::vector<bed> &vbed)
 {
-  for(auto bed: vbed) {
+  for(auto &bed: vbed) {
     if(bed.chr == chrname) {
       int32_t s(bed.start);
       int32_t e(bed.end);

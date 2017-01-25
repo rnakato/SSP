@@ -28,7 +28,7 @@ std::vector<chrsize> read_genometable(const std::string&);
 std::vector<int32_t>  readMpbl(std::string, std::string, int32_t, int32_t);
 std::vector<int8_t> readMpbl_binary(int32_t);
 std::vector<int8_t> readMpbl_binary(std::string, std::string, int32_t);
-std::vector<int8_t> arraySetBed(std::vector<int8_t> &, std::string, std::vector<bed>);
+std::vector<int8_t> arraySetBed(std::vector<int8_t> &, std::string, const std::vector<bed> &);
 std::string IntToString(int64_t n);
 
 template <class T>

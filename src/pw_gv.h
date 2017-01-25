@@ -29,14 +29,10 @@ class strandData {
   double nread_afterGC;
 
  strandData(): nread_nonred(0), nread_red(0), nread_rpm(0), nread_afterGC(0) {}
-  //  void setnread() { nread = vRead.size(); }
   size_t getnread() const { return vRead.size(); }
   void print() const {
     std::cout << getnread() << "\t" << nread_nonred << "\t" << nread_red << "\t" << nread_rpm << "\t" << nread_afterGC << std::endl;
   }
-  //  void printnonred(std::ofstream &out)  const { printr(out, nread_nonred,  nread); }
-  //  void printred(std::ofstream &out)     const { printr(out, nread_red,     nread); }
-  //  void printafterGC(std::ofstream &out) const { printr(out, nread_afterGC, nread); }
 
   void setnread_nonread_nofilter() {
     nread_nonred = getnread();
@@ -151,7 +147,7 @@ void calcdepth(T &obj, const int32_t flen)
 template <class T>
 void printSeqStats(const T &obj)
 {
-  std::cout << obj.name << "\t" << obj.getlen() << "\t" << obj.getlenmpbl() << "\t"
+  std::cout << obj.getname() << "\t" << obj.getlen() << "\t" << obj.getlenmpbl() << "\t"
 	    << obj.getnread(STRAND_BOTH)        << "\t"
 	    << obj.getnread_nonred(STRAND_BOTH) << "\t"
 	    << obj.getnread_red(STRAND_BOTH)    << "\t"
@@ -161,32 +157,33 @@ void printSeqStats(const T &obj)
 }
 
 class SeqStats {
+  std::string name;
   uint64_t len, len_mpbl;
   int32_t nbin;
   strandData seq[STRANDNUM];
   bool Greekchr;
+  double depth;
+  uint64_t nread_inbed;
+
  protected:
   double weight4rpm;
-  double depth;
-  /* FRiP */
-  uint64_t nread_inbed;
   uint64_t nbp, ncov, ncovnorm;
   double gcovRaw, gcovNorm;
+
  public:
-  std::string name;
   Wigstats ws;
     
  SeqStats(std::string s, int32_t l=0, int32_t binsize=0):
-  len(l), len_mpbl(l), 
-    Greekchr(false), weight4rpm(0), depth(0),
-    nread_inbed(0), nbp(0), ncov(0), ncovnorm(0),
-    gcovRaw(0), gcovNorm(0), name(rmchr(s)) {
+  name(rmchr(s)), len(l), len_mpbl(l), 
+    Greekchr(false), depth(0), nread_inbed(0),
+    weight4rpm(0), nbp(0), ncov(0), ncovnorm(0),
+    gcovRaw(0), gcovNorm(0) {
     nbin = binsize ? (l/binsize +1) : 0;
   }
   
   virtual ~SeqStats(){}
 
-  uint64_t getNreadInbed() const { return nread_inbed; }
+  std::string getname() const { return name; }
   void addfrag(const Fragment &frag) {
     Read r(frag);
     seq[frag.strand].vRead.push_back(r);
@@ -211,6 +208,7 @@ class SeqStats {
     if(strand==STRAND_BOTH) return seq[STRAND_PLUS].nread_afterGC + seq[STRAND_MINUS].nread_afterGC;
     else return seq[strand].nread_afterGC;
   }
+  uint64_t getnread_inbed() const { return nread_inbed; }
   strandData & getStrandref (const Strand strand) {
     return seq[strand];
   }
@@ -247,6 +245,7 @@ class SeqStats {
       for(auto &x: seq[strand].vRead) x.F5 = x.F3 + d;
     }
   }
+  void setFRiP(const uint64_t n) { nread_inbed = n; }
   double getFRiP() const {
     return nread_inbed/static_cast<double>(getnread_nonred(STRAND_BOTH));
   }
@@ -299,10 +298,10 @@ class SeqStats {
 
   friend void getMpbl(const std::string, std::vector<SeqStats> &chr);
   friend void getMpbltable(const std::string, std::vector<SeqStats> &chr);
-  friend void calcFRiP(SeqStats &, const std::vector<bed>);
 };
 
 class SeqStatsGenome: public SeqStats {
+  std::string name;
   std::vector<bed> vbed;
   void readGenomeTable(const std::string &gt, const int binsize) {
     std::vector<std::string> v;
@@ -340,7 +339,6 @@ class SeqStatsGenome: public SeqStats {
   }
   
  public:
-  std::string name;
   std::vector<SeqStats> chr;
   std::vector<sepchr> vsepchr;
   
@@ -352,7 +350,7 @@ class SeqStatsGenome: public SeqStats {
 
     // Greekchr
     for(auto &x:chr) {
-      if(x.name == "I") {
+      if(x.getname() == "I") {
 	for(auto &x:chr) x.Greekchron();
 	break;
       }
@@ -363,7 +361,7 @@ class SeqStatsGenome: public SeqStats {
     
 #ifdef DEBUG
     std::cout << "chr\tautosome" << std::endl;
-    for(auto x:chr) std::cout << x.name << "\t" << x.isautosome() << std::endl;
+    for(auto x:chr) std::cout << x.getname() << "\t" << x.isautosome() << std::endl;
     for(uint32_t i=0; i<vsepchr.size(); i++)
       std::cout << "thread " << (i+1) << ": "
 		<< vsepchr[i].s << "-" << vsepchr[i].e
@@ -372,6 +370,7 @@ class SeqStatsGenome: public SeqStats {
 #endif
   }
 
+  std::string getname() const { return name; }
   uint64_t getlen() const {
     uint64_t len(0);
     for(auto &x:chr) len += x.getlen();
@@ -416,26 +415,25 @@ class SeqStatsGenome: public SeqStats {
     for(auto &x:chr) nread += x.getnread_afterGC(strand);
     return nread;
   }
+  double getFRiP() const {
+    uint64_t nread(0);
+    for(auto &x:chr) nread += x.getnread_inbed();
+    
+    return nread/static_cast<double>(getnread_nonred(STRAND_BOTH));
+  }
 
   void setbed(const std::string bedfilename) {
     isFile(bedfilename);
     vbed = parseBed<bed>(bedfilename);
     //    printBed(vbed);
   }
-  void setFRiP() {
-    std::cout << "calculate FRiP score.." << std::flush;
-    for(auto &x: chr) {
-      calcFRiP(x, vbed);
-      nread_inbed += x.getNreadInbed();
-    }
-    std::cout << "done." << std::endl;
-    return;
-  }
-   void setF5All(const int32_t flen) {
+  const std::vector<bed> & getvbedref() const { return vbed; }
+  
+  void setF5All(const int32_t flen) {
     for (auto &x:chr) x.setF5(flen);
     setF5(flen);
   }
-  std::vector<bed> getvbed() const { return vbed; }
+  
   void addGcov(const int32_t i, boost::mutex &mtx) {
     boost::mutex::scoped_lock lock(mtx);
     nbp      += chr[i].getnbp();
@@ -613,7 +611,7 @@ class Mapfile: private Uncopyable {
     ++vflen[frag.fraglen];
     int8_t on(0);
     for(auto &x:genome.chr) {
-      if(x.name == frag.chr) {
+      if(x.getname() == frag.chr) {
 	x.addfrag(frag);
 	on++;
       }
