@@ -24,7 +24,7 @@ MyOpt::Variables getOpts(int argc, char* argv[]);
 void setOpts(MyOpt::Opts &, MyOpt::Opts &);
 void init_dump(const MyOpt::Variables &);
 void output_stats(const MyOpt::Variables &values, const Mapfile &p);
-void output_wigstats(Mapfile &p);
+//void output_wigstats(Mapfile &p);
 void estimateFragLength(const MyOpt::Variables &values, Mapfile &p);
 
 void printVersion()
@@ -314,7 +314,7 @@ void output_stats(const MyOpt::Variables &values, const Mapfile &p)
 
   // SeqStats
   print_SeqStats(values, out, p.genome, p);
-  for(auto x:p.genome.chr) print_SeqStats(values, out, x, p);
+  for(auto &x:p.genome.chr) print_SeqStats(values, out, x, p);
   
   std::cout << "stats is output in " << filename << "." << std::endl;
 
@@ -378,7 +378,7 @@ void calcFRiP(SeqStats &chr, const std::vector<bed> vbed)
   return;
 }
 
-void output_wigstats(Mapfile &p)
+/*void output_wigstats(Mapfile &p)
 {
   std::string filename = p.getbinprefix() + ".binarray_dist.csv";
   std::ofstream out(filename);
@@ -386,10 +386,10 @@ void output_wigstats(Mapfile &p)
   std::cout << "generate " << filename << ".." << std::flush;
 
   out << "\tGenome\t\t\t";
-  for (auto x:p.genome.chr) out << x.name << "\t\t\t\t";
+  for (auto &x: p.genome.chr) out << x.name << "\t\t\t\t";
   out << std::endl;
   out << "read number\tnum of bins genome\tprop\tZINB estimated\t";
-  for (auto x:p.genome.chr) out << "num of bins\tprop\tPoisson estimated\tZINB estimated\t";
+  for (auto &x: p.genome.chr) out << "num of bins\tprop\tPoisson estimated\tZINB estimated\t";
   out << std::endl;
 
   for(size_t i=0; i<p.genome.ws.wigDist.size(); ++i) {
@@ -397,7 +397,7 @@ void output_wigstats(Mapfile &p)
     p.genome.ws.printwigDist(out, i);
     out << p.genome.ws.getZINB(i) << "\t";
     //    out << p.genome.getZIP(i) << "\t";
-    for (auto x:p.genome.chr) {
+    for (auto &x:p.genome.chr) {
       x.ws.printwigDist(out, i);
       out << x.ws.getPoisson(i) << "\t";
       out << x.ws.getZINB(i) << "\t";
@@ -407,7 +407,7 @@ void output_wigstats(Mapfile &p)
 
   std::cout << "done." << std::endl;
   return;
-}
+  }*/
 
 void estimateFragLength(const MyOpt::Variables &values, Mapfile &p)
 {

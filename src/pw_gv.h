@@ -292,7 +292,7 @@ class SeqStatsGenome: public SeqStats {
   void printstats() const {
     std::cout << "name\tlength\tlen_mpbl\tread num\tnonred num\tred num\tnormed\tafterGC\tdepth" << std::endl;
     print();
-    for(auto x:chr) x.print();
+    for(auto &x:chr) x.print();
   }
   
   std::vector<sepchr> getVsepchr(const int32_t numthreads){
@@ -326,7 +326,7 @@ class SeqStatsGenome: public SeqStats {
     else if(values.count("mptable")) getMpbltable(values["mptable"].as<std::string>(), chr);
 
     // yeast
-    for(auto x:chr) if(x.name == "I" || x.name == "II" || x.name == "III") yeast = true;
+    for(auto &x:chr) if(x.name == "I" || x.name == "II" || x.name == "III") yeast = true;
     for(auto &x:chr) if(yeast) x.yeaston();
     
     // sepchr
@@ -609,7 +609,7 @@ class Mapfile: private Uncopyable {
   void printstats() const {
     std::cout << "name\tlength\tlen_mpbl\tread num\tnonred num\tred num\tnormed\tafterGC\tdepth" << std::endl;
     genome.print();
-    for (auto x:genome.chr) x.print();
+    for (auto &x:genome.chr) x.print();
   }
   void seteflen(const int32_t len) { eflen = len; }
   int32_t getlenF3() const { return lenF3; }
