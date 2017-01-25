@@ -37,10 +37,7 @@ class strandData {
   //  void printnonred(std::ofstream &out)  const { printr(out, nread_nonred,  nread); }
   //  void printred(std::ofstream &out)     const { printr(out, nread_red,     nread); }
   //  void printafterGC(std::ofstream &out) const { printr(out, nread_afterGC, nread); }
-  void addReadAfterGC(const double w, boost::mutex &mtx) {
-    boost::mutex::scoped_lock lock(mtx);
-    nread_afterGC += w;
-  }
+
   void setnread_nonread_nofilter() {
     nread_nonred = nread;
   }
@@ -207,7 +204,14 @@ class SeqStats {
   const std::vector<Read> & getvReadref (const Strand strand) const {
     return seq[strand].vRead;
   }
+  std::vector<Read> & getvReadref_notconst (const Strand strand) {
+    return seq[strand].vRead;
+  }
   void setdepth(const double d) { depth = d; }
+  void addReadAfterGC(const Strand strand, const double w, boost::mutex &mtx) {
+    boost::mutex::scoped_lock lock(mtx);
+    seq[strand].nread_afterGC += w;
+  }
   
   uint64_t getlen()      const { return len; }
   uint64_t getlenmpbl()  const { return len_mpbl; }
