@@ -55,8 +55,8 @@ int main(int argc, char* argv[])
   read_mapfile(values, p);
 
   if(!values.count("nofilter")) checkRedundantReads(values, p);
-  else                          p.genome.setnread2nread_red();
-  p.genome.setnread_red();
+  //  else                          p.genome.setnread2nread_red();
+  //  p.genome.setnread_red();
   
   estimateFragLength(values, p);
 

@@ -287,8 +287,7 @@ class SeqStatsGenome: public SeqStats {
     }
     return;
   }
-
-  
+ 
   void printstats() const {
     std::cout << "name\tlength\tlen_mpbl\tread num\tnonred num\tred num\tnormed\tafterGC\tdepth" << std::endl;
     print();
@@ -361,8 +360,33 @@ class SeqStatsGenome: public SeqStats {
     for(auto &x:chr) nbin += x.getnbin();
     return nbin;
   }
+  uint64_t bothnread() const {
+    uint64_t nread(0);
+    for(auto &x:chr) nread += x.bothnread();
+    return nread;
+  }
+  uint64_t bothnread_nonred() const {
+    uint64_t nread(0);
+    for(auto &x:chr) nread += x.bothnread_nonred();
+    return nread;
+  }
+  uint64_t bothnread_red() const {
+    uint64_t nread(0);
+    for(auto &x:chr) nread += x.bothnread_red();
+    return nread;
+  }
+  uint64_t bothnread_rpm() const {
+    uint64_t nread(0);
+    for(auto &x:chr) nread += x.bothnread_rpm();
+    return nread;
+  }
+  uint64_t bothnread_afterGC() const {
+    uint64_t nread(0);
+    for(auto &x:chr) nread += x.bothnread_afterGC();
+    return nread;
+  }
 
-  void setnread() {
+  /*  void setnread() {
     for(auto &x:chr) {
       for(int32_t i=0; i<STRANDNUM; i++) {
 	x.seq[i].setnread();
@@ -382,7 +406,7 @@ class SeqStatsGenome: public SeqStats {
     for(auto &x:chr) {
       for(int32_t i=0; i<STRANDNUM; i++) x.seq[i].setnread_nonread_nofilter();
     }
-  }
+    }*/
   void setbed(const std::string bedfilename) {
     isFile(bedfilename);
     vbed = parseBed<bed>(bedfilename);
