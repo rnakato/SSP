@@ -406,7 +406,7 @@ class shiftFragVar : public ReadShiftProfileGenome {
 	//double r = (values["num4ssp"].as<int32_t>()/static_cast<double>(dist.getnread())) / (NUM_100M/static_cast<double>(dist.getlen()));
 	double r = values["num4ssp"].as<int32_t>()/static_cast<double>(getnread());
 #ifdef DEBUG
-	std::cout << "\nr for FCS\t" << r << "\t reads: " << dist.getnread()<<  std::endl;
+	std::cout << "\nr for FCS\t" << r << "\t reads: " << getnread() << std::endl;
 #endif
 	if(r>1){
 	  std::cerr << "\nWarning: number of reads (" << getnread() << ") is less than num4ssp ("<<  values["num4ssp"].as<int32_t>() <<").\n";

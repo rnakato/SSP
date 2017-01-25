@@ -69,7 +69,6 @@ void read_mapfile(const MyOpt::Variables &values, Mapfile &p)
       else if(isStr(inputfile, ".tagalign")) parseTagAlign(values, inputfile, p);
     }
   }
-  //  p.genome.setnread();
 
   if(!p.genome.getnread(STRAND_BOTH)) PRINTERR("no read in input file.");
 

@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
   estimateFragLength(values, p);
 
 #ifdef DEBUG
-  p.printstats();
+  p.genome.printReadstats();
 #endif
 
   //  output_stats(values, p);

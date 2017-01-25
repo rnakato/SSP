@@ -23,23 +23,23 @@ void printDist(std::ofstream &out, const std::vector<int32_t> v, const std::stri
 class strandData {
  public:
   std::vector<Read> vRead;
-  uint64_t nread;
   uint64_t nread_nonred;
   uint64_t nread_red;
   double nread_rpm;
   double nread_afterGC;
 
- strandData(): nread(0), nread_nonred(0), nread_red(0), nread_rpm(0), nread_afterGC(0) {}
-  void setnread() { nread = vRead.size(); }
+ strandData(): nread_nonred(0), nread_red(0), nread_rpm(0), nread_afterGC(0) {}
+  //  void setnread() { nread = vRead.size(); }
+  size_t getnread() const { return vRead.size(); }
   void print() const {
-    std::cout << nread << "\t" << nread_nonred << "\t" << nread_red << "\t" << nread_rpm << "\t" << nread_afterGC << std::endl;
+    std::cout << getnread() << "\t" << nread_nonred << "\t" << nread_red << "\t" << nread_rpm << "\t" << nread_afterGC << std::endl;
   }
   //  void printnonred(std::ofstream &out)  const { printr(out, nread_nonred,  nread); }
   //  void printred(std::ofstream &out)     const { printr(out, nread_red,     nread); }
   //  void printafterGC(std::ofstream &out) const { printr(out, nread_afterGC, nread); }
 
   void setnread_nonread_nofilter() {
-    nread_nonred = nread;
+    nread_nonred = getnread();
   }
 };
 
@@ -141,18 +141,31 @@ class Wigstats {
 };
 
 template <class T>
-void calcdepth(T &obj, const int32_t flen) {
+void calcdepth(T &obj, const int32_t flen)
+{
   uint64_t lenmpbl = obj.getlenmpbl();
   double d = lenmpbl ? obj.getnread_nonred(STRAND_BOTH) * flen / static_cast<double>(lenmpbl): 0;
   obj.setdepth(d);
+}
+
+template <class T>
+void printSeqStats(const T &obj)
+{
+  std::cout << obj.name << "\t" << obj.getlen() << "\t" << obj.getlenmpbl() << "\t"
+	    << obj.getnread(STRAND_BOTH)        << "\t"
+	    << obj.getnread_nonred(STRAND_BOTH) << "\t"
+	    << obj.getnread_red(STRAND_BOTH)    << "\t"
+	    << obj.getnread_rpm(STRAND_BOTH)    << "\t"
+	    << obj.getnread_afterGC(STRAND_BOTH)<< "\t"
+	    << obj.getdepth() << std::endl;
 }
 
 class SeqStats {
   uint64_t len, len_mpbl;
   int32_t nbin;
   strandData seq[STRANDNUM];
+  bool Greekchr;
  protected:
-  bool yeast;
   double weight4rpm;
   double depth;
   /* FRiP */
@@ -165,7 +178,7 @@ class SeqStats {
     
  SeqStats(std::string s, int32_t l=0, int32_t binsize=0):
   len(l), len_mpbl(l), 
-    yeast(false), weight4rpm(0), depth(0),
+    Greekchr(false), weight4rpm(0), depth(0),
     nread_inbed(0), nbp(0), ncov(0), ncovnorm(0),
     gcovRaw(0), gcovNorm(0), name(rmchr(s)) {
     nbin = binsize ? (l/binsize +1) : 0;
@@ -179,8 +192,8 @@ class SeqStats {
     seq[frag.strand].vRead.push_back(r);
   }
   uint64_t getnread (const Strand strand) const {
-    if(strand==STRAND_BOTH) return seq[STRAND_PLUS].nread + seq[STRAND_MINUS].nread;
-    else return seq[strand].nread;
+    if(strand==STRAND_BOTH) return seq[STRAND_PLUS].getnread() + seq[STRAND_MINUS].getnread();
+    else return seq[strand].getnread();
   }
   uint64_t getnread_nonred (const Strand strand) const {
     if(strand==STRAND_BOTH) return seq[STRAND_PLUS].nread_nonred + seq[STRAND_MINUS].nread_nonred;
@@ -223,15 +236,6 @@ class SeqStats {
   double getweight4rpm() const { return weight4rpm; }
   double getdepth()      const { return depth; }
 
-  void print() const {
-    std::cout << name << "\t" << getlen() << "\t" << getlenmpbl() << "\t"
-	      << getnread(STRAND_BOTH)    << "\t"
-	      << getnread_nonred(STRAND_BOTH) << "\t"
-	      << getnread_red(STRAND_BOTH)    << "\t"
-	      << getnread_rpm(STRAND_BOTH)    << "\t"
-	      << getnread_afterGC(STRAND_BOTH)<< "\t"
-	      << depth << std::endl;
-  }
   void printGcov(std::ofstream &out, const bool lackOfRead4GenomeCov) const {
       if(lackOfRead4GenomeCov) out << boost::format("%1$.3f\t(%2$.3f)\t") % gcovRaw % gcovNorm;
       else out << boost::format("%1$.3f\t%2$.3f\t")   % gcovRaw % gcovNorm;
@@ -259,14 +263,14 @@ class SeqStats {
     gcovRaw  = nbp ? ncov     / static_cast<double>(nbp): 0;
     gcovNorm = nbp ? ncovnorm / static_cast<double>(nbp): 0;
   }
-  void yeaston() { yeast = true; }
+  void Greekchron() { Greekchr = true; }
 
   bool isautosome() const {
     int32_t chrnum(0);
     try {
       chrnum = stoi(name);
     } catch (std::invalid_argument e) {  // 数値以外
-      if(yeast) { 
+      if(Greekchr) { 
 	if(name=="I")         chrnum = 1;
 	else if(name=="II")   chrnum = 2;
 	else if(name=="III")  chrnum = 3;
@@ -316,12 +320,6 @@ class SeqStatsGenome: public SeqStats {
     return;
   }
  
-  void printstats() const {
-    std::cout << "name\tlength\tlen_mpbl\tread num\tnonred num\tred num\tnormed\tafterGC\tdepth" << std::endl;
-    print();
-    for(auto &x:chr) x.print();
-  }
-  
   std::vector<sepchr> getVsepchr(const int32_t numthreads){
     std::vector<sepchr> vsep;
     
@@ -352,10 +350,14 @@ class SeqStatsGenome: public SeqStats {
     if(values.count("mp")) getMpbl(values["mp"].as<std::string>(), chr);
     else if(values.count("mptable")) getMpbltable(values["mptable"].as<std::string>(), chr);
 
-    // yeast
-    for(auto &x:chr) if(x.name == "I" || x.name == "II" || x.name == "III") yeast = true;
-    for(auto &x:chr) if(yeast) x.yeaston();
-    
+    // Greekchr
+    for(auto &x:chr) {
+      if(x.name == "I") {
+	for(auto &x:chr) x.Greekchron();
+	break;
+      }
+    }
+
     // sepchr
     vsepchr = getVsepchr(values["threads"].as<int32_t>());
     
@@ -366,7 +368,7 @@ class SeqStatsGenome: public SeqStats {
       std::cout << "thread " << (i+1) << ": "
 		<< vsepchr[i].s << "-" << vsepchr[i].e
 		<< std::endl;
-    printstats();
+    printReadstats();
 #endif
   }
 
@@ -415,27 +417,6 @@ class SeqStatsGenome: public SeqStats {
     return nread;
   }
 
-  /*  void setnread() {
-    for(auto &x:chr) {
-      for(int32_t i=0; i<STRANDNUM; i++) {
-	x.seq[i].setnread();
-	seq[i].nread += x.seq[i].nread;
-      }
-    }
-  }
-  void setnread_red() {
-    for(auto &x:chr) {
-      for(int32_t i=0; i<STRANDNUM; i++) {
-	seq[i].nread_nonred += x.seq[i].nread_nonred;
-	seq[i].nread_red    += x.seq[i].nread_red;
-      }
-    }
-  }
-  void setnread2nread_red() {
-    for(auto &x:chr) {
-      for(int32_t i=0; i<STRANDNUM; i++) x.seq[i].setnread_nonread_nofilter();
-    }
-    }*/
   void setbed(const std::string bedfilename) {
     isFile(bedfilename);
     vbed = parseBed<bed>(bedfilename);
@@ -462,6 +443,12 @@ class SeqStatsGenome: public SeqStats {
     ncovnorm += chr[i].getncovnorm();
     gcovRaw  = nbp ? ncov / static_cast<double>(nbp): 0;
     gcovNorm = nbp ? ncovnorm / static_cast<double>(nbp): 0;
+  }
+  
+  void printReadstats() const {
+    std::cout << "name\tlength\tlen_mpbl\tread num\tnonred num\tred num\tnormed\tafterGC\tdepth" << std::endl;
+    printSeqStats(*this);
+    for(auto &x: chr) printSeqStats(x);
   }
 };
 
@@ -500,7 +487,7 @@ class SSPstats {
 };
 
 class Mapfile: private Uncopyable {
-  bool yeast;
+  bool Greekchr;
   const int32_t ReadMax=200;
   const int32_t FragMax=1000;
   int32_t lenF3;
@@ -539,7 +526,7 @@ class Mapfile: private Uncopyable {
   std::vector<int32_t> wigDist;
   
  Mapfile(const MyOpt::Variables &values):
-  yeast(false),
+  Greekchr(false),
     lenF3(0), lenF5(0), eflen(0), flen_def(values["flen"].as<int32_t>()),
     vlenF3(ReadMax,0), vlenF5(ReadMax,0), vflen(FragMax,0),
     samplename(values["output"].as<std::string>()),
@@ -659,11 +646,7 @@ class Mapfile: private Uncopyable {
     else out << boost::format("Library complexity: %1$.3f (%2%/%3%)\n") % complexity() % nt_nonred % nt_all;
   }
   double complexity() const { return nt_nonred/static_cast<double>(nt_all); }
-  void printstats() const {
-    std::cout << "name\tlength\tlen_mpbl\tread num\tnonred num\tred num\tnormed\tafterGC\tdepth" << std::endl;
-    genome.print();
-    for (auto &x:genome.chr) x.print();
-  }
+
   void seteflen(const int32_t len) { eflen = len; }
   int32_t getlenF3() const { return lenF3; }
   int32_t getflen(const MyOpt::Variables &values) const {
