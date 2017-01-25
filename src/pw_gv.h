@@ -20,52 +20,6 @@ namespace MyOpt {
 
 void printDist(std::ofstream &out, const std::vector<int32_t> v, const std::string str, const uint64_t nread);
 
-class Fragment {
-public:
-  std::string chr;
-  int32_t F3;
-  Strand strand;
-  int32_t fraglen;
-  int32_t readlen_F3;
-
- Fragment(): fraglen(0), readlen_F3(0) {}
- void addSAM(const std::vector<std::string> &v, const bool pair, const int32_t sv) {
-   chr = rmchr(v[2]);
-   readlen_F3 = v[9].length();
-   if(pair) fraglen = abs(stoi(v[8]));
-   else fraglen = readlen_F3;
-   if(sv&16) {
-     strand = STRAND_MINUS;
-     F3 = stoi(v[3]) + readlen_F3 -1;
-   } else {
-     strand = STRAND_PLUS;
-     F3 = stoi(v[3]) -1;
-   }
- }
- void print() const {
-   BPRINT("chr:%1%\tposi:%2%\tstrand:%3%\tfraglen:%4%\treadlen:%5%\n") % chr % F3 % strand % fraglen % readlen_F3;
-  }
-};
-
-class Read {
-  int32_t weight;
-  enum {WeightNum=1000};
- public:
-  int32_t F3;
-  int32_t F5;
-  int32_t duplicate;
-  int32_t inpeak;
-  
- Read(const Fragment &frag): weight(WeightNum), F3(frag.F3), duplicate(0), inpeak(0) {
-    if(frag.strand == STRAND_PLUS) F5 = frag.F3 + frag.fraglen;
-    else F5 = frag.F3 - frag.fraglen;
-  }
-  double getWeight() const {
-    return weight/static_cast<double>(WeightNum);
-  }
-  void multiplyWeight(const double w) { weight *= w; }
-};
-
 class strandData {
  public:
   std::vector<Read> vRead;
@@ -214,10 +168,12 @@ class SeqStats {
   strandData seq[STRANDNUM];
   
  SeqStats(std::string s, int32_t l=0, int32_t binsize=0):
-  len(l), len_mpbl(l), nbin(l/binsize +1),
+  len(l), len_mpbl(l), 
     yeast(false), weight4rpm(0), depth(0),
     nread_inbed(0), nbp(0), ncov(0), ncovnorm(0),
-    gcovRaw(0), gcovNorm(0), name(rmchr(s)) {}
+    gcovRaw(0), gcovNorm(0), name(rmchr(s)) {
+    nbin = binsize ? (l/binsize +1) : 0;
+  }
   
   virtual ~SeqStats(){}
 
