@@ -243,7 +243,7 @@ void init_dump(const MyOpt::Variables &values){
 void print_SeqStats(const MyOpt::Variables &values, std::ofstream &out, const SeqStats &p, const Mapfile &mapfile)
 {
   /* genome data */
-  out << p.name << "\t" << p.getlen()  << "\t" << p.getlenmpbl() << "\t" << getpmpbl(p) << "\t";
+  out << p.name << "\t" << p.getlen()  << "\t" << p.getlenmpbl() << "\t" << p.getpmpbl() << "\t";
   /* total reads*/
   out << boost::format("%1%\t%2%\t%3%\t%4$.1f%%\t")
     % p.bothnread() % p.seq[STRAND_PLUS].nread % p.seq[STRAND_MINUS].nread

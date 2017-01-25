@@ -195,11 +195,6 @@ void calcdepth(T &obj, const int32_t flen) {
   double d = lenmpbl ? obj.bothnread_nonred() * flen / static_cast<double>(lenmpbl): 0;
   obj.setdepth(d);
 }
-template <class T>
-double getpmpbl(const T &obj)
-{
-  return static_cast<double>(obj.getlenmpbl())/obj.getlen();
-}
 
 class SeqStats {
   uint64_t len, len_mpbl;
@@ -242,6 +237,7 @@ class SeqStats {
   
   uint64_t getlen()      const { return len; }
   uint64_t getlenmpbl()  const { return len_mpbl; }
+  double getpmpbl()      const { return static_cast<double>(getlenmpbl())/getlen(); }
   uint64_t getnbp()      const { return nbp; }
   uint64_t getncov()     const { return ncov; }
   uint64_t getncovnorm() const { return ncovnorm; }
@@ -400,6 +396,9 @@ class SeqStatsGenome: public SeqStats {
     uint64_t len_mpbl(0);
     for(auto &x:chr) len_mpbl += x.getlenmpbl();
     return len_mpbl;
+  }
+  double getpmpbl() const {
+    return static_cast<double>(getlenmpbl())/getlen();
   }
   int32_t getnbin() const {
     int32_t nbin(0);
