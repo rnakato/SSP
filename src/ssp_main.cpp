@@ -322,43 +322,6 @@ void output_stats(const MyOpt::Variables &values, const Mapfile &p)
   return;
 }
 
-std::vector<int8_t> makeGcovArray(const MyOpt::Variables &values, SeqStats &chr, Mapfile &p, double r4cmp)
-{
-  std::vector<int8_t> array;
-  if(values.count("mp")) array = readMpbl_binary(values["mp"].as<std::string>(), ("chr" + p.lchr->name), chr.getlen());
-  else array = readMpbl_binary(chr.getlen());
-  if(values.count("bed")) arraySetBed(array, chr.name, p.genome.getvbed());
-
-  int32_t val(0);
-  int32_t size = array.size();
-  for (int32_t strand=0; strand<STRANDNUM; ++strand) {
-    const std::vector<Read> &vReadref = chr.getvReadref((Strand)strand);
-    for (auto &x: vReadref) {
-      if(x.duplicate) continue;
-      
-      if(rand() >= r4cmp) val=COVREAD_ALL; else val=COVREAD_NORM;
-      
-      int32_t s(std::max(0, std::min(x.F3, x.F5)));
-      int32_t e(std::min(std::max(x.F3, x.F5), size-1));
-      if(s >= size || e < 0) {
-	std::cerr << "Warning: " << chr.name << " read " << s <<"-"<< e << " > array size " << array.size() << std::endl;
-      }
-      for(int32_t i=s; i<=e; ++i) if(array[i]==MAPPABLE) array[i]=val;
-    }
-  }
-  return array;
-}
-
-void calcGcovchr(const MyOpt::Variables &values, Mapfile &p, int32_t s, int32_t e, double r4cmp, boost::mutex &mtx)
-{
-  for(int32_t i=s; i<=e; ++i) {
-    std::cout << p.genome.chr[i].name << ".." << std::flush;
-    auto array = makeGcovArray(values, p.genome.chr[i], p, r4cmp);
-    p.genome.chr[i].calcGcov(array);
-    p.genome.addGcov(i, mtx);
-  }
-}
-
 void calcFRiP(SeqStats &chr, const std::vector<bed> vbed)
 {
   std::vector<int8_t> array(chr.getlen(), MAPPABLE);
