@@ -390,8 +390,6 @@ void checkRedundantReads(const MyOpt::Variables &values, Mapfile &p)
 
 void filtering_eachchr_single(Mapfile &p, SeqStats &chr)
 {
-  
-  
   for (auto strand: {STRAND_PLUS, STRAND_MINUS}) {
     std::unordered_map<int32_t, int32_t> mp;
       hashFilterAllSingle(mp, chr.getStrandref(strand), p.getthre4filtering());

@@ -12,29 +12,7 @@
 std::string rmchr(const std::string &chr);
 
 enum Strand {STRAND_PLUS, STRAND_MINUS, STRANDNUM, STRAND_BOTH};
-enum status {INTERGENIC, GENIC, INTRON, EXON, DOWNSTREAM, UPSTREAM, TSS, PARALLEL, DIVERGENT, CONVERGENT};
 
-template <class T>
-class var {
-  std::string name;
-  T val;
-  T limlow;
-  T limup;
-  bool isupper;
- public:
- var(): name(""), val(0), limlow(0), limup(0){}
-  var(std::string str, T low):       name(str), val(0), limlow(low), limup(0), isupper(false) {}
-  var(std::string str, T low, T up): name(str), val(0), limlow(low), limup(up), isupper(true) {}
-  void set(T n) {
-    if(isupper && (n<limlow || n>limup)) {
-      std::cout << "Error : variable " << name << " should be " << limlow << "<= and <=" << limup << "." << std::endl;
-    }else if(!isupper && n<limlow ) {
-      std::cout << "Error : variable " << name << " should be >=" << limlow << "." << std::endl;
-    }
-    else val=n;
-  }
-  operator T() const { return val; }
-};
 
 class chrsize {
   std::string name;
@@ -61,6 +39,7 @@ class range {
  range(): start(0), end(0) {}
  range(int32_t s, int32_t e): start(s), end(e) {}
 };
+
 
 class bed {
  public:
@@ -145,6 +124,11 @@ class macsxls : public bed {
  }
 };
 
+
+//namespace MyGeneAnnotation {
+  enum status {INTERGENIC, GENIC, INTRON, EXON, DOWNSTREAM, UPSTREAM, TSS, PARALLEL, DIVERGENT, CONVERGENT};
+
+
 class genedata {
  public:
   std::string tname;
@@ -181,6 +165,7 @@ class genedata {
   }
 };
 
+  
 class hitGene {
  public:
   status st;
@@ -279,6 +264,30 @@ class convsite : public bed {
   status st;
   const genedata *gene;
  convsite(int32_t s, int32_t e, std::string c, const genedata *pgene): bed(s,e,c), gene(pgene) {}
+};
+
+//}
+
+template <class T>
+class var {
+  std::string name;
+  T val;
+  T limlow;
+  T limup;
+  bool isupper;
+ public:
+ var(): name(""), val(0), limlow(0), limup(0){}
+  var(std::string str, T low):       name(str), val(0), limlow(low), limup(0), isupper(false) {}
+  var(std::string str, T low, T up): name(str), val(0), limlow(low), limup(up), isupper(true) {}
+  void set(T n) {
+    if(isupper && (n<limlow || n>limup)) {
+      std::cout << "Error : variable " << name << " should be " << limlow << "<= and <=" << limup << "." << std::endl;
+    }else if(!isupper && n<limlow ) {
+      std::cout << "Error : variable " << name << " should be >=" << limlow << "." << std::endl;
+    }
+    else val=n;
+  }
+  operator T() const { return val; }
 };
 
 class fasta {
