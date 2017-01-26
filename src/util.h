@@ -58,13 +58,6 @@ void chkrange(const boost::program_options::variables_map &values, std::string x
   return;
 }
 
-template <class T, class S>
-  void printr(std::ofstream &out, T a, S b)
-{
-  double r = b ? a*100/static_cast<double>(b): 0;
-  out << boost::format("%1% (%2$.1f%%)\t") % a % r;
-};
-
 template <class T>
 int32_t getmaxi(std::vector<T> v)
 {

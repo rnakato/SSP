@@ -3,10 +3,11 @@
  */
 #ifndef _MACRO_H_
 #define _MACRO_H_
+#include <iostream>
+#include <boost/format.hpp>
 
 #define VALUE2WIGARRAY(v) ((v) * 1000.0)
 #define WIGARRAY2VALUE(v) ((v) / 1000.0)
-#define BPRINT std::cout << boost::format
 #define PRINTERR(...) do{ std::cerr << "Error: " << __VA_ARGS__ << std::endl; std::exit(1); }while(0)
 
 enum {NUM_1K=1000,
@@ -50,7 +51,21 @@ inline bool my_overlap(const T s1, const T e1, const T s2, const T e2)
 template <class T, class S>
 inline double getratio(const T x, const S y)
 {
-  return x/static_cast<double>(y);
+  if(!y) std::cerr << "Warning: denominator=0." << std::endl;
+  return y ? x/static_cast<double>(y): 0;
 }
+
+template <class T, class S>
+inline double getpercent(const T x, const S y)
+{
+  return getratio(x,y)*100;
+}
+
+template <class T, class S>
+  inline void printNumandPer(std::ofstream &out, T a, S b)
+{
+  out << boost::format("%1% (%2$.1f%%)\t") % a % getpercent(a,b);
+};
+
 
 #endif /* _MACRO_H_ */

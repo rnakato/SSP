@@ -73,9 +73,9 @@ double f_zinb_const(const gsl_vector *v, void *params)
     if(!i) r = p0 + (1 - p0) * gsl_ran_negative_binomial_pdf(0, p, n);
     else   r =      (1 - p0) * gsl_ran_negative_binomial_pdf(i, p, n);
     fxy += (par[i+1] - r)*(par[i+1] - r);
-    //BPRINT("i=%1% par[i+1]=%2% r=%3% xx=%4%\n") % i % par[i+1] % r % ((par[i+1] - r)*(par[i+1] - r));
+    //std::cout << boost::format("i=%1% par[i+1]=%2% r=%3% xx=%4%\n") % i % par[i+1] % r % ((par[i+1] - r)*(par[i+1] - r));
   }
-  //  BPRINT("fxy=%1% p=%2% n=%3% p0=%4% thre=%5%\n") % fxy % p % n % p0 % thre;
+  //  std::cout << boost::format("fxy=%1% p=%2% n=%3% p0=%4% thre=%5%\n") % fxy % p % n % p0 % thre;
   return fxy;
 }
 
@@ -93,8 +93,8 @@ void func_iteration(gsl_multimin_fminimizer *s, size_t ndim)
 
 #ifdef DEBUG
     if(status == GSL_SUCCESS) std::cout << "converged to minimum at " << iter << std::endl;
-    if(ndim==2) BPRINT("%1% p=%2% p0=%3% f() = %4% size = %5%\n") % iter % gsl_vector_get(s->x, 0) % gsl_vector_get(s->x, 1) % gsl_multimin_fminimizer_minimum(s) % size;
-    else BPRINT("%1% p=%2% n=%3% p0=%4% f() = %5% size = %6%\n") % iter % gsl_vector_get(s->x, 0) % gsl_vector_get(s->x, 1) % gsl_vector_get(s->x, 2) % gsl_multimin_fminimizer_minimum(s) % size;
+    if(ndim==2) std::cout << boost::format("%1% p=%2% p0=%3% f() = %4% size = %5%\n") % iter % gsl_vector_get(s->x, 0) % gsl_vector_get(s->x, 1) % gsl_multimin_fminimizer_minimum(s) % size;
+    else std::cout << boost::format("%1% p=%2% n=%3% p0=%4% f() = %5% size = %6%\n") % iter % gsl_vector_get(s->x, 0) % gsl_vector_get(s->x, 1) % gsl_vector_get(s->x, 2) % gsl_multimin_fminimizer_minimum(s) % size;
 #endif
   } while (status == GSL_CONTINUE && iter < 1000);
 

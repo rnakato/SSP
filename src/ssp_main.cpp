@@ -214,27 +214,27 @@ void setOpts(MyOpt::Opts &allopts,MyOpt::Opts &opts4help)
 void init_dump(const MyOpt::Variables &values){
   std::vector<std::string> str_wigfiletype = {"BINARY", "COMPRESSED WIG", "WIG", "BEDGRAPH", "BIGWIG"};
  
-  BPRINT("\n======================================\n");
-  BPRINT("SSP version %1%\n\n") % VERSION;
-  BPRINT("Input file %1%\n")         % values["input"].as<std::string>();
-  if(values.count("ftype")) BPRINT("\tFormat: %1%\n") % values["ftype"].as<std::string>();
-  BPRINT("Output file: %1%/%2%\n")   % values["odir"].as<std::string>() % values["output"].as<std::string>();
-  BPRINT("Genome-table file: %1%\n") % values["gt"].as<std::string>();
-  if(values.count("mptable")) BPRINT("Mappable genome-table file: %1%\n") % values["mptable"].as<std::string>();
+  std::cout << boost::format("\n======================================\n");
+  std::cout << boost::format("SSP version %1%\n\n") % VERSION;
+  std::cout << boost::format("Input file %1%\n")         % values["input"].as<std::string>();
+  if(values.count("ftype")) std::cout << boost::format("\tFormat: %1%\n") % values["ftype"].as<std::string>();
+  std::cout << boost::format("Output file: %1%/%2%\n")   % values["odir"].as<std::string>() % values["output"].as<std::string>();
+  std::cout << boost::format("Genome-table file: %1%\n") % values["gt"].as<std::string>();
+  if(values.count("mptable")) std::cout << boost::format("Mappable genome-table file: %1%\n") % values["mptable"].as<std::string>();
   
   if (!values.count("nofilter")) {
-    BPRINT("PCR bias filtering: ON\n");
-    if (values["thre_pb"].as<int32_t>()) BPRINT("PCR bias threshold: > %1%\n") % values["thre_pb"].as<int32_t>();
+    std::cout << boost::format("PCR bias filtering: ON\n");
+    if (values["thre_pb"].as<int32_t>()) std::cout << boost::format("PCR bias threshold: > %1%\n") % values["thre_pb"].as<int32_t>();
   } else {
-    BPRINT("PCR bias filtering: OFF\n");
+    std::cout << boost::format("PCR bias filtering: OFF\n");
   }
-  BPRINT("num4ssp %d\n") % values["num4ssp"].as<int32_t>();
-  BPRINT("background region: [%d,%d], step %d\n")
+  std::cout << boost::format("num4ssp %d\n") % values["num4ssp"].as<int32_t>();
+  std::cout << boost::format("background region: [%d,%d], step %d\n")
     % values["ng_from"].as<int32_t>()
     % values["ng_to"].as<int32_t>()
     % values["ng_step"].as<int32_t>();
   
-  BPRINT("\nNumber of threads: %1%\n") % values["threads"].as<int32_t>();
+  std::cout << boost::format("\nNumber of threads: %1%\n") % values["threads"].as<int32_t>();
   printf("======================================\n");
   return;
 }

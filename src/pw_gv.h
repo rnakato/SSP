@@ -71,7 +71,7 @@ class Wigstats {
       for(int32_t i=0; i<thre; ++i) num += wigDist[i];
     } while(num < sum*0.8 && thre <n_wigDist-1);
 #ifdef DEBUG
-    BPRINT("\nthre %1%  (%2% / %3%)\n") % thre % num % sum;
+    std::cout << boost::format("\nthre %1%  (%2% / %3%)\n") % thre % num % sum;
 #endif
     return thre;
   }
@@ -126,7 +126,7 @@ class Wigstats {
   void printmpDist() const {
     uint64_t num = accumulate(mpDist.begin(), mpDist.end(), 0);
     for(size_t i=0; i<mpDist.size(); ++i)
-      BPRINT("~%1%%%\t%2%\t%3%\n") % ((i+1)*100/mpDist.size()) % mpDist[i] % getratio(mpDist[i], num); 
+      std::cout << boost::format("~%1%%%\t%2%\t%3%\n") % ((i+1)*100/mpDist.size()) % mpDist[i] % getratio(mpDist[i], num); 
   }
   void printPoispar(std::ofstream &out) const {
     out << boost::format("%1$.3f\t%2$.3f\t") % ave % var;
@@ -164,11 +164,8 @@ class SeqStats {
   bool Greekchr;
   double depth;
   uint64_t nread_inbed;
-
- protected:
-  double sizefactor;
   uint64_t nbp, ncov, ncovnorm;
-  double gcovRaw, gcovNorm;
+  double sizefactor;
 
  public:
   Wigstats ws;
@@ -176,8 +173,8 @@ class SeqStats {
  SeqStats(std::string s, int32_t l=0, int32_t binsize=0):
   name(rmchr(s)), len(l), len_mpbl(l), 
     Greekchr(false), depth(0), nread_inbed(0),
-    sizefactor(0), nbp(0), ncov(0), ncovnorm(0),
-    gcovRaw(0), gcovNorm(0) {
+    nbp(0), ncov(0), ncovnorm(0), sizefactor(0)
+    {
     nbin = binsize ? (l/binsize +1) : 0;
   }
   
@@ -234,10 +231,6 @@ class SeqStats {
   double   getsizefactor()const { return sizefactor; }
   double   getdepth()     const { return depth; }
 
-  void printGcov(std::ofstream &out, const bool lackOfRead4GenomeCov) const {
-      if(lackOfRead4GenomeCov) out << boost::format("%1$.3f\t(%2$.3f)\t") % gcovRaw % gcovNorm;
-      else out << boost::format("%1$.3f\t%2$.3f\t")   % gcovRaw % gcovNorm;
-  }
   void setF5(int32_t flen) {
     int32_t d;
     for(int32_t strand=0; strand<STRANDNUM; ++strand) {
@@ -249,8 +242,8 @@ class SeqStats {
   double getFRiP() const {
     return getratio(nread_inbed, getnread_nonred(STRAND_BOTH));
   }
-  void setWeight(const double weight) {
-    sizefactor = weight;
+  void setsizefactor(const double w) {
+    sizefactor = w;
     for(int32_t i=0; i<STRANDNUM; i++) seq[i].nread_rpm = seq[i].nread_nonred * sizefactor;
   }
   void calcGcov(const std::vector<int8_t> &array) {
@@ -259,8 +252,6 @@ class SeqStats {
       if(x >= COVREAD_ALL)  ++ncov;     // COVREAD_ALL || COVREAD_NORM
       if(x == COVREAD_NORM) ++ncovnorm;
     }
-    gcovRaw  = nbp ? getratio(ncov, nbp): 0;
-    gcovNorm = nbp ? getratio(ncovnorm, nbp): 0;
   }
   void Greekchron() { Greekchr = true; }
 
@@ -300,8 +291,11 @@ class SeqStats {
   friend void getMpbltable(const std::string, std::vector<SeqStats> &chr);
 };
 
-class SeqStatsGenome: public SeqStats {
+class SeqStatsGenome {
   std::string name;
+  double depth;
+  double sizefactor;
+
   std::vector<bed> vbed;
   void readGenomeTable(const std::string &gt, const int binsize) {
     std::vector<std::string> v;
@@ -339,11 +333,11 @@ class SeqStatsGenome: public SeqStats {
   }
   
  public:
+  Wigstats ws;
   std::vector<SeqStats> chr;
   std::vector<sepchr> vsepchr;
   
- SeqStatsGenome(const MyOpt::Variables &values): SeqStats("Genome"), name("Genome") {
-    
+ SeqStatsGenome(const MyOpt::Variables &values): name("Genome"), depth(0), sizefactor(0) {
     readGenomeTable(values["gt"].as<std::string>(), values["binsize"].as<int32_t>());
     if(values.count("mp")) getMpbl(values["mp"].as<std::string>(), chr);
     else if(values.count("mptable")) getMpbltable(values["mptable"].as<std::string>(), chr);
@@ -386,8 +380,23 @@ class SeqStatsGenome: public SeqStats {
   }
   int32_t getnbin() const {
     int32_t nbin(0);
-    for(auto &x:chr) nbin += x.getnbin();
+    for(auto &x: chr) nbin += x.getnbin();
     return nbin;
+  }
+  uint64_t getnbp() const {
+    uint64_t nbp(0);
+    for(auto &x: chr) nbp += x.getnbp();
+    return nbp;
+  }
+  uint64_t getncov() const {
+    uint64_t ncov(0);
+    for(auto &x: chr) ncov += x.getncov();
+    return ncov;
+  }
+  uint64_t getncovnorm() const {
+    uint64_t ncovnorm(0);
+    for(auto &x: chr) ncovnorm += x.getncovnorm();
+    return ncovnorm;
   }
   
   uint64_t getnread (const Strand strand) const {
@@ -415,13 +424,19 @@ class SeqStatsGenome: public SeqStats {
     for(auto &x:chr) nread += x.getnread_afterGC(strand);
     return nread;
   }
-  double getFRiP() const {
+  uint64_t getnread_inbed() const {
     uint64_t nread(0);
     for(auto &x:chr) nread += x.getnread_inbed();
-    
-    return getratio(nread, getnread_nonred(STRAND_BOTH));
+    return nread;
   }
+  double getFRiP() const {
+    return getratio(getnread_inbed(), getnread_nonred(STRAND_BOTH));
+  }
+  void setdepth(const double d) { depth = d; }
+  double getdepth() const { return depth; }
+  double getsizefactor()const { return sizefactor; }
 
+  void setsizefactor(const double w) { sizefactor = w; }
   void setbed(const std::string bedfilename) {
     isFile(bedfilename);
     vbed = parseBed<bed>(bedfilename);
@@ -431,18 +446,8 @@ class SeqStatsGenome: public SeqStats {
   
   void setF5All(const int32_t flen) {
     for (auto &x:chr) x.setF5(flen);
-    setF5(flen);
   }
-  
-  void addGcov(const int32_t i, boost::mutex &mtx) {
-    boost::mutex::scoped_lock lock(mtx);
-    nbp      += chr[i].getnbp();
-    ncov     += chr[i].getncov();
-    ncovnorm += chr[i].getncovnorm();
-    gcovRaw  = nbp ? getratio(ncov, nbp): 0;
-    gcovNorm = nbp ? getratio(ncovnorm, nbp): 0;
-  }
-  
+
   void printReadstats() const {
     std::cout << "name\tlength\tlen_mpbl\tread num\tnonred num\tred num\tnormed\tafterGC\tdepth" << std::endl;
     printSeqStats(*this);

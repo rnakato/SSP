@@ -57,7 +57,7 @@ void read_mapfile(const MyOpt::Variables &values, Mapfile &p)
   boost::split(v, values["input"].as<std::string>(), boost::algorithm::is_any_of(","));
   for(auto inputfile: v) {
     isFile(inputfile);
-    BPRINT("Parsing %1%...\n") % inputfile;
+    std::cout << boost::format("Parsing %1%...\n") % inputfile;
     if(values.count("ftype")) {
       std::string ftype = values["ftype"].as<std::string>();
       if(ftype == "SAM" || ftype == "BAM") parseSam(values, inputfile, p);
