@@ -10,26 +10,49 @@
 #include "statistics.h"
 #include "bpstatus.h"
 
-class strandData {
- public:
-  std::vector<Read> vRead;
-  uint64_t nread_nonred;
-  uint64_t nread_red;
-  double nread_rpm;
-  double nread_afterGC;
 
- strandData(): nread_nonred(0), nread_red(0), nread_rpm(0), nread_afterGC(0) {}
-  size_t getnread() const { return vRead.size(); }
-  void print() const {
-    std::cout << getnread() << "\t" << nread_nonred << "\t" << nread_red << "\t" << nread_rpm << "\t" << nread_afterGC << std::endl;
+#include <fstream>
+class WigArray {
+  std::vector<int32_t> array;
+  double geta;
+
+  WigArray(){}
+  
+ public:
+ WigArray(const size_t num, const int32_t val): array(num, val), geta(1000.0) {}
+  ~WigArray(){}
+
+  size_t size() const { return array.size(); }
+  double getval(const size_t i) const { return array[i]/geta; }
+  void setval(const size_t i, const double val) { array[i] = val*geta; }
+  void addval(const size_t i, const double val) { array[i] += val*geta; }
+  void multipleval(const size_t i, const double val) { array[i] *= val; }
+
+  double getPercentile(double per) const {
+    return MyStatistics::getPercentile(array, per)/geta;
   }
 
-  void setnread_nonread_nofilter() {
-    nread_nonred = getnread();
+  void outputAsWig(std::ofstream &out, const int32_t binsize) const {
+    for(size_t i=0; i<array.size(); ++i) {
+      if(array[i]) out << boost::format("%1%\t%2%\n") % (i*binsize+1) % (array[i]/geta);
+    }
+  }
+  void outputAsBedGraph(std::ofstream &out, const int32_t binsize, const std::string &name, const uint64_t chrend) const {
+    uint64_t e;
+    for(size_t i=0; i<array.size(); ++i) {
+      if(i==array.size() -1) e = chrend; else e = (i+1) * binsize;
+      if(array[i]) out << boost::format("%1% %2% %3% %4%\n") % name % (i*binsize) % e % (array[i]/geta);
+    }
+  }
+  void outputAsBinary(std::ofstream &out) const {
+    for(size_t i=0; i<array.size(); ++i) out.write((char *)&array[i], sizeof(int32_t));
+  }
+  void readBinary(std::ifstream &in, const int32_t nbin) const {
+    for(int32_t i=0; i<nbin; ++i) in.read((char *)&array[i], sizeof(int32_t));
   }
 };
 
-class Wigstats {
+class WigStats {
   enum{n_mpDist=20, n_wigDist=200};
   uint64_t sum;
  public:
@@ -38,7 +61,7 @@ class Wigstats {
   std::vector<uint64_t> wigDist;
   std::vector<double> pwigDist;
 
- Wigstats(): sum(0), ave(0), var(0), nb_p(0), nb_n(0), nb_p0(0),
+ WigStats(): sum(0), ave(0), var(0), nb_p(0), nb_n(0), nb_p0(0),
     mpDist(n_mpDist,0), wigDist(n_wigDist,0), pwigDist(n_wigDist,0) {}
 
   double getPoisson(const int32_t i) const {
@@ -75,22 +98,22 @@ class Wigstats {
   void setpWigDist() {
     for(size_t i=0; i<wigDist.size(); ++i) pwigDist[i] = getratio(wigDist[i], sum);
   }
-  void getWigStats(const std::vector<int32_t> &wigarray) {
-    int32_t num95 = getPercentile(wigarray, 0.95);
+  void getWigStats(const WigArray &wigarray) {
+    double num95 = wigarray.getPercentile(0.95);
     
     int32_t size = wigDist.size();
     std::vector<int32_t> ar;
-    for(auto x: wigarray) {
-    if( x<0) std::cout << sum << "xxx" << x << std::endl;
-    ++sum;
-      int32_t v = WIGARRAY2VALUE(x);
+    for(size_t i=0; i<wigarray.size(); ++i) {
+      int32_t v(wigarray.getval(i));
+      if(v<0) std::cout << sum << "xxx" << v << std::endl;
+      ++sum;
       if(v < size) ++wigDist[v];
-      if(x >= num95) continue;
+      if(v >= num95) continue;
       ar.push_back(v);
     }
     setpWigDist();
 
-    moment<int32_t> mm(ar, 0);
+    MyStatistics::moment<int32_t> mm(ar, 0);
     ave = mm.getmean();
     var = mm.getvar();
     nb_p = var ? ave/var : 0;
@@ -101,6 +124,32 @@ class Wigstats {
     //    std::cout << ave << "\t" << var << "\t" << nb_p << "\t" << nb_n<< std::endl;
     if(ave) estimateParam();
   }
+  /*  void getWigStatsold(const std::vector<int32_t> &wigarray) {
+    int32_t num95 = getPercentile(wigarray, 0.95);
+    
+    int32_t size = wigDist.size();
+    std::vector<int32_t> ar;
+    for(auto x: wigarray) {
+      if( x<0) std::cout << sum << "xxx" << x << std::endl;
+      ++sum;
+      int32_t v(wigarray2value(x));
+      if(v < size) ++wigDist[v];
+      if(x >= num95) continue;
+      ar.push_back(v);
+    }
+    setpWigDist();
+
+    MyStatistics::moment<int32_t> mm(ar, 0);
+    ave = mm.getmean();
+    var = mm.getvar();
+    nb_p = var ? ave/var : 0;
+    if(nb_p>=1) nb_p = 0.9;
+    if(nb_p<=0) nb_p = 0.1; 
+    nb_n = ave * nb_p /(1 - nb_p);
+
+    //    std::cout << ave << "\t" << var << "\t" << nb_p << "\t" << nb_n<< std::endl;
+    if(ave) estimateParam();
+    }*/
   void printwigDist(std::ofstream &out, const int32_t i) const {
     out << boost::format("%1%\t%2%\t") % wigDist[i] % pwigDist[i];
   }
@@ -108,7 +157,7 @@ class Wigstats {
     if(!my_range(p,0,1)) std::cout << "Warning: mappability " << p << " should be [0,1]" << std::endl;
     else ++mpDist[(int32_t)(p*n_mpDist)];
   }
-  void addWigDist(const Wigstats &x) {
+  void addWigDist(const WigStats &x) {
     for(uint32_t i=0; i<wigDist.size(); ++i) wigDist[i] += x.wigDist[i];
     sum += x.sum;
     setpWigDist();
@@ -126,6 +175,24 @@ class Wigstats {
   }
 };
 
+class strandData {
+ public:
+  std::vector<Read> vRead;
+  uint64_t nread_nonred;
+  uint64_t nread_red;
+  double nread_rpm;
+  double nread_afterGC;
+
+ strandData(): nread_nonred(0), nread_red(0), nread_rpm(0), nread_afterGC(0) {}
+  size_t getnread() const { return vRead.size(); }
+  void print() const {
+    std::cout << getnread() << "\t" << nread_nonred << "\t" << nread_red << "\t" << nread_rpm << "\t" << nread_afterGC << std::endl;
+  }
+
+  void setnread_nonread_nofilter() {
+    nread_nonred = getnread();
+  }
+};
 
 template <class T>
 void calcdepth(T &obj, const int32_t flen)
@@ -159,7 +226,7 @@ class SeqStats {
   double sizefactor;
 
  public:
-  Wigstats ws;
+  WigStats ws;
     
  SeqStats(std::string s, int32_t l=0, int32_t binsize=0):
   name(rmchr(s)), len(l), len_mpbl(l), 

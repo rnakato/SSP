@@ -3,12 +3,12 @@
  */
 #ifndef _MACRO_H_
 #define _MACRO_H_
+
 #include <iostream>
 #include <sstream>
 #include <boost/format.hpp>
+#include "statistics.h"
 
-#define VALUE2WIGARRAY(v) ((v) * 1000.0)
-#define WIGARRAY2VALUE(v) ((v) / 1000.0)
 #define PRINTERR(...) do{ std::cerr << "Error: " << __VA_ARGS__ << std::endl; std::exit(1); }while(0)
 
 enum {NUM_1K=1000,

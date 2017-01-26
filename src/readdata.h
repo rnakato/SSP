@@ -1,8 +1,8 @@
 /* Copyright(c)  Ryuichiro Nakato <rnakato@iam.u-tokyo.ac.jp>
  * This file is a part of DROMPA sources.
  */
-#ifndef READGENE_H
-#define READGENE_H
+#ifndef READDATA_H
+#define READDATA_H
 
 #include <unordered_map>
 #include <boost/algorithm/string.hpp>
@@ -55,4 +55,4 @@ void printBed(const std::vector<T> &vbed)
   return;
 }
 
-#endif  // READGENE_H
+#endif  // READDATA_H

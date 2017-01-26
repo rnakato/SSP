@@ -58,8 +58,8 @@ void genThreadCcp(ReadShiftProfile &chr, int32_t ng_to, const std::vector<int8_t
 
 void shiftCcp::setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev)
 {
-  moment<int8_t> x(fwd, mp_from, chr.width-ng_to);
-  moment<int8_t> y(rev, mp_from, chr.width-ng_to);
+  MyStatistics::moment<int8_t> x(fwd, mp_from, chr.width-ng_to);
+  MyStatistics::moment<int8_t> y(rev, mp_from, chr.width-ng_to);
 
   boost::thread_group agroup;
   boost::mutex mtx;

@@ -43,7 +43,7 @@ class SeqStatsGenome {
   }
 
  public:
-  Wigstats ws;
+  WigStats ws;
   std::vector<SeqStats> chr;
   std::vector<MyMthread::chrrange> vsepchr;
   
