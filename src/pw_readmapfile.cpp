@@ -390,13 +390,14 @@ void checkRedundantReads(const MyOpt::Variables &values, Mapfile &p)
 
 void filtering_eachchr_single(Mapfile &p, SeqStats &chr)
 {
-  for(int32_t strand=0; strand<STRANDNUM; strand++) {
-
+  
+  
+  for (auto strand: {STRAND_PLUS, STRAND_MINUS}) {
     std::unordered_map<int32_t, int32_t> mp;
-    hashFilterAllSingle(mp, chr.getStrandref((Strand)strand), p.getthre4filtering());
+      hashFilterAllSingle(mp, chr.getStrandref(strand), p.getthre4filtering());
     
     std::unordered_map<int32_t, int32_t> mp2;
-    hashFilterCmpSingle(mp2, p, chr.getStrandref((Strand)strand), p.getthre4filtering());
+    hashFilterCmpSingle(mp2, p, chr.getStrandref(strand), p.getthre4filtering());
   }
   
   return;
@@ -405,13 +406,14 @@ void filtering_eachchr_single(Mapfile &p, SeqStats &chr)
 void filtering_eachchr_pair(Mapfile &p, SeqStats &chr)
 {
   std::unordered_map<std::string, int32_t> mp;
-  for(int32_t strand=0; strand<STRANDNUM; ++strand) {
-    hashFilterAllPair(mp, chr.getStrandref((Strand)strand), p.getthre4filtering());
+
+  for (auto strand: {STRAND_PLUS, STRAND_MINUS}) {
+    hashFilterAllPair(mp, chr.getStrandref(strand), p.getthre4filtering());
   }
 
   std::unordered_map<std::string, int> mp2;
-  for(int32_t strand=0; strand<STRANDNUM; strand++) {
-    hashFilterCmpPair(mp2, p, chr.getStrandref((Strand)strand), p.getthre4filtering());
+  for (auto strand: {STRAND_PLUS, STRAND_MINUS}) {
+    hashFilterCmpPair(mp2, p, chr.getStrandref(strand), p.getthre4filtering());
   }
 
   return;
