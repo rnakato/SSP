@@ -122,7 +122,7 @@ class ReadShiftProfile {
   }
 
   double getbackgroundUniformity() const { return backgroundUniformity; }
-  void setrchr(const uint64_t n) { rchr = n ? nread/static_cast<double>(n): 0; }
+  void setrchr(const uint64_t n) { rchr = n ? getratio(nread, n): 0; }
   int32_t getlenF3() const { return lenF3; }
   double getnsc() const { return nsc; }
   double getrsc() const { return rsc; }
@@ -189,10 +189,10 @@ class ReadShiftProfile {
       std::cerr << filename << ": no read" << std::endl;
     }
     double sum(getmpsum());
-    double rRPKM = (num4ssp/static_cast<double>(nread)) / (NUM_100M/static_cast<double>(len));
+    double rRPKM = getratio(num4ssp, nread) / getratio(NUM_100M, len);
 
     double be(bk * rRPKM);
-    double const_bu = num4ssp/static_cast<double>(4*NUM_100M - num4ssp);  // 1/39 N/(4*L-N), N=10M, L=100M
+    double const_bu = getratio(num4ssp, (4*NUM_100M - num4ssp));  // 1/39 N/(4*L-N), N=10M, L=100M
     //    std::cout << "####### " << num4ssp << "\t  " << const_bu << "\t" << rRPKM << "\t" << bk << std::endl;
     //    std::cout << "####### " << nread << "\t  " << NUM_100M << "\t" << len << std::endl;
     rlsc = getMPread() *r;
@@ -404,7 +404,7 @@ class shiftFragVar : public ReadShiftProfileGenome {
     ng_step_fcs(values["ng_step_fcs"].as<int32_t>())
       {
 	//double r = (values["num4ssp"].as<int32_t>()/static_cast<double>(dist.getnread())) / (NUM_100M/static_cast<double>(dist.getlen()));
-	double r = values["num4ssp"].as<int32_t>()/static_cast<double>(getnread());
+	double r = getratio(values["num4ssp"].as<int32_t>(), getnread());
 #ifdef DEBUG
 	std::cout << "\nr for FCS\t" << r << "\t reads: " << getnread() << std::endl;
 #endif

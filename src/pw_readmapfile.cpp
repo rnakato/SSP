@@ -278,7 +278,7 @@ void printDist(std::ofstream &out, const std::vector<int32_t> v, const std::stri
   out << "\n" << str << " length distribution" << std::endl;
   out << "length\tnumber\tproportion" << std::endl;
   for(size_t i=0; i<v.size(); ++i)
-    if(v[i]) out << boost::format("%1%\t%2%\t%3%\n") % i % v[i] % (v[i]/static_cast<double>(nread));
+    if(v[i]) out << boost::format("%1%\t%2%\t%3%\n") % i % v[i] % getratio(v[i], nread);
   return;
 }
 
@@ -372,7 +372,7 @@ void checkRedundantReads(const MyOpt::Variables &values, Mapfile &p)
   p.setthre4filtering(values);
   
   // Library complexity
-  double r = values["ncmp"].as<int32_t>()/static_cast<double>(p.genome.getnread(STRAND_BOTH));
+  double r = getratio(values["ncmp"].as<int32_t>(), p.genome.getnread(STRAND_BOTH));
   if(r>1){
     std::cerr << "Warning: number of reads is < "<< (int32_t)(values["ncmp"].as<int32_t>()/NUM_1M) <<" million.\n";
     p.lackOfRead4Complexity_on();

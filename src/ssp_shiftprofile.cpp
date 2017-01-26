@@ -18,7 +18,7 @@ double getJaccard(int32_t step, int32_t to, int32_t xysum, const std::vector<int
 {
   int32_t xy(0);
   for(int32_t j=mp_from; j<to; ++j) if(fwd[j] * rev[j+step]) xy += std::max(fwd[j], rev[j+step]);
-  return (xy/static_cast<double>(xysum-xy));
+  return getratio(xy, xysum-xy);
 }
 
 void genThreadJacVec(ReadShiftProfile &chr, int32_t ng_to, int32_t xysum, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev, int32_t s, int32_t e, boost::mutex &mtx)
@@ -88,14 +88,14 @@ void shiftJacBit::setDist(ReadShiftProfile &chr, const boost::dynamic_bitset<> &
     rev >>= 1;
     int32_t xy((fwd & rev).count());
     //    chr.mp[step] = xy;
-    chr.mp[step] = xy/static_cast<double>(xysum-xy);
+    chr.mp[step] = getratio(xy, xysum-xy);
   }
   rev >>= (ng_from - mp_to);
 
   for(int32_t step=ng_from; step<ng_to; step+=ng_step) {
     rev >>= ng_step;
     int32_t xy((fwd & rev).count());
-    chr.nc[step] = xy/static_cast<double>(xysum-xy);
+    chr.nc[step] = getratio(xy, xysum-xy);
   }
 }
 

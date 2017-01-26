@@ -47,4 +47,10 @@ inline bool my_overlap(const T s1, const T e1, const T s2, const T e2)
   return (e1 >= s2) && (e2 >= s1);
 }
 
+template <class T, class S>
+inline double getratio(const T x, const S y)
+{
+  return x/static_cast<double>(y);
+}
+
 #endif /* _MACRO_H_ */

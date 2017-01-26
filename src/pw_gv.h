@@ -83,7 +83,7 @@ class Wigstats {
     iterateZINB(&par, nb_p, nb_n, nb_p, nb_n, nb_p0);
   }
   void setpWigDist() {
-    for(size_t i=0; i<wigDist.size(); ++i) pwigDist[i] = wigDist[i]/static_cast<double>(sum);
+    for(size_t i=0; i<wigDist.size(); ++i) pwigDist[i] = getratio(wigDist[i], sum);
   }
   void getWigStats(const std::vector<int32_t> &wigarray) {
     int32_t num95 = getPercentile(wigarray, 0.95);
@@ -126,7 +126,7 @@ class Wigstats {
   void printmpDist() const {
     uint64_t num = accumulate(mpDist.begin(), mpDist.end(), 0);
     for(size_t i=0; i<mpDist.size(); ++i)
-      BPRINT("~%1%%%\t%2%\t%3%\n") % ((i+1)*100/mpDist.size()) % mpDist[i] % (mpDist[i]/static_cast<double>(num)); 
+      BPRINT("~%1%%%\t%2%\t%3%\n") % ((i+1)*100/mpDist.size()) % mpDist[i] % getratio(mpDist[i], num); 
   }
   void printPoispar(std::ofstream &out) const {
     out << boost::format("%1$.3f\t%2$.3f\t") % ave % var;
@@ -140,7 +140,7 @@ template <class T>
 void calcdepth(T &obj, const int32_t flen)
 {
   uint64_t lenmpbl = obj.getlenmpbl();
-  double d = lenmpbl ? obj.getnread_nonred(STRAND_BOTH) * flen / static_cast<double>(lenmpbl): 0;
+  double d = lenmpbl ? getratio(obj.getnread_nonred(STRAND_BOTH) * flen, lenmpbl): 0;
   obj.setdepth(d);
 }
 
@@ -224,15 +224,15 @@ class SeqStats {
     seq[strand].nread_afterGC += w;
   }
   
-  uint64_t getlen()      const { return len; }
-  uint64_t getlenmpbl()  const { return len_mpbl; }
-  double getpmpbl()      const { return static_cast<double>(getlenmpbl())/getlen(); }
-  uint64_t getnbp()      const { return nbp; }
-  uint64_t getncov()     const { return ncov; }
-  uint64_t getncovnorm() const { return ncovnorm; }
-  int32_t getnbin()      const { return nbin; }
-  double getsizefactor() const { return sizefactor; }
-  double getdepth()      const { return depth; }
+  uint64_t getlen()       const { return len; }
+  uint64_t getlenmpbl()   const { return len_mpbl; }
+  double   getpmpbl()     const { return getratio(getlenmpbl(), getlen()); }
+  uint64_t getnbp()       const { return nbp; }
+  uint64_t getncov()      const { return ncov; }
+  uint64_t getncovnorm()  const { return ncovnorm; }
+  int32_t  getnbin()      const { return nbin; }
+  double   getsizefactor()const { return sizefactor; }
+  double   getdepth()     const { return depth; }
 
   void printGcov(std::ofstream &out, const bool lackOfRead4GenomeCov) const {
       if(lackOfRead4GenomeCov) out << boost::format("%1$.3f\t(%2$.3f)\t") % gcovRaw % gcovNorm;
@@ -247,7 +247,7 @@ class SeqStats {
   }
   void setFRiP(const uint64_t n) { nread_inbed = n; }
   double getFRiP() const {
-    return nread_inbed/static_cast<double>(getnread_nonred(STRAND_BOTH));
+    return getratio(nread_inbed, getnread_nonred(STRAND_BOTH));
   }
   void setWeight(const double weight) {
     sizefactor = weight;
@@ -259,8 +259,8 @@ class SeqStats {
       if(x >= COVREAD_ALL)  ++ncov;     // COVREAD_ALL || COVREAD_NORM
       if(x == COVREAD_NORM) ++ncovnorm;
     }
-    gcovRaw  = nbp ? ncov     / static_cast<double>(nbp): 0;
-    gcovNorm = nbp ? ncovnorm / static_cast<double>(nbp): 0;
+    gcovRaw  = nbp ? getratio(ncov, nbp): 0;
+    gcovNorm = nbp ? getratio(ncovnorm, nbp): 0;
   }
   void Greekchron() { Greekchr = true; }
 
@@ -382,7 +382,7 @@ class SeqStatsGenome: public SeqStats {
     return len_mpbl;
   }
   double getpmpbl() const {
-    return static_cast<double>(getlenmpbl())/getlen();
+    return getratio(getlenmpbl(), getlen());
   }
   int32_t getnbin() const {
     int32_t nbin(0);
@@ -419,7 +419,7 @@ class SeqStatsGenome: public SeqStats {
     uint64_t nread(0);
     for(auto &x:chr) nread += x.getnread_inbed();
     
-    return nread/static_cast<double>(getnread_nonred(STRAND_BOTH));
+    return getratio(nread, getnread_nonred(STRAND_BOTH));
   }
 
   void setbed(const std::string bedfilename) {
@@ -439,8 +439,8 @@ class SeqStatsGenome: public SeqStats {
     nbp      += chr[i].getnbp();
     ncov     += chr[i].getncov();
     ncovnorm += chr[i].getncovnorm();
-    gcovRaw  = nbp ? ncov / static_cast<double>(nbp): 0;
-    gcovNorm = nbp ? ncovnorm / static_cast<double>(nbp): 0;
+    gcovRaw  = nbp ? getratio(ncov, nbp): 0;
+    gcovNorm = nbp ? getratio(ncovnorm, nbp): 0;
   }
   
   void printReadstats() const {
@@ -574,7 +574,10 @@ class Mapfile: private Uncopyable {
   bool islackOfRead4GenomeCov() const { return lackOfRead4GenomeCov; };
   void setthre4filtering(const MyOpt::Variables &values) {
     if(values["thre_pb"].as<int32_t>()) thre4filtering = values["thre_pb"].as<int32_t>();
-    else thre4filtering = std::max(1, (int32_t)(genome.getnread(STRAND_BOTH) *10/static_cast<double>(genome.getlenmpbl())));
+    else {
+      int32_t thre = getratio(genome.getnread(STRAND_BOTH), genome.getlenmpbl()) * 10;
+      thre4filtering = std::max(1, thre);
+    }
     std::cout << "Checking redundant reads: redundancy threshold " << thre4filtering << std::endl;
   }
   int32_t getthre4filtering() const { return thre4filtering; };
@@ -643,7 +646,7 @@ class Mapfile: private Uncopyable {
     if(lackOfRead4Complexity) out << boost::format("Library complexity: (%1$.3f) (%2%/%3%)\n") % complexity() % nt_nonred % nt_all;
     else out << boost::format("Library complexity: %1$.3f (%2%/%3%)\n") % complexity() % nt_nonred % nt_all;
   }
-  double complexity() const { return nt_nonred/static_cast<double>(nt_all); }
+  double complexity() const { return getratio(nt_nonred, nt_all); }
 
   void seteflen(const int32_t len) { eflen = len; }
   int32_t getlenF3() const { return lenF3; }
