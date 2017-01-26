@@ -16,7 +16,7 @@ ifdef DEBUG
 CFLAGS += -DDEBUG
 endif
 
-OBJS_UTIL = $(OBJDIR)/readdata.o $(OBJDIR)/util.o $(OBJDIR)/mthread.o 
+OBJS_UTIL = $(OBJDIR)/readdata.o $(OBJDIR)/util.o
 OBJS = $(OBJDIR)/ssp_main.o $(OBJDIR)/pw_readmapfile.o $(OBJDIR)/ssp_shiftprofile.o $(OBJDIR)/statistics.o $(ALGLIBDIR)/libalglib.a
 
 .PHONY: all clean

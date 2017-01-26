@@ -12,6 +12,7 @@
 #include "util.h"
 #include "readdata.h"
 #include "mthread.h"
+#include "wigstats.h"
 
 namespace MyOpt {
   using Variables = boost::program_options::variables_map;
@@ -19,6 +20,13 @@ namespace MyOpt {
 }
 
 void printDist(std::ofstream &out, const std::vector<int32_t> v, const std::string str, const uint64_t nread);
+
+class SeqWigStats: public SeqStats {
+ public:
+  WigStats ws;
+  
+ SeqWigStats(std::string s, int32_t l=0, int32_t binsize=0): SeqStats(s, l, binsize) {}
+};
 
 class SeqStatsGenome {
   std::string name;
@@ -36,21 +44,21 @@ class SeqStatsGenome {
       getline(in, lineStr);
       if(lineStr.empty() || lineStr[0] == '#') continue;
       boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
-      SeqStats s(v[0], stoi(v[1]), binsize);
+      SeqWigStats s(v[0], stoi(v[1]), binsize);
       chr.push_back(s);
     }
     return;
   }
 
  public:
-  WigStats ws;
-  std::vector<SeqStats> chr;
+  std::vector<SeqWigStats> chr;
   std::vector<MyMthread::chrrange> vsepchr;
   
  SeqStatsGenome(const MyOpt::Variables &values): name("Genome"), depth(0), sizefactor(0) {
     readGenomeTable(values["gt"].as<std::string>(), values["binsize"].as<int32_t>());
-    if(values.count("mp")) getMpbl(values["mp"].as<std::string>(), chr);
-    else if(values.count("mptable")) getMpbltable(values["mptable"].as<std::string>(), chr);
+    if(values.count("mptable")) {
+      for(auto &x: chr) x.getMptable(values["mptable"].as<std::string>());
+    }
 
     // Greekchr
     for(auto &x: chr) {
@@ -230,7 +238,8 @@ class Mapfile: private Uncopyable {
   
  public:
   SeqStatsGenome genome;
-  std::vector<SeqStats>::iterator lchr; // longest chromosome
+  WigStats wsGenome;
+  std::vector<SeqWigStats>::iterator lchr; // longest chromosome
 
   // Wigdist
   int32_t nwigdist;
@@ -249,6 +258,7 @@ class Mapfile: private Uncopyable {
 	if(lenmax < itr->getlenmpbl()) {
 	  lenmax = itr->getlenmpbl();
 	  lchr = itr;
+	  break;
 	}
       }
 
@@ -377,13 +387,12 @@ class Mapfile: private Uncopyable {
   }
 
   void estimateZINB() {
-    int32_t thre = genome.ws.getwigDistthre();
+    int32_t thre = wsGenome.getwigDistthre();
     double par[thre+1];
     par[0] = thre;
-    for(int32_t i=0; i<thre; ++i) par[i+1] = genome.ws.pwigDist[i];
+    for(int32_t i=0; i<thre; ++i) par[i+1] = wsGenome.pwigDist[i];
 
-    //    iteratePoisson(&par, lchr->ave, genome.ave, genome.pois_p0);
-    iterateZINB(&par, lchr->ws.nb_p, lchr->ws.nb_n, genome.ws.nb_p, genome.ws.nb_n, genome.ws.nb_p0);
+    iterateZINB(&par, lchr->ws.nb_p, lchr->ws.nb_n, wsGenome.nb_p, wsGenome.nb_n, wsGenome.nb_p0);
 
     return;
   }
