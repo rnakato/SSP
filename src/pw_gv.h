@@ -45,7 +45,7 @@ class SeqStatsGenome {
  public:
   Wigstats ws;
   std::vector<SeqStats> chr;
-  std::vector<sepchr> vsepchr;
+  std::vector<MyMthread::chrrange> vsepchr;
   
  SeqStatsGenome(const MyOpt::Variables &values): name("Genome"), depth(0), sizefactor(0) {
     readGenomeTable(values["gt"].as<std::string>(), values["binsize"].as<int32_t>());
@@ -61,7 +61,7 @@ class SeqStatsGenome {
     }
 
     // sepchr
-    vsepchr = getVsepchr(getlen(), chr, values["threads"].as<int32_t>());
+    vsepchr = MyMthread::getVsepchr(getlen(), chr, values["threads"].as<int32_t>());
     
 #ifdef DEBUG
     std::cout << "chr\tautosome" << std::endl;
