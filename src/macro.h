@@ -16,15 +16,6 @@ enum {NUM_1K=1000,
       NUM_10M=10000000,
       NUM_100M=100000000};
 
-enum PWfile_Type {
-  TYPE_BINARY,
-  TYPE_COMPRESSWIG,
-  TYPE_UNCOMPRESSWIG,
-  TYPE_BEDGRAPH,
-  TYPE_BIGWIG,
-  PWFILETYPENUM
-};
-
 class Uncopyable {
  protected:
   Uncopyable(){}
