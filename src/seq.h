@@ -1,8 +1,8 @@
 /* Copyright(c) Ryuichiro Nakato <rnakato@iam.u-tokyo.ac.jp>
  * This file is a part of DROMPA sources.
  */
-#ifndef SEQ_H
-#define SEQ_H
+#ifndef _SEQ_H_
+#define _SEQ_H_
 
 #include <iostream>
 #include <vector>
@@ -11,7 +11,10 @@
 
 std::string rmchr(const std::string &chr);
 
-enum Strand {STRAND_PLUS, STRAND_MINUS, STRANDNUM, STRAND_BOTH};
+//enum class Strand {FWD, REV, BOTH};
+namespace Strand {
+  enum Strand {FWD, REV, BOTH};
+}
 
 class chrsize {
   std::string name;
@@ -328,7 +331,7 @@ class Fragment {
 public:
   std::string chr;
   int32_t F3;
-  Strand strand;
+  Strand::Strand strand;
   int32_t fraglen;
   int32_t readlen_F3;
 
@@ -339,10 +342,10 @@ public:
    if(pair) fraglen = abs(stoi(v[8]));
    else fraglen = readlen_F3;
    if(sv&16) {
-     strand = STRAND_MINUS;
+     strand = Strand::REV;
      F3 = stoi(v[3]) + readlen_F3 -1;
    } else {
-     strand = STRAND_PLUS;
+     strand = Strand::FWD;
      F3 = stoi(v[3]) -1;
    }
  }
@@ -366,7 +369,7 @@ class Read {
   int32_t inpeak;
   
  Read(const Fragment &frag): weight(WeightNum), F3(frag.F3), duplicate(0), inpeak(0) {
-    if(frag.strand == STRAND_PLUS) F5 = frag.F3 + frag.fraglen;
+    if(frag.strand == Strand::FWD) F5 = frag.F3 + frag.fraglen;
     else F5 = frag.F3 - frag.fraglen;
   }
   double getWeight() const {
@@ -376,4 +379,4 @@ class Read {
 };
 
 
-#endif  // SEQ_H
+#endif  // _SEQ_H_

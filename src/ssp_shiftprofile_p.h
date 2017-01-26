@@ -263,13 +263,13 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
     {
       for(auto x:p.genome.chr) {
 	if(x.isautosome()) {
-	  nread += x.getnread_nonred(STRAND_BOTH);
+	  nread += x.getnread_nonred(Strand::BOTH);
 	  len   += x.getlenmpbl();
 	  //	  std::cout<< len << "\t" << x.getlenmpbl() << std::endl;
 	}
       }
       for(auto x:p.genome.chr) {
-	ReadShiftProfile v(p.getlenF3(), values["ng_from"].as<int32_t>(), values["num4ssp"].as<int32_t>(), 0, x.getlen(), x.getnread_nonred(STRAND_BOTH), x.getlenmpbl());
+	ReadShiftProfile v(p.getlenF3(), values["ng_from"].as<int32_t>(), values["num4ssp"].as<int32_t>(), 0, x.getlen(), x.getnread_nonred(Strand::BOTH), x.getlenmpbl());
 	v.setrchr(nread);
 	chr.push_back(v);
       }
@@ -337,8 +337,8 @@ class shiftJacVec : public ReadShiftProfileGenome {
 
   void setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev);
   void execchr(const Mapfile &p, int32_t i) {
-    auto fwd = genVector(p.genome.chr[i].getvReadref(STRAND_PLUS),  chr[i].start, chr[i].end);
-    auto rev = genVector(p.genome.chr[i].getvReadref(STRAND_MINUS),  chr[i].start, chr[i].end);
+    auto fwd = genVector(p.genome.chr[i].getvReadref(Strand::FWD),  chr[i].start, chr[i].end);
+    auto rev = genVector(p.genome.chr[i].getvReadref(Strand::REV),  chr[i].start, chr[i].end);
 
     setDist(chr[i], fwd, rev);  
   }
@@ -351,8 +351,8 @@ class shiftJacBit : public ReadShiftProfileGenome {
 
   void setDist(ReadShiftProfile &chr, const boost::dynamic_bitset<> &fwd, boost::dynamic_bitset<> &rev);
   void execchr(const Mapfile &p, int32_t i) {
-    auto fwd = genBitset(p.genome.chr[i].getvReadref(STRAND_PLUS),  chr[i].start, chr[i].end);
-    auto rev = genBitset(p.genome.chr[i].getvReadref(STRAND_MINUS), chr[i].start, chr[i].end);
+    auto fwd = genBitset(p.genome.chr[i].getvReadref(Strand::FWD),  chr[i].start, chr[i].end);
+    auto rev = genBitset(p.genome.chr[i].getvReadref(Strand::REV), chr[i].start, chr[i].end);
 
     setDist(chr[i], fwd, rev);
   }
@@ -365,8 +365,8 @@ class shiftCcp : public ReadShiftProfileGenome {
 
   void setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev);
   void execchr(const Mapfile &p, int32_t i) {
-    auto fwd = genVector(p.genome.chr[i].getvReadref(STRAND_PLUS),  chr[i].start, chr[i].end);
-    auto rev = genVector(p.genome.chr[i].getvReadref(STRAND_MINUS),  chr[i].start, chr[i].end);
+    auto fwd = genVector(p.genome.chr[i].getvReadref(Strand::FWD),  chr[i].start, chr[i].end);
+    auto rev = genVector(p.genome.chr[i].getvReadref(Strand::REV),  chr[i].start, chr[i].end);
 
     setDist(chr[i], fwd, rev);
   }
@@ -379,8 +379,8 @@ class shiftHamming : public ReadShiftProfileGenome {
 
   void setDist(ReadShiftProfile &chr, const boost::dynamic_bitset<> &fwd, boost::dynamic_bitset<> &rev);
   void execchr(const Mapfile &p, int32_t i) {
-    auto fwd = genBitset(p.genome.chr[i].getvReadref(STRAND_PLUS),  chr[i].start, chr[i].end);
-    auto rev = genBitset(p.genome.chr[i].getvReadref(STRAND_MINUS), chr[i].start, chr[i].end);
+    auto fwd = genBitset(p.genome.chr[i].getvReadref(Strand::FWD),  chr[i].start, chr[i].end);
+    auto rev = genBitset(p.genome.chr[i].getvReadref(Strand::REV), chr[i].start, chr[i].end);
     
     setDist(chr[i], fwd, rev);
   }
@@ -418,8 +418,8 @@ class shiftFragVar : public ReadShiftProfileGenome {
 
   void setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev);
   void execchr(const Mapfile &p, const int32_t i) {
-    auto fwd = genVector4FixedReadsNum(p.genome.chr[i].getvReadref(STRAND_PLUS),  chr[i].start, chr[i].end);
-    auto rev = genVector4FixedReadsNum(p.genome.chr[i].getvReadref(STRAND_MINUS), chr[i].start, chr[i].end);
+    auto fwd = genVector4FixedReadsNum(p.genome.chr[i].getvReadref(Strand::FWD),  chr[i].start, chr[i].end);
+    auto rev = genVector4FixedReadsNum(p.genome.chr[i].getvReadref(Strand::REV), chr[i].start, chr[i].end);
 
     setDist(chr[i], fwd, rev);
     addmp2genome(i);

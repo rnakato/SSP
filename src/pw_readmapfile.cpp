@@ -70,7 +70,7 @@ void read_mapfile(const MyOpt::Variables &values, Mapfile &p)
     }
   }
 
-  if(!p.genome.getnread(STRAND_BOTH)) PRINTERR("no read in input file.");
+  if(!p.genome.getnread(Strand::BOTH)) PRINTERR("no read in input file.");
 
   p.setFraglen(values);
 
@@ -178,10 +178,10 @@ void parseBowtie(const MyOpt::Variables &values, const std::string &inputfile, M
 	chr_F3 = rmchr(v[2]);
 	fragpair.readlen_F3 = v[4].length();
 	if(v[1] == "+") { 
-	  fragpair.strand = STRAND_PLUS;
+	  fragpair.strand = Strand::FWD;
 	  fragpair.F3 = stoi(v[3]);
 	} else {
-	  fragpair.strand = STRAND_MINUS;
+	  fragpair.strand = Strand::REV;
 	  fragpair.F3 = stoi(v[3]) + fragpair.readlen_F3;
 	}
       } else {  
@@ -207,10 +207,10 @@ void parseBowtie(const MyOpt::Variables &values, const std::string &inputfile, M
       frag.chr = rmchr(v[2]);
       frag.readlen_F3 = v[4].length();
       if(v[1] == "+") { 
-	frag.strand = STRAND_PLUS;
+	frag.strand = Strand::FWD;
 	frag.F3 = stoi(v[3]);
       } else {
-	frag.strand = STRAND_MINUS;
+	frag.strand = Strand::REV;
 	frag.F3 = stoi(v[3]) + frag.readlen_F3;
       }
       //      std::cout << lineStr << std::endl;
@@ -243,10 +243,10 @@ void funcTagAlign(const MyOpt::Variables &values, Mapfile &p, T &in)
       frag.chr = rmchr(v[0]);
       frag.readlen_F3 = abs(end - start);
       if(v[5] == "+") {
-	frag.strand = STRAND_PLUS;
+	frag.strand = Strand::FWD;
 	frag.F3 = start;
       } else {
-	frag.strand = STRAND_MINUS;
+	frag.strand = Strand::REV;
 	frag.F3 = start + frag.readlen_F3;
       }
       //      std::cout << lineStr << std::endl;
@@ -372,7 +372,7 @@ void checkRedundantReads(const MyOpt::Variables &values, Mapfile &p)
   p.setthre4filtering(values);
   
   // Library complexity
-  double r = getratio(values["ncmp"].as<int32_t>(), p.genome.getnread(STRAND_BOTH));
+  double r = getratio(values["ncmp"].as<int32_t>(), p.genome.getnread(Strand::BOTH));
   if(r>1){
     std::cerr << "Warning: number of reads is < "<< (int32_t)(values["ncmp"].as<int32_t>()/NUM_1M) <<" million.\n";
     p.lackOfRead4Complexity_on();
@@ -390,7 +390,7 @@ void checkRedundantReads(const MyOpt::Variables &values, Mapfile &p)
 
 void filtering_eachchr_single(Mapfile &p, SeqStats &chr)
 {
-  for (auto strand: {STRAND_PLUS, STRAND_MINUS}) {
+  for (auto strand: {Strand::FWD, Strand::REV}) {
     std::unordered_map<int32_t, int32_t> mp;
       hashFilterAllSingle(mp, chr.getStrandref(strand), p.getthre4filtering());
     
@@ -405,12 +405,12 @@ void filtering_eachchr_pair(Mapfile &p, SeqStats &chr)
 {
   std::unordered_map<std::string, int32_t> mp;
 
-  for (auto strand: {STRAND_PLUS, STRAND_MINUS}) {
+  for (auto strand: {Strand::FWD, Strand::REV}) {
     hashFilterAllPair(mp, chr.getStrandref(strand), p.getthre4filtering());
   }
 
   std::unordered_map<std::string, int> mp2;
-  for (auto strand: {STRAND_PLUS, STRAND_MINUS}) {
+  for (auto strand: {Strand::FWD, Strand::REV}) {
     hashFilterCmpPair(mp2, p, chr.getStrandref(strand), p.getthre4filtering());
   }
 

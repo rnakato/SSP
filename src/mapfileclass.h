@@ -198,7 +198,7 @@ template <class T>
 void calcdepth(T &obj, const int32_t flen)
 {
   uint64_t lenmpbl = obj.getlenmpbl();
-  double d = lenmpbl ? getratio(obj.getnread_nonred(STRAND_BOTH) * flen, lenmpbl): 0;
+  double d = lenmpbl ? getratio(obj.getnread_nonred(Strand::BOTH) * flen, lenmpbl): 0;
   obj.setdepth(d);
 }
 
@@ -206,15 +206,17 @@ template <class T>
 void printSeqStats(const T &obj)
 {
   std::cout << obj.getname() << "\t" << obj.getlen() << "\t" << obj.getlenmpbl() << "\t"
-	    << obj.getnread(STRAND_BOTH)        << "\t"
-	    << obj.getnread_nonred(STRAND_BOTH) << "\t"
-	    << obj.getnread_red(STRAND_BOTH)    << "\t"
-	    << obj.getnread_rpm(STRAND_BOTH)    << "\t"
-	    << obj.getnread_afterGC(STRAND_BOTH)<< "\t"
+	    << obj.getnread(Strand::BOTH)        << "\t"
+	    << obj.getnread_nonred(Strand::BOTH) << "\t"
+	    << obj.getnread_red(Strand::BOTH)    << "\t"
+	    << obj.getnread_rpm(Strand::BOTH)    << "\t"
+	    << obj.getnread_afterGC(Strand::BOTH)<< "\t"
 	    << obj.getdepth() << std::endl;
 }
 
 class SeqStats {
+  enum {STRANDNUM=2};
+
   std::string name;
   uint64_t len, len_mpbl;
   int32_t nbin;
@@ -243,38 +245,38 @@ class SeqStats {
     Read r(frag);
     seq[frag.strand].vRead.push_back(r);
   }
-  uint64_t getnread (const Strand strand) const {
-    if(strand==STRAND_BOTH) return seq[STRAND_PLUS].getnread() + seq[STRAND_MINUS].getnread();
+  uint64_t getnread (const Strand::Strand strand) const {
+    if(strand==Strand::BOTH) return seq[Strand::FWD].getnread() + seq[Strand::REV].getnread();
     else return seq[strand].getnread();
   }
-  uint64_t getnread_nonred (const Strand strand) const {
-    if(strand==STRAND_BOTH) return seq[STRAND_PLUS].nread_nonred + seq[STRAND_MINUS].nread_nonred;
+  uint64_t getnread_nonred (const Strand::Strand strand) const {
+    if(strand==Strand::BOTH) return seq[Strand::FWD].nread_nonred + seq[Strand::REV].nread_nonred;
     else return seq[strand].nread_nonred;
   }
-  uint64_t getnread_red (const Strand strand) const {
-    if(strand==STRAND_BOTH) return seq[STRAND_PLUS].nread_red + seq[STRAND_MINUS].nread_red;
+  uint64_t getnread_red (const Strand::Strand strand) const {
+    if(strand==Strand::BOTH) return seq[Strand::FWD].nread_red + seq[Strand::REV].nread_red;
     else return seq[strand].nread_red;
   }
-  uint64_t getnread_rpm (const Strand strand) const {
-    if(strand==STRAND_BOTH) return seq[STRAND_PLUS].nread_rpm + seq[STRAND_MINUS].nread_rpm;
+  uint64_t getnread_rpm (const Strand::Strand strand) const {
+    if(strand==Strand::BOTH) return seq[Strand::FWD].nread_rpm + seq[Strand::REV].nread_rpm;
     else return seq[strand].nread_rpm;
   }
-  uint64_t getnread_afterGC (const Strand strand) const {
-    if(strand==STRAND_BOTH) return seq[STRAND_PLUS].nread_afterGC + seq[STRAND_MINUS].nread_afterGC;
+  uint64_t getnread_afterGC (const Strand::Strand strand) const {
+    if(strand==Strand::BOTH) return seq[Strand::FWD].nread_afterGC + seq[Strand::REV].nread_afterGC;
     else return seq[strand].nread_afterGC;
   }
   uint64_t getnread_inbed() const { return nread_inbed; }
-  strandData & getStrandref (const Strand strand) {
+  strandData & getStrandref (const Strand::Strand strand) {
     return seq[strand];
   }
-  const std::vector<Read> & getvReadref (const Strand strand) const {
+  const std::vector<Read> & getvReadref (const Strand::Strand strand) const {
     return seq[strand].vRead;
   }
-  std::vector<Read> & getvReadref_notconst (const Strand strand) {
+  std::vector<Read> & getvReadref_notconst (const Strand::Strand strand) {
     return seq[strand].vRead;
   }
   void setdepth(const double d) { depth = d; }
-  void addReadAfterGC(const Strand strand, const double w, boost::mutex &mtx) {
+  void addReadAfterGC(const Strand::Strand strand, const double w, boost::mutex &mtx) {
     boost::mutex::scoped_lock lock(mtx);
     seq[strand].nread_afterGC += w;
   }
@@ -291,18 +293,18 @@ class SeqStats {
 
   void setF5(int32_t flen) {
     int32_t d;
-    for(int32_t strand=0; strand<STRANDNUM; ++strand) {
-      if(strand == STRAND_PLUS) d = flen; else d = -flen;
+    for (auto strand: {Strand::FWD, Strand::REV}) {
+      if(strand == Strand::FWD) d = flen; else d = -flen;
       for(auto &x: seq[strand].vRead) x.F5 = x.F3 + d;
     }
   }
   void setFRiP(const uint64_t n) { nread_inbed = n; }
   double getFRiP() const {
-    return getratio(nread_inbed, getnread_nonred(STRAND_BOTH));
+    return getratio(nread_inbed, getnread_nonred(Strand::BOTH));
   }
   void setsizefactor(const double w) {
     sizefactor = w;
-    for(int32_t i=0; i<STRANDNUM; i++) seq[i].nread_rpm = seq[i].nread_nonred * sizefactor;
+    for (auto strand: {Strand::FWD, Strand::REV}) seq[strand].nread_rpm = seq[strand].nread_nonred * sizefactor;
   }
   void calcGcov(const std::vector<BpStatus> &array) {
     for(auto x: array) {

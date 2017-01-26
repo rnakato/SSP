@@ -107,27 +107,27 @@ class SeqStatsGenome {
     return ncovnorm;
   }
   
-  uint64_t getnread (const Strand strand) const {
+  uint64_t getnread (const Strand::Strand strand) const {
     uint64_t nread(0);
     for(auto &x:chr) nread += x.getnread(strand);
     return nread;
   }
-  uint64_t getnread_nonred (const Strand strand) const {
+  uint64_t getnread_nonred (const Strand::Strand strand) const {
     uint64_t nread(0);
     for(auto &x:chr) nread += x.getnread_nonred(strand);
     return nread;
   }
-  uint64_t getnread_red (const Strand strand) const {
+  uint64_t getnread_red (const Strand::Strand strand) const {
     uint64_t nread(0);
     for(auto &x:chr) nread += x.getnread_red(strand);
     return nread;
   }
-  uint64_t getnread_rpm (const Strand strand) const {
+  uint64_t getnread_rpm (const Strand::Strand strand) const {
     uint64_t nread(0);
     for(auto &x:chr) nread += x.getnread_rpm(strand);
     return nread;
   }
-  uint64_t getnread_afterGC (const Strand strand) const {
+  uint64_t getnread_afterGC (const Strand::Strand strand) const {
     uint64_t nread(0);
     for(auto &x:chr) nread += x.getnread_afterGC(strand);
     return nread;
@@ -138,7 +138,7 @@ class SeqStatsGenome {
     return nread;
   }
   double getFRiP() const {
-    return getratio(getnread_inbed(), getnread_nonred(STRAND_BOTH));
+    return getratio(getnread_inbed(), getnread_nonred(Strand::BOTH));
   }
   void setdepth(const double d) { depth = d; }
   double getdepth() const { return depth; }
@@ -274,7 +274,7 @@ class Mapfile: private Uncopyable {
     out << "Sample\ttotal read number\tnonredundant read number\t"
 	<< "read length\tfragment length\t";
     sspst.printhead(out);
-    out << samplename << "\t" << genome.getnread(STRAND_BOTH) << "\t" << genome.getnread_nonred(STRAND_BOTH) << "\t"
+    out << samplename << "\t" << genome.getnread(Strand::BOTH) << "\t" << genome.getnread_nonred(Strand::BOTH) << "\t"
 	<< lenF3 << "\t" << eflen << "\t";
     sspst.print(out);
   }
@@ -288,7 +288,7 @@ class Mapfile: private Uncopyable {
   void setthre4filtering(const MyOpt::Variables &values) {
     if(values["thre_pb"].as<int32_t>()) thre4filtering = values["thre_pb"].as<int32_t>();
     else {
-      int32_t thre = getratio(genome.getnread(STRAND_BOTH), genome.getlenmpbl()) * 10;
+      int32_t thre = getratio(genome.getnread(Strand::BOTH), genome.getlenmpbl()) * 10;
       thre4filtering = std::max(1, thre);
     }
     std::cout << "Checking redundant reads: redundancy threshold " << thre4filtering << std::endl;
@@ -344,14 +344,14 @@ class Mapfile: private Uncopyable {
   {
     std::string outputfile = oprefix + ".readlength_dist.csv";
     std::ofstream out(outputfile);
-    printDist(out, vlenF3, "F3", genome.getnread(STRAND_BOTH));
-    if(values.count("pair")) printDist(out, vlenF5, "F5", genome.getnread(STRAND_BOTH));
+    printDist(out, vlenF3, "F3", genome.getnread(Strand::BOTH));
+    if(values.count("pair")) printDist(out, vlenF5, "F5", genome.getnread(Strand::BOTH));
     out.close();
     
     if(values.count("pair")) {
       outputfile = oprefix + ".fraglen_dist.xls";
       std::ofstream out(outputfile);
-      printDist(out, vflen, "Fragmemt", genome.getnread(STRAND_BOTH));
+      printDist(out, vflen, "Fragmemt", genome.getnread(Strand::BOTH));
     }
   }
 

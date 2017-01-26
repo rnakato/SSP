@@ -4,6 +4,6 @@
 #ifndef _BPSTATUS_H_
 #define _BPSTATUS_H_
 
-enum class BpStatus {UNMAPPABLE, INBED, MAPPABLE, COVREAD_ALL, COVREAD_NORM};
+enum class BpStatus: uint8_t {UNMAPPABLE, INBED, MAPPABLE, COVREAD_ALL, COVREAD_NORM};
 
 #endif /* _MAPFILECLASS_H_ */
