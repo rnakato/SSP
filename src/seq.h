@@ -13,7 +13,6 @@ std::string rmchr(const std::string &chr);
 
 enum Strand {STRAND_PLUS, STRAND_MINUS, STRANDNUM, STRAND_BOTH};
 
-
 class chrsize {
   std::string name;
   int32_t len;
@@ -23,13 +22,6 @@ class chrsize {
  chrsize(const std::string &n, const int32_t l): name(n), len(l) {}
   std::string getname() const { return name; }
   int32_t getlen() const { return len; }
-};
-
-class sepchr {
- public:
-  uint32_t s;
-  uint32_t e;
- sepchr(uint32_t start, uint32_t end): s(start), e(end) {}
 };
 
 class range {

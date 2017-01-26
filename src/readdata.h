@@ -6,13 +6,10 @@
 
 #include <unordered_map>
 #include <boost/algorithm/string.hpp>
-#include "seq.h"
-#include "macro.h"
+#include "mapfileclass.h"
 
 using GeneDataMap = std::unordered_map<std::string, genedata>;
 using HashOfGeneDataMap = std::unordered_map<std::string, GeneDataMap>;
-
-enum bpstatus {UNMAPPABLE, INBED, MAPPABLE, COVREAD_ALL, COVREAD_NORM};
 
 int32_t countmp(HashOfGeneDataMap &);
 std::vector<std::string> scanGeneName(const HashOfGeneDataMap &);

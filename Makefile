@@ -16,7 +16,7 @@ ifdef DEBUG
 CFLAGS += -DDEBUG
 endif
 
-OBJS_UTIL = $(OBJDIR)/readdata.o $(OBJDIR)/util.o
+OBJS_UTIL = $(OBJDIR)/readdata.o $(OBJDIR)/util.o $(OBJDIR)/mthread.o 
 OBJS_PW = $(OBJDIR)/ssp_main.o $(OBJDIR)/pw_readmapfile.o $(OBJDIR)/ssp_shiftprofile.o $(OBJDIR)/statistics.o $(ALGLIBDIR)/libalglib.a
 
 .PHONY: all clean
@@ -38,7 +38,7 @@ clean:
 	rm -rf bin lib obj
 	make clean -C $(ALGLIBDIR)
 
-HEADS_UTIL = $(SRCDIR)/util.h $(SRCDIR)/readdata.h $(SRCDIR)/macro.h $(SRCDIR)/seq.h
+HEADS_UTIL = $(SRCDIR)/util.h $(SRCDIR)/readdata.h $(SRCDIR)/macro.h $(SRCDIR)/seq.h $(SRCDIR)/mthread.h
 
 $(OBJDIR)/pw_readmapfile.o: $(SRCDIR)/ssp_shiftprofile.h
 $(OBJDIR)/ssp_shiftprofile.o: Makefile $(SRCDIR)/ssp_shiftprofile_p.h $(SRCDIR)/ssp_shiftprofile.h
