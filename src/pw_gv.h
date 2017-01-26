@@ -166,7 +166,7 @@ class SeqStats {
   uint64_t nread_inbed;
 
  protected:
-  double weight4rpm;
+  double sizefactor;
   uint64_t nbp, ncov, ncovnorm;
   double gcovRaw, gcovNorm;
 
@@ -176,7 +176,7 @@ class SeqStats {
  SeqStats(std::string s, int32_t l=0, int32_t binsize=0):
   name(rmchr(s)), len(l), len_mpbl(l), 
     Greekchr(false), depth(0), nread_inbed(0),
-    weight4rpm(0), nbp(0), ncov(0), ncovnorm(0),
+    sizefactor(0), nbp(0), ncov(0), ncovnorm(0),
     gcovRaw(0), gcovNorm(0) {
     nbin = binsize ? (l/binsize +1) : 0;
   }
@@ -231,7 +231,7 @@ class SeqStats {
   uint64_t getncov()     const { return ncov; }
   uint64_t getncovnorm() const { return ncovnorm; }
   int32_t getnbin()      const { return nbin; }
-  double getweight4rpm() const { return weight4rpm; }
+  double getsizefactor() const { return sizefactor; }
   double getdepth()      const { return depth; }
 
   void printGcov(std::ofstream &out, const bool lackOfRead4GenomeCov) const {
@@ -250,8 +250,8 @@ class SeqStats {
     return nread_inbed/static_cast<double>(getnread_nonred(STRAND_BOTH));
   }
   void setWeight(const double weight) {
-    weight4rpm = weight;
-    for(int32_t i=0; i<STRANDNUM; i++) seq[i].nread_rpm = seq[i].nread_nonred * weight4rpm;
+    sizefactor = weight;
+    for(int32_t i=0; i<STRANDNUM; i++) seq[i].nread_rpm = seq[i].nread_nonred * sizefactor;
   }
   void calcGcov(const std::vector<int8_t> &array) {
     for(auto x:array) {
