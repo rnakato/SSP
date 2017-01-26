@@ -5,7 +5,6 @@
 #include "macro.h"
 #include "util.h"
 #include <boost/algorithm/string.hpp>
-#include <sstream>
 
 int32_t countmp(HashOfGeneDataMap &mp)
 {
@@ -261,75 +260,3 @@ std::vector<chrsize> read_genometable(const std::string& fileName)
   return gt;
 }
 
-std::vector<int32_t> readMpbl(std::string mpfile, std::string chrname, int32_t binsize, int32_t nbin)
-{
-  std::string filename = mpfile + "/map_fragL150_" + chrname + "_bin" + IntToString(binsize) +".txt";
-  std::vector<int32_t> mparray(nbin, 0);
-
-  isFile(filename);
-  std::ifstream in(filename);
-
-  std::string lineStr;
-  while (!in.eof()) {
-    getline(in, lineStr);
-    if(lineStr.empty()) continue;
-    std::vector<std::string> v;
-    boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
-
-    int32_t n(stoi(v[0])/binsize);
-    double val(stof(v[1])*binsize);
-    mparray[n] = val;
-  }
-
-  return mparray;
-}
-
-std::vector<int8_t> readMpbl_binary(std::string mpfile, std::string chrname, int32_t chrlen)
-{
-  std::string filename = mpfile + "/map_" + chrname + "_binary.txt";
-  std::vector<int8_t> mparray(chrlen, UNMAPPABLE);
-
-  isFile(filename);
-  int32_t n(0);
-  int8_t c;
-  std::ifstream in(filename);
-  while (!in.eof()) {
-    c = in.get();
-    if(c==' ') continue;
-    if(c=='1') mparray[n]=MAPPABLE;
-    ++n;
-    if(n >= chrlen-1) break;
-  }
-
-  return mparray;
-}
-
-std::vector<int8_t> readMpbl_binary(int32_t chrlen)
-{
-  std::vector<int8_t> mparray(chrlen, MAPPABLE);
-  return mparray;
-}
-
-std::vector<int8_t> arraySetBed(std::vector<int8_t> &array, std::string chrname, const std::vector<bed> &vbed)
-{
-  for(auto &bed: vbed) {
-    if(bed.chr == chrname) {
-      int32_t s(bed.start);
-      int32_t e(bed.end);
-      if(e>=(int32_t)array.size()) {
-	std::cerr << "Warning: bedfile" << bed.start <<"-"<<bed.end << " > array size " << array.size() << std::endl;
-	e = array.size()-1;
-      }
-      for(int32_t i=s; i<=e; ++i) array[i] = INBED;
-    } 
-  }
-
-  return array;
-}
-
-std::string IntToString(int64_t n)
-{
-  std::ostringstream stream;
-  stream << n;
-  return stream.str();
-}

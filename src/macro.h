@@ -4,6 +4,7 @@
 #ifndef _MACRO_H_
 #define _MACRO_H_
 #include <iostream>
+#include <sstream>
 #include <boost/format.hpp>
 
 #define VALUE2WIGARRAY(v) ((v) * 1000.0)
@@ -58,5 +59,12 @@ template <class T, class S>
   out << boost::format("%1% (%2$.1f%%)\t") % a % getpercent(a,b);
 };
 
+template <class T>
+inline std::string IntToString(T n)
+{
+  std::ostringstream stream;
+  stream << n;
+  return stream.str();
+}
 
 #endif /* _MACRO_H_ */

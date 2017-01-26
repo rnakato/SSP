@@ -38,7 +38,7 @@ clean:
 	rm -rf bin lib obj
 	make clean -C $(ALGLIBDIR)
 
-HEADS_UTIL = $(SRCDIR)/util.h $(SRCDIR)/readdata.h $(SRCDIR)/macro.h $(SRCDIR)/seq.h $(SRCDIR)/mthread.h
+HEADS_UTIL = $(SRCDIR)/util.h $(SRCDIR)/readdata.h $(SRCDIR)/macro.h $(SRCDIR)/seq.h $(SRCDIR)/mthread.h $(SRCDIR)/mapfileclass.h $(SRCDIR)/bpstatus.h
 
 $(OBJDIR)/pw_readmapfile.o: $(SRCDIR)/ssp_shiftprofile.h
 $(OBJDIR)/ssp_shiftprofile.o: Makefile $(SRCDIR)/ssp_shiftprofile_p.h $(SRCDIR)/ssp_shiftprofile.h

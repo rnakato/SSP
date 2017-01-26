@@ -8,8 +8,7 @@
 #include "seq.h"
 #include "macro.h"
 #include "statistics.h"
-
-enum bpstatus {UNMAPPABLE, INBED, MAPPABLE, COVREAD_ALL, COVREAD_NORM};
+#include "bpstatus.h"
 
 class strandData {
  public:
@@ -238,11 +237,11 @@ class SeqStats {
     sizefactor = w;
     for(int32_t i=0; i<STRANDNUM; i++) seq[i].nread_rpm = seq[i].nread_nonred * sizefactor;
   }
-  void calcGcov(const std::vector<int8_t> &array) {
-    for(auto x:array) {
-      if(x >= MAPPABLE)     ++nbp;      // MAPPABLE || COVREAD_ALL || COVREAD_NORM
-      if(x >= COVREAD_ALL)  ++ncov;     // COVREAD_ALL || COVREAD_NORM
-      if(x == COVREAD_NORM) ++ncovnorm;
+  void calcGcov(const std::vector<BpStatus> &array) {
+    for(auto x: array) {
+      if(x >= BpStatus::MAPPABLE)     ++nbp;      // MAPPABLE || COVREAD_ALL || COVREAD_NORM
+      if(x >= BpStatus::COVREAD_ALL)  ++ncov;     // COVREAD_ALL || COVREAD_NORM
+      if(x == BpStatus::COVREAD_NORM) ++ncovnorm;
     }
   }
   void Greekchron() { Greekchr = true; }
