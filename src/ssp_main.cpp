@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
   Mapfile p(values);
   read_mapfile(values, p.genome);
 
-  if(!values.count("nofilter")) checkRedundantReads(values, p);
+  if(!values.count("nofilter")) p.complexity.checkRedundantReads(p.genome);
   
   estimateFragLength(values, p);
 
@@ -172,8 +172,8 @@ void setOpts(MyOpt::Opts &allopts,MyOpt::Opts &opts4help)
     ("ftype,f", value<std::string>(), "{SAM|BAM|BOWTIE|TAGALIGN}: format of input file\nTAGALIGN could be gzip'ed (extension: tagAlign.gz)")
     ("odir",    value<std::string>()->default_value("sspout"),	  "output directory name")
     ("nofilter", "do not filter PCR bias")
-    ("thre_pb", value<int32_t>()->default_value(0),	       "PCRbias threshold (default: more than max(1 read, 10 times greater than genome average)) ")
-    ("ncmp",    value<int32_t>()->default_value(10000000), "read number for calculating library complexity")
+    ("thre_pb", value<int32_t>()->default_value(0),	  "PCRbias threshold (default: more than max(1 read, 10 times greater than genome average)) ")
+    ("ncmp",    value<uint64_t>()->default_value(NUM_10M), "read number for calculating library complexity")
     ;
   MyOpt::Opts optother("Others",100);
   optother.add_options()
@@ -198,7 +198,7 @@ void setOpts(MyOpt::Opts &allopts,MyOpt::Opts &opts4help)
     ("flen4gc",    value<int32_t>()->default_value(120),  "fragment length for calculation of GC distribution")
     ("gcdepthoff", "do not consider depth of GC contents")
     ("ntype,n",        value<std::string>()->default_value("NONE"),  "Total read normalization\n{NONE|GR|GD|CR|CD}\n   NONE: not normalize\n   GR: for whole genome, read number\n   GD: for whole genome, read depth\n   CR: for each chromosome, read number\n   CD: for each chromosome, read depth")
-    ("nrpm",        value<int32_t>()->default_value(20000000),	  "Total read number after normalization")
+    ("nrpm",        value<int32_t>()->default_value(2*NUM_10M),	  "Total read number after normalization")
     ("ndepth",      value<double>()->default_value(1.0),	  "Averaged read depth after normalization")
     ("bed",        value<std::string>(),	  "specify the BED file of enriched regions (e.g., peak regions)")
     ;  

@@ -6,7 +6,6 @@
 
 #include <cstdint>
 #include <vector>
-#include "mapfileclass.h"
 
 namespace MyMthread {
   class chrrange {
@@ -15,8 +14,6 @@ namespace MyMthread {
     uint32_t e;
   chrrange(uint32_t start, uint32_t end): s(start), e(end) {}
   };
-  
-  //  std::vector<chrrange> getVsepchr(const uint64_t genomelen, const std::vector<SeqStats> &chr, const int32_t numthreads);
 
   template <class T>
   std::vector<chrrange> getVsepchr(const uint64_t genomelen, const std::vector<T> &chr, const int32_t numthreads)

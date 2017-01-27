@@ -17,7 +17,7 @@ CFLAGS += -DDEBUG
 endif
 
 OBJS_UTIL = $(OBJDIR)/readdata.o $(OBJDIR)/util.o
-OBJS = $(OBJDIR)/ssp_main.o $(OBJDIR)/pw_readmapfile.o $(OBJDIR)/ssp_shiftprofile.o $(OBJDIR)/statistics.o $(ALGLIBDIR)/libalglib.a
+OBJS = $(OBJDIR)/ssp_main.o $(OBJDIR)/Mapfile.o $(OBJDIR)/pw_readmapfile.o $(OBJDIR)/LibraryComplexity.o $(OBJDIR)/ssp_shiftprofile.o $(OBJDIR)/statistics.o $(ALGLIBDIR)/libalglib.a
 
 .PHONY: all clean
 
@@ -38,9 +38,9 @@ clean:
 	rm -rf bin lib obj
 	make clean -C $(ALGLIBDIR)
 
-HEADS_UTIL = $(SRCDIR)/util.h $(SRCDIR)/readdata.h $(SRCDIR)/macro.h $(SRCDIR)/seq.h $(SRCDIR)/mthread.h $(SRCDIR)/mapfileclass.h $(SRCDIR)/bpstatus.h
+HEADS_UTIL = $(SRCDIR)/BoostOptions.hpp $(SRCDIR)/util.h $(SRCDIR)/readdata.h $(SRCDIR)/macro.h $(SRCDIR)/seq.h $(SRCDIR)/mthread.h $(SRCDIR)/SeqStats.hpp $(SRCDIR)/bpstatus.h
 
 $(OBJDIR)/pw_readmapfile.o: $(SRCDIR)/ssp_shiftprofile.h
 $(OBJDIR)/ssp_shiftprofile.o: Makefile $(SRCDIR)/ssp_shiftprofile_p.h $(SRCDIR)/ssp_shiftprofile.h
 $(OBJS_UTIL): Makefile $(HEADS_UTIL)
-$(OBJS): Makefile $(SRCDIR)/pw_gv.h $(SRCDIR)/pw_readmapfile.h $(SRCDIR)/statistics.h $(HEADS_UTIL)
+$(OBJS): Makefile $(SRCDIR)/pw_gv.h $(SRCDIR)/Mapfile.hpp $(SRCDIR)/pw_readmapfile.h $(SRCDIR)/LibraryComplexity.hpp $(SRCDIR)/statistics.h $(HEADS_UTIL)

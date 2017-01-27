@@ -1,5 +1,5 @@
 /* Copyright(c) Ryuichiro Nakato <rnakato@iam.u-tokyo.ac.jp>
- * This file is a part of DROMPA sources.
+ * All rights reserved.
  */
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
@@ -221,121 +221,7 @@ namespace {
     }
     return;
   }
-
-  void hashFilterAllSingle(std::unordered_map<int32_t, int32_t> &mp, strandData &seq, const int32_t thre)
-  {
-    for(auto &x:seq.vRead) {
-      if(mp.find(x.F3) != mp.end()) {
-	if(mp[x.F3] < thre) {
-	  ++mp[x.F3];
-	  seq.nread_nonred++;
-	} else {
-	  x.duplicate = 1;
-	  seq.nread_red++;
-	}
-      } else {
-	mp[x.F3] = 1;
-	seq.nread_nonred++;
-      }
-    }
-    return;
-  }
-  
-  void hashFilterCmpSingle(std::unordered_map<int32_t, int32_t> &mp, class LibComp &comp, const strandData &seq, const int32_t thre)
-  {
-    for(auto &x: seq.vRead){
-      if(rand() >= comp.getr4cmp()) continue;
-      comp.incNtAll();
-      if(mp.find(x.F3) != mp.end()) {
-	if(mp[x.F3] < thre) {
-	  ++mp[x.F3];
-	  comp.incNtNonred();
-	} else {
-	  comp.incNtRed();
-	}
-      } else {
-	mp[x.F3] = 1;
-	comp.incNtNonred();
-      }
-    }
-    return;
-  }
-  
-  void hashFilterAllPair(std::unordered_map<std::string, int32_t> &mp, strandData &seq, const int32_t thre)
-  {
-    for(auto &x:seq.vRead) {
-      int32_t Fmin = std::min(x.F3, x.F5);
-      int32_t Fmax = std::max(x.F3, x.F5);
-      std::string str = IntToString(Fmin) + "-" + IntToString(Fmax);
-      //    std::cout << str << std::endl;
-      if(mp.find(str) != mp.end()) {
-	if(mp[str] < thre) {
-	  ++mp[str];
-	  ++seq.nread_nonred;
-	} else {
-	  x.duplicate = 1;
-	  ++seq.nread_red;
-	}
-      } else {
-	mp[str] = 1;
-	++seq.nread_nonred;
-      }
-    }
-    return;
-  }
-  
-  void hashFilterCmpPair(std::unordered_map<std::string, int32_t> &mp, class LibComp &comp, const strandData &seq, const int32_t thre)
-  {
-    for(auto &x: seq.vRead){
-      if(rand() >= comp.getr4cmp()) continue;
-      int32_t Fmin = std::min(x.F3, x.F5);
-      int32_t Fmax = std::max(x.F3, x.F5);
-      std::string str = IntToString(Fmin) + "-" + IntToString(Fmax);
-      comp.incNtAll();
-      if(mp.find(str) != mp.end()) {
-	if(mp[str] < thre) {
-	  ++mp[str];
-	  comp.incNtNonred();
-	} else {
-	  comp.incNtRed();
-	}
-      } else {
-	mp[str] = 1;
-	comp.incNtNonred();
-      }
-    }
-    return;
-  }
-  
-  void filtering_eachchr_single(Mapfile &p, SeqStats &chr)
-  {
-    for (auto strand: {Strand::FWD, Strand::REV}) {
-      std::unordered_map<int32_t, int32_t> mp;
-      hashFilterAllSingle(mp, chr.getStrandref(strand), p.complexity.getThreshold());
-      
-      std::unordered_map<int32_t, int32_t> mp2;
-      hashFilterCmpSingle(mp2, p.complexity, chr.getStrandref(strand), p.complexity.getThreshold());
-    }
     
-    return;
-  }
-  
-  void filtering_eachchr_pair(Mapfile &p, SeqStats &chr)
-  {
-    std::unordered_map<std::string, int32_t> mp;
-    
-    for (auto strand: {Strand::FWD, Strand::REV}) {
-      hashFilterAllPair(mp, chr.getStrandref(strand), p.complexity.getThreshold());
-    }
-    
-    std::unordered_map<std::string, int> mp2;
-    for (auto strand: {Strand::FWD, Strand::REV}) {
-      hashFilterCmpPair(mp2, p.complexity, chr.getStrandref(strand), p.complexity.getThreshold());
-    }
-    
-    return;
-  }
-  
   /*int32_t check_sv(int32_t sv)
 {
   // for paired-end
@@ -405,26 +291,5 @@ void read_mapfile(const MyOpt::Variables &values, SeqStatsGenome &genome)
 
   if(!genome.getnread(Strand::BOTH)) PRINTERR("no read in input file.");
 
-  return;
-}
-
-void checkRedundantReads(const MyOpt::Variables &values, Mapfile &p)
-{
-  p.complexity.setThreshold(values["thre_pb"].as<int32_t>(), p.genome);
-  
-  // Library complexity
-  double r = getratio(values["ncmp"].as<int32_t>(), p.genome.getnread(Strand::BOTH));
-  if(r>1){
-    std::cerr << "Warning: number of reads is < "<< (int32_t)(values["ncmp"].as<int32_t>()/NUM_1M) <<" million.\n";
-    p.complexity.lackOfRead_on();
-  }
-  p.complexity.setr4cmp(r*RAND_MAX);
-  
-  for(uint32_t i=0; i<p.genome.chr.size(); ++i) {
-    if (values.count("pair")) filtering_eachchr_pair(p, p.genome.chr[i]);
-    else                      filtering_eachchr_single(p, p.genome.chr[i]);
-  }
-  
-  printf("done.\n");
   return;
 }

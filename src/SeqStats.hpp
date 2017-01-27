@@ -1,8 +1,8 @@
 /* Copyright(c)  Ryuichiro Nakato <rnakato@iam.u-tokyo.ac.jp>
  * This file is a part of DROMPA sources.
  */
-#ifndef _MAPFILECLASS_H_
-#define _MAPFILECLASS_H_
+#ifndef _SEQSTATS_HPP_
+#define _SEQSTATS_HPP_
 
 #include <boost/thread.hpp>
 #include <boost/algorithm/string.hpp> 
@@ -29,14 +29,6 @@ class strandData {
     nread_nonred = getnread();
   }
 };
-
-template <class T>
-void calcdepth(T &obj, const int32_t flen)
-{
-  uint64_t lenmpbl = obj.getlenmpbl();
-  double d = lenmpbl ? getratio(obj.getnread_nonred(Strand::BOTH) * flen, lenmpbl): 0;
-  obj.setdepth(d);
-}
 
 template <class T>
 void printSeqStats(const T &obj)
@@ -98,9 +90,10 @@ class SeqStats {
     else return seq[strand].nread_afterGC;
   }
   uint64_t getnread_inbed() const { return nread_inbed; }
-  strandData & getStrandref (const Strand::Strand strand) {
-    return seq[strand];
-  }
+
+  void incNReadNonred (const Strand::Strand strand) { ++seq[strand].nread_nonred; }
+  void incNReadRed    (const Strand::Strand strand) { ++seq[strand].nread_red;    }
+
   const std::vector<Read> & getvReadref (const Strand::Strand strand) const {
     return seq[strand].vRead;
   }
