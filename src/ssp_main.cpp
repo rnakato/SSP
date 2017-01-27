@@ -51,11 +51,9 @@ int main(int argc, char* argv[])
   boost::filesystem::create_directory(dir);
 
   Mapfile p(values);
-  read_mapfile(values, p);
+  read_mapfile(values, p.genome);
 
   if(!values.count("nofilter")) checkRedundantReads(values, p);
-  //  else                          p.genome.setnread2nread_red();
-  //  p.genome.setnread_red();
   
   estimateFragLength(values, p);
 
@@ -249,7 +247,7 @@ void estimateFragLength(const MyOpt::Variables &values, Mapfile &p)
   t2 = clock();
   std::cout << "Jaccard Bit: " << static_cast<double>(t2 - t1) / CLOCKS_PER_SEC << "sec.\n";
   makeFCSProfile(values, p, "fcs");
-  p.printSSPstats();
+  p.outputSSPstats();
 
   clock_t t3 = clock();
   std::cout << "Fragment variability: " << static_cast<double>(t3 - t2) / CLOCKS_PER_SEC << "sec.\n";

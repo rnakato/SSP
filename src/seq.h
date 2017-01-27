@@ -152,7 +152,7 @@ class genedata {
   void printall() const {
     if(this){
       std::cout << tname << "\t" << gname << "\t" << tid << "\t" << gid << "\t" << chr << "\t" << strand << "\t" << txStart << "\t" << txEnd << "\t" << cdsStart << "\t" << cdsEnd << "\t" << exonCount << "\tgene source: " << gsrc << "\ttranscript source: "<< tsrc << "\tgene biotype: "<< gtype << "\ttranscript biotype: "<< ttype  << "\ttranscript tag: "<< ttag << "\t";
-      for (auto x: exon) std::cout << x.start << "-" << x.end << ", ";
+      for (auto &x: exon) std::cout << x.start << "-" << x.end << ", ";
     }
   }
   void print() const {
@@ -180,7 +180,7 @@ class bed_gene {
   void print() const { bed.print();}
   void printWithGene(bool redundant) const {
     if(redundant) {
-      for(auto x:genelist) {
+      for(auto &x: genelist) {
 	print();
 	if(x.st == UPSTREAM)        std::cout << "\tupstream\t";
 	else if(x.st == DOWNSTREAM) std::cout << "\tdownstream\t";
@@ -207,7 +207,7 @@ class bed_gene {
   }
   void printWithTss(bool redundant) const {
     if(redundant) {
-      for(auto x:genelist) {
+      for(auto &x: genelist) {
 	print();
 	std::cout << "\t" << x.d << "\t"; 	
 	x.gene->print();

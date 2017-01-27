@@ -30,7 +30,7 @@ HashOfGeneDataMap extract_mp(const HashOfGeneDataMap &tmp, const std::vector<std
 {
   HashOfGeneDataMap mp;
 
-  for(auto x: glist) {
+  for(auto &x: glist) {
     for(auto itr = tmp.begin(); itr != tmp.end(); ++itr) {
       std::string chr = itr->first;
       if(tmp.at(chr).find(x) != tmp.at(chr).end()){
@@ -232,9 +232,9 @@ void printRefFlat(const HashOfGeneDataMap &mp, const int32_t nameflag)
 	     << itr2->second.txEnd << "\t";
       }
       std::cout << itr2->second.exonCount << "\t";
-      for (auto x: itr2->second.exon) std::cout << x.start << ",";
+      for (auto &x: itr2->second.exon) std::cout << x.start << ",";
       std::cout << "\t";
-      for (auto x: itr2->second.exon) std::cout << x.end   << ",";
+      for (auto &x: itr2->second.exon) std::cout << x.end   << ",";
       std::cout << std::endl;
     }
   }

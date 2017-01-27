@@ -47,7 +47,7 @@ std::vector<T> parseBed(const std::string &fileName)
 template <class T>
 void printBed(const std::vector<T> &vbed)
 {
-  for (auto x: vbed) {
+  for (auto &x: vbed) {
     x.print();
     std::cout << std::endl;
   }

@@ -158,6 +158,22 @@ void genThread(T &dist, const Mapfile &p, uint32_t chr_s, uint32_t chr_e, std::s
   }
 }
 
+namespace {
+  void setSSPstats(SSPstats &p, const double bu, const double nsc, const double rsc) {
+    p.setnsc(nsc);
+    p.setrsc(rsc);
+    p.setbu(bu);
+  }
+  
+  void setFCSstats(SSPstats &p, const double fcsread, const double fcsflen, const double fcs1k, const double fcs10k, const double fcs100k) {
+    p.setfcsread(fcsread);
+    p.setfcsflen(fcsflen);
+    p.setfcs1k(fcs1k);
+    p.setfcs10k(fcs10k);
+    p.setfcs100k(fcs100k);
+  }
+}
+
 template <class T>
 void makeProfile(Mapfile &p, const std::string &typestr, const MyOpt::Variables &values)
 {
@@ -182,14 +198,13 @@ void makeProfile(Mapfile &p, const std::string &typestr, const MyOpt::Variables 
   }
 
   dist.setflen(dist.name);
-  p.seteflen(dist.getnsci());
+  p.genome.dflen.setflen_ssp(dist.getnsci());
 
   std::string prefix = p.getprefix() + "." + typestr;
   dist.outputmpGenome(prefix);
 
-  if(typestr == "jaccard") {
-    p.setSSPstats(dist.getbackgroundUniformity(), dist.getnsc(), dist.getrsc());
-  }
+  if(typestr == "jaccard") setSSPstats(p.sspst, dist.getbackgroundUniformity(), dist.getnsc(), dist.getrsc());
+  
 
   return;
 }
@@ -245,7 +260,7 @@ void makeRscript(const std::string prefix)
 
 void makeFCSProfile(const MyOpt::Variables &values, Mapfile &p, const std::string &typestr)
 {
-  shiftFragVar dist(p, values, p.getflen(values));
+  shiftFragVar dist(p, values, p.genome.dflen.getflen());
   dist.printStartMessage();
 
   for(uint32_t i=0; i<p.genome.chr.size(); ++i) {
@@ -266,7 +281,7 @@ void makeFCSProfile(const MyOpt::Variables &values, Mapfile &p, const std::strin
 
   makeRscript(p.getprefix());
 
-  p.setFCSstats(dist.getMPread(), dist.getMPflen(), dist.getMP1k(), dist.getMP10k(), dist.getMP100k());
+  setFCSstats(p.sspst, dist.getMPread(), dist.getMPflen(), dist.getMP1k(), dist.getMP10k(), dist.getMP100k());
 
   return;
 }

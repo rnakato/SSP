@@ -6,7 +6,7 @@
 
 #include "pw_gv.h"
 
-void read_mapfile(const MyOpt::Variables &, Mapfile &);
+void read_mapfile(const MyOpt::Variables &values, SeqStatsGenome &genome);
 void checkRedundantReads(const MyOpt::Variables &values, Mapfile &p);
 
 #endif /* _READMAPFILE_H_ */

@@ -139,7 +139,7 @@ class SeqStats {
     for (auto strand: {Strand::FWD, Strand::REV}) seq[strand].nread_rpm = seq[strand].nread_nonred * sizefactor;
   }
   void calcGcov(const std::vector<BpStatus> &array) {
-    for(auto x: array) {
+    for(auto &x: array) {
       if(x >= BpStatus::MAPPABLE)     ++nbp;      // MAPPABLE || COVREAD_ALL || COVREAD_NORM
       if(x >= BpStatus::COVREAD_ALL)  ++ncov;     // COVREAD_ALL || COVREAD_NORM
       if(x == BpStatus::COVREAD_NORM) ++ncovnorm;

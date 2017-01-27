@@ -254,22 +254,22 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
   std::vector<ReadShiftProfile> chr;
   
  ReadShiftProfileGenome(std::string n, const Mapfile &p, const MyOpt::Variables &values):
-  ReadShiftProfile(p.getlenF3(), values["ng_from"].as<int32_t>(), values["num4ssp"].as<int32_t>()),
+  ReadShiftProfile(p.genome.dflen.getlenF3(), values["ng_from"].as<int32_t>(), values["num4ssp"].as<int32_t>()),
     numthreads(values["threads"].as<int32_t>()),
     ng_from(5000),
     ng_to(values["ng_to"].as<int32_t>()),
     ng_step(values["ng_step"].as<int32_t>()),
     name(n)
     {
-      for(auto x:p.genome.chr) {
+      for(auto &x: p.genome.chr) {
 	if(x.isautosome()) {
 	  nread += x.getnread_nonred(Strand::BOTH);
 	  len   += x.getlenmpbl();
 	  //	  std::cout<< len << "\t" << x.getlenmpbl() << std::endl;
 	}
       }
-      for(auto x:p.genome.chr) {
-	ReadShiftProfile v(p.getlenF3(), values["ng_from"].as<int32_t>(), values["num4ssp"].as<int32_t>(), 0, x.getlen(), x.getnread_nonred(Strand::BOTH), x.getlenmpbl());
+      for(auto &x: p.genome.chr) {
+	ReadShiftProfile v(p.genome.dflen.getlenF3(), values["ng_from"].as<int32_t>(), values["num4ssp"].as<int32_t>(), 0, x.getlen(), x.getnread_nonred(Strand::BOTH), x.getlenmpbl());
 	v.setrchr(nread);
 	chr.push_back(v);
       }
@@ -430,14 +430,14 @@ class shiftFragVar : public ReadShiftProfileGenome {
   void printdistpnf(const std::string &filename) const {
     std::ofstream out(filename);
 
-    for(auto x: v4pnf) out << "\tPNF len" << x;
-    for(auto x: v4pnf) out << "\tCPNF len" << x;
+    for(auto &x: v4pnf) out << "\tPNF len"  << x;
+    for(auto &x: v4pnf) out << "\tCPNF len" << x;
     out << std::endl;
 
     for(size_t k=0; k<sizeOfvNeighborFrag-1; ++k) {
       out << k << "\t";
-      for(auto x: v4pnf) out << distpnf.at(x).getPNF(k) << "\t";
-      for(auto x: v4pnf) out << distpnf.at(x).getCumulativePNF(k) << "\t";
+      for(auto &x: v4pnf) out << distpnf.at(x).getPNF(k)           << "\t";
+      for(auto &x: v4pnf) out << distpnf.at(x).getCumulativePNF(k) << "\t";
       out << std::endl;
     }
   }

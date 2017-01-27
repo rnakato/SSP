@@ -19,13 +19,77 @@ namespace MyOpt {
   using Opts      = boost::program_options::options_description;
 }
 
-void printDist(std::ofstream &out, const std::vector<int32_t> v, const std::string str, const uint64_t nread);
+class FragmentLengthDist {
+  enum {ReadLenMax=200, FragLenMax=1000};
+  int32_t flen_ssp;
+  int32_t flen_def;
+  std::vector<int32_t> vlenF3;
+  std::vector<int32_t> vlenF5;
+  std::vector<int32_t> vflen;
+  bool nomodel;
+  bool pairedend;
+
+  template <class T>
+  void printVector(std::ofstream &out, const std::vector<T> v, const std::string &str, const uint64_t nread)
+  {
+    out << str << " length distribution" << std::endl;
+    out << "length\tnumber\tproportion" << std::endl;
+    for(size_t i=0; i<v.size(); ++i)
+      if(v[i]) out << boost::format("%1%\t%2%\t%3%\n") % i % v[i] % getratio(v[i], nread);
+  }
+ 
+ public:
+ FragmentLengthDist(const MyOpt::Variables &values):
+  flen_ssp(0),
+    flen_def(values["flen"].as<int32_t>()),
+    vlenF3(ReadLenMax,0),
+    vlenF5(ReadLenMax,0),
+    vflen(FragLenMax,0),
+    nomodel(values.count("nomodel")),
+    pairedend(values.count("pair")) {}
+
+  int32_t getlenF3 () const { return getmaxi(vlenF3); }
+  int32_t getlenF5 () const { return getmaxi(vlenF5); }
+  int32_t getflen4paired () const { return getmaxi(vflen); }
+
+  void setflen_ssp(const int32_t len) { flen_ssp = len; }
+  int32_t getflen() const {
+    if(pairedend)     return getflen4paired();
+    else if(!nomodel) return flen_ssp;
+    else              return flen_def;
+  }
+  void printFlen(std::ofstream &out) const {
+    if(pairedend)     out << "Most likely fragment length: " << getflen4paired() << std::endl;
+    else if(!nomodel) out << "Estimated fragment length: "   << flen_ssp << std::endl;
+    else              out << "Predefined fragment length: "  << flen_def << std::endl;
+  }
+  void addF3(const int32_t lenF3) { ++vlenF3[lenF3]; }
+  void addF5(const int32_t lenF5) { ++vlenF5[lenF5]; }
+  void addvflen(const int32_t flen) { ++vflen[flen]; }
+
+  void outputDistFile(const std::string &prefix, const uint64_t nread) {
+    std::string outputfile = prefix + ".ReadLengthDist.csv";
+    std::ofstream out(outputfile);
+    printVector(out, vlenF3, "F3", nread);
+    if(pairedend) {
+      out << std::endl;
+      printVector(out, vlenF5, "F5", nread);
+    }
+    out.close();
+    
+    if(pairedend) {
+      outputfile = prefix + ".FragmentLengthDist.csv";
+      std::ofstream out(outputfile);
+      printVector(out, vflen, "Fragmemt", nread);
+    }
+  }
+};
 
 class SeqWigStats: public SeqStats {
  public:
   WigStats ws;
   
- SeqWigStats(std::string s, int32_t l=0, int32_t binsize=0): SeqStats(s, l, binsize) {}
+ SeqWigStats(std::string &s, int32_t l=0, int32_t binsize=0): SeqStats(s, l, binsize) {}
 };
 
 class SeqStatsGenome {
@@ -53,13 +117,16 @@ class SeqStatsGenome {
  public:
   std::vector<SeqWigStats> chr;
   std::vector<MyMthread::chrrange> vsepchr;
+  FragmentLengthDist dflen;
   
- SeqStatsGenome(const MyOpt::Variables &values): name("Genome"), depth(0), sizefactor(0) {
+ SeqStatsGenome(const MyOpt::Variables &values):
+  name("Genome"), depth(0), sizefactor(0), dflen(values)
+  {
     readGenomeTable(values["gt"].as<std::string>(), values["binsize"].as<int32_t>());
     if(values.count("mptable")) {
       for(auto &x: chr) x.getMptable(values["mptable"].as<std::string>());
     }
-
+    
     // Greekchr
     for(auto &x: chr) {
       if(x.getname() == "I") {
@@ -153,7 +220,7 @@ class SeqStatsGenome {
   double getsizefactor()const { return sizefactor; }
 
   void setsizefactor(const double w) { sizefactor = w; }
-  void setbed(const std::string bedfilename) {
+  void setbed(const std::string &bedfilename) {
     isFile(bedfilename);
     vbed = parseBed<bed>(bedfilename);
     //    printBed(vbed);
@@ -205,110 +272,105 @@ class SSPstats {
   }
 };
 
+class LibComp {
+  uint32_t nt_all, nt_nonred, nt_red;
+  int32_t threshold;
+  double r4cmp;
+  bool lackOfRead;
+
+ public:
+ LibComp(): nt_all(0), nt_nonred(0), nt_red(0), threshold(0),
+    r4cmp(0), lackOfRead(false) {}
+  
+  void lackOfRead_on() { lackOfRead = true; }
+  void incNtAll()    { ++nt_all; }
+  void incNtNonred() { ++nt_nonred; }
+  void incNtRed()    { ++nt_red; }
+  void setr4cmp(const double r) { r4cmp = r; }
+  double getr4cmp() const { return r4cmp; }
+  double getcomplexity() const { return getratio(nt_nonred, nt_all); }
+  
+  void setThreshold(const uint32_t thredef, const SeqStatsGenome &genome) {
+    if(thredef) threshold = thredef;
+    else {
+      uint32_t thre = getratio(genome.getnread(Strand::BOTH), genome.getlenmpbl()) * 10;
+      threshold = thre > 1 ? thre : 1;
+    }
+    std::cout << "Checking redundant reads: redundancy threshold " << threshold << std::endl;
+  }
+  int32_t getThreshold() const { return threshold; };
+
+  void print(std::ofstream &out) const {
+    if(lackOfRead) out << boost::format("Library complexity: (%1$.3f) (%2%/%3%)\n") % getcomplexity() % nt_nonred % nt_all;
+    else           out << boost::format("Library complexity: %1$.3f (%2%/%3%)\n")   % getcomplexity() % nt_nonred % nt_all;
+  }
+};
+
 class Mapfile: private Uncopyable {
   bool Greekchr;
-  const int32_t ReadMax=200;
-  const int32_t FragMax=1000;
-  int32_t lenF3;
-  int32_t lenF5;
-  int32_t eflen;
-  int32_t flen_def;
-  std::vector<int32_t> vlenF3;
-  std::vector<int32_t> vlenF5;
-  std::vector<int32_t> vflen;
 
   std::string samplename;
   std::string oprefix;
   std::string obinprefix;
-  
-  // PCR bias
-  int32_t thre4filtering;
-  int32_t nt_all, nt_nonred, nt_red;
-  bool lackOfRead4Complexity;
+
   bool lackOfRead4GenomeCov;
   bool lackOfRead4FragmentVar;
-  double r4cmp;
   std::vector<Peak> vPeak;
 
   // GC bias
   int32_t maxGC;
 
-  // for SSP
-  SSPstats sspst;
+  void setlchr() {
+    uint64_t lenmax(0);
+    for(auto itr = genome.chr.begin(); itr != genome.chr.end(); ++itr) {
+      if(lenmax < itr->getlenmpbl()) {
+	lenmax = itr->getlenmpbl();
+	lchr = itr;
+      }
+    }
+  }
   
  public:
   SeqStatsGenome genome;
   WigStats wsGenome;
   std::vector<SeqWigStats>::iterator lchr; // longest chromosome
 
+  // for SSP
+  SSPstats sspst;
+
+  class LibComp complexity;
   // Wigdist
   int32_t nwigdist;
   std::vector<int32_t> wigDist;
   
  Mapfile(const MyOpt::Variables &values):
   Greekchr(false),
-    lenF3(0), lenF5(0), eflen(0), flen_def(values["flen"].as<int32_t>()),
-    vlenF3(ReadMax,0), vlenF5(ReadMax,0), vflen(FragMax,0),
     samplename(values["output"].as<std::string>()),
-    thre4filtering(0), nt_all(0), nt_nonred(0), nt_red(0),
-    lackOfRead4Complexity(false), lackOfRead4GenomeCov(false), lackOfRead4FragmentVar(false), r4cmp(0), maxGC(0), genome(values)
+    lackOfRead4GenomeCov(false), lackOfRead4FragmentVar(false),
+    maxGC(0), genome(values)
     {
-      uint64_t lenmax(0);
-      for(auto itr = genome.chr.begin(); itr != genome.chr.end(); ++itr) {
-	if(lenmax < itr->getlenmpbl()) {
-	  lenmax = itr->getlenmpbl();
-	  lchr = itr;
-	  break;
-	}
-      }
+      setlchr();
 
       oprefix = values["odir"].as<std::string>() + "/" + values["output"].as<std::string>();
       obinprefix = oprefix + "." + IntToString(values["binsize"].as<int32_t>());
     }
 
-  void setSSPstats(const double bu, const double nsc, const double rsc) {
-    sspst.setnsc(nsc);
-    sspst.setrsc(rsc);
-    sspst.setbu(bu);
-  }
-  void setFCSstats(const double fcsread, const double fcsflen, const double fcs1k, const double fcs10k, const double fcs100k) {
-    sspst.setfcsread(fcsread);
-    sspst.setfcsflen(fcsflen);
-    sspst.setfcs1k(fcs1k);
-    sspst.setfcs10k(fcs10k);
-    sspst.setfcs100k(fcs100k);
-  }
-  void printSSPstats() {
+  void outputSSPstats() {
     std::string filename = getprefix() + ".stats.txt";
     std::ofstream out(filename);
     out << "Sample\ttotal read number\tnonredundant read number\t"
 	<< "read length\tfragment length\t";
     sspst.printhead(out);
     out << samplename << "\t" << genome.getnread(Strand::BOTH) << "\t" << genome.getnread_nonred(Strand::BOTH) << "\t"
-	<< lenF3 << "\t" << eflen << "\t";
+	<< genome.dflen.getlenF3() << "\t" << genome.dflen.getflen() << "\t";
     sspst.print(out);
   }
   
   void setmaxGC(const int32_t m) { maxGC = m; }
   int32_t getmaxGC() const {return maxGC; }
 
-  void lackOfRead4Complexity_on() { lackOfRead4Complexity = true; }
   void lackOfRead4GenomeCov_on() { lackOfRead4GenomeCov = true; }
   bool islackOfRead4GenomeCov() const { return lackOfRead4GenomeCov; };
-  void setthre4filtering(const MyOpt::Variables &values) {
-    if(values["thre_pb"].as<int32_t>()) thre4filtering = values["thre_pb"].as<int32_t>();
-    else {
-      int32_t thre = getratio(genome.getnread(Strand::BOTH), genome.getlenmpbl()) * 10;
-      thre4filtering = std::max(1, thre);
-    }
-    std::cout << "Checking redundant reads: redundancy threshold " << thre4filtering << std::endl;
-  }
-  int32_t getthre4filtering() const { return thre4filtering; };
-  void setr4cmp(const double r) { r4cmp = r; }
-  double getr4cmp() const { return r4cmp; }
-  void incNtAll() { ++nt_all; }
-  void incNtNonred() { ++nt_nonred; }
-  void incNtRed() { ++nt_red; }
   void printPeak(const MyOpt::Variables &values) const {
     std::string filename = getbinprefix() + ".peak.xls";
     std::ofstream out(filename);
@@ -320,65 +382,7 @@ class Mapfile: private Uncopyable {
   }
   std::string getprefix() const { return oprefix; }
   std::string getbinprefix() const { return obinprefix; }
-  void setFraglen(const MyOpt::Variables &values) {
-    lenF3 = getmaxi(vlenF3);
-    if(values.count("pair")) {
-      lenF5 = getmaxi(vlenF5);
-      eflen = getmaxi(vflen);
-    }
-  }
-  void printFlen(const MyOpt::Variables &values, std::ofstream &out) const {
-    if(!values.count("nomodel")) out << "Estimated fragment length: " << eflen << std::endl;
-    else out << "Predefined fragment length: " << flen_def << std::endl;
-  }
-  void addF5(const int32_t readlen_F5) { ++vlenF5[readlen_F5]; }
-  void addfrag(const Fragment &frag) {
-    ++vlenF3[frag.readlen_F3];
-    ++vflen[frag.fraglen];
-    int8_t on(0);
-    for(auto &x:genome.chr) {
-      if(x.getname() == frag.chr) {
-	x.addfrag(frag);
-	on++;
-      }
-    }
-    if(!on) std::cerr << "Warning: " << frag.chr << " is not in genometable." << std::endl;
-  }
 
-  /*  void setbed(const std::string bedfilename) {
-    isFile(bedfilename);
-    vbed = parseBed<bed>(bedfilename);
-    //    printBed(vbed);
-    }*/
-  void outputDistFile(const MyOpt::Variables &values)
-  {
-    std::string outputfile = oprefix + ".readlength_dist.csv";
-    std::ofstream out(outputfile);
-    printDist(out, vlenF3, "F3", genome.getnread(Strand::BOTH));
-    if(values.count("pair")) printDist(out, vlenF5, "F5", genome.getnread(Strand::BOTH));
-    out.close();
-    
-    if(values.count("pair")) {
-      outputfile = oprefix + ".fraglen_dist.xls";
-      std::ofstream out(outputfile);
-      printDist(out, vflen, "Fragmemt", genome.getnread(Strand::BOTH));
-    }
-  }
-
-  void printComplexity(std::ofstream &out) const {
-    if(lackOfRead4Complexity) out << boost::format("Library complexity: (%1$.3f) (%2%/%3%)\n") % complexity() % nt_nonred % nt_all;
-    else out << boost::format("Library complexity: %1$.3f (%2%/%3%)\n") % complexity() % nt_nonred % nt_all;
-  }
-  double complexity() const { return getratio(nt_nonred, nt_all); }
-
-  void seteflen(const int32_t len) { eflen = len; }
-  int32_t getlenF3() const { return lenF3; }
-  int32_t getflen(const MyOpt::Variables &values) const {
-    int32_t flen;
-    if(!values.count("nomodel") || values.count("pair")) flen = eflen;
-    else flen = flen_def;
-    return flen;
-  }
   void addPeak(const Peak &peak) {
     vPeak.push_back(peak);
   }
