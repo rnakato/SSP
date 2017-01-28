@@ -58,9 +58,9 @@ class SeqStats {
  public:    
  SeqStats(std::string s, int32_t l=0, int32_t binsize=0):
   name(rmchr(s)), len(l), len_mpbl(l), 
-    Greekchr(false), depth(0), nread_inbed(0),
-    nbp(0), ncov(0), ncovnorm(0), sizefactor(0)
-    {
+  Greekchr(false), depth(0), nread_inbed(0),
+  nbp(0), ncov(0), ncovnorm(0), sizefactor(0)
+  {
     nbin = binsize ? (l/binsize +1) : 0;
   }
 

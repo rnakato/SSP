@@ -67,4 +67,11 @@ inline std::string IntToString(T n)
   return stream.str();
 }
 
+inline void DEBUGprint(const std::string &str)
+{
+#ifdef DEBUG
+  std::cout << str << std::endl;
+#endif
+}
+
 #endif /* _MACRO_H_ */

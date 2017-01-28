@@ -43,4 +43,4 @@ HEADS_UTIL = $(SRCDIR)/BoostOptions.hpp $(SRCDIR)/util.h $(SRCDIR)/readdata.h $(
 $(OBJDIR)/pw_readmapfile.o: $(SRCDIR)/ssp_shiftprofile.h
 $(OBJDIR)/ssp_shiftprofile.o: Makefile $(SRCDIR)/ssp_shiftprofile_p.h $(SRCDIR)/ssp_shiftprofile.h
 $(OBJS_UTIL): Makefile $(HEADS_UTIL)
-$(OBJS): Makefile $(SRCDIR)/pw_gv.h $(SRCDIR)/Mapfile.hpp $(SRCDIR)/pw_readmapfile.h $(SRCDIR)/LibraryComplexity.hpp $(SRCDIR)/statistics.h $(HEADS_UTIL)
+$(OBJS): Makefile $(SRCDIR)/ssp_gv.h $(SRCDIR)/Mapfile.hpp $(SRCDIR)/pw_readmapfile.h $(SRCDIR)/LibraryComplexity.hpp $(SRCDIR)/statistics.h $(HEADS_UTIL)

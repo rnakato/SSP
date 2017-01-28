@@ -17,7 +17,10 @@
 class SeqStatsGenome;
 
 class LibComp {
-  bool pairedend;
+  MyOpt::Opts opt;
+
+  int32_t nofilter;
+  int32_t ispaired;
   int32_t thredef;
   uint64_t ncmp;
   
@@ -27,13 +30,36 @@ class LibComp {
   bool lackOfRead;
 
  public:
- LibComp(const boost::program_options::variables_map &values):
-  pairedend(values.count("pair")),
-    thredef(values["thre_pb"].as<int32_t>()),
-    ncmp(values["ncmp"].as<uint64_t>()),
+  LibComp():
+    opt("Library complexity",100),
     nt_all(0), nt_nonred(0), nt_red(0), threshold(0),
-    r4cmp(0), lackOfRead(false) {}
+    r4cmp(0), lackOfRead(false)
+  {
+    opt.add_options()
+      ("thre_pb",
+       boost::program_options::value<int32_t>()->default_value(0)->notifier(boost::bind(&MyOpt::over<int32_t>, _1, 0, "--thre_pb")),
+       "PCRbias threshold (default: more than max(1 read, 10 times greater than genome average)) ")
+      ("ncmp",
+       boost::program_options::value<int64_t>()->default_value(NUM_10M)->notifier(boost::bind(&MyOpt::over<int64_t>, _1, 0, "--ncmp")),
+       "read number for calculating library complexity")
+      ("nofilter", "do not filter PCR bias")
+      ;
+  }
+  void setValues(const MyOpt::Variables &values) {
+    DEBUGprint("Libcomp setValues...");
+    
+    nofilter = values.count("nofilter");
+    ispaired = values.count("pair");
+    thredef  = values["thre_pb"].as<int32_t>();
+    ncmp     = values["ncmp"].as<int64_t>();
 
+    DEBUGprint("Libcomp setValues done.");
+  }
+
+  void setOpts(MyOpt::Opts &allopts) {
+    allopts.add(opt);
+  }
+  
   double getcomplexity() const { return getratio(nt_nonred, nt_all); }
   
   void setThreshold(const uint64_t nread, const uint64_t lenmpbl) {

@@ -145,19 +145,6 @@ boost::dynamic_bitset<> genBitset(const std::vector<Read> &vReadref, int32_t sta
   return array;
 }
 
-template <class T>
-void genThread(T &dist, const Mapfile &p, uint32_t chr_s, uint32_t chr_e, std::string typestr, const bool output_eachchr) {
-  for(uint32_t i=chr_s; i<=chr_e; ++i) {
-    std::cout << p.genome.chr[i].getname() << ".." << std::flush;
-
-    dist.execchr(p, i);
-    dist.chr[i].setflen(dist.name);
-    
-    std::string filename = p.getprefix() + "." + typestr + "." + p.genome.chr[i].getname() + ".csv";
-    if(output_eachchr) dist.outputmpChr(filename, i);
-  }
-}
-
 namespace {
   void setSSPstats(SSPstats &p, const double bu, const double nsc, const double rsc) {
     p.setnsc(nsc);
@@ -175,46 +162,58 @@ namespace {
 }
 
 template <class T>
-void makeProfile(Mapfile &p, const std::string &typestr, const MyOpt::Variables &values)
+void genThread(T &dist, const SeqStatsGenome &genome, uint32_t chr_s, uint32_t chr_e, const std::string &prefix, const bool output_eachchr) {
+  for(uint32_t i=chr_s; i<=chr_e; ++i) {
+    std::cout << genome.chr[i].getname() << ".." << std::flush;
+
+    dist.execchr(genome, i);
+    dist.chr[i].setflen(dist.name);
+    
+    std::string filename = prefix + "." + genome.chr[i].getname() + ".csv";
+    if(output_eachchr) dist.outputmpChr(filename, i);
+  }
+}
+
+template <class T>
+void makeProfile(SSPstats &sspst, SeqStatsGenome &genome, const std::string &head, const std::string &typestr, const MyOpt::Variables &values)
 {
-  T dist(p, values);
+  T dist(genome, values);
   dist.printStartMessage();
   
   boost::thread_group agroup;
   boost::mutex mtx;
 
+  std::string prefix(head + "." + typestr);
   if(typestr == "hdp" || typestr == "jaccard") {
-    for(size_t i=0; i<p.genome.vsepchr.size(); i++) {
-      agroup.create_thread(bind(genThread<T>, boost::ref(dist), boost::cref(p), p.genome.vsepchr[i].s, p.genome.vsepchr[i].e, typestr, values.count("eachchr")));
+    for(size_t i=0; i<genome.vsepchr.size(); i++) {
+      agroup.create_thread(bind(genThread<T>, boost::ref(dist), boost::cref(genome), genome.vsepchr[i].s, genome.vsepchr[i].e, boost::cref(prefix), values.count("eachchr")));
     }
     agroup.join_all();
   } else {
-    genThread(dist, p, 0, p.genome.chr.size()-1, typestr, values.count("eachchr"));
+    genThread(dist, genome, 0, genome.chr.size()-1, prefix, values.count("eachchr"));
   }
 
-  // set fragment length;
-  for(uint32_t i=0; i<p.genome.chr.size(); ++i) {
-    if(p.genome.chr[i].isautosome()) dist.addmp2genome(i);
+  for(size_t i=0; i<genome.chr.size(); ++i) {
+    if(genome.chr[i].isautosome()) dist.addmp2genome(i);
   }
 
   dist.setflen(dist.name);
-  p.genome.dflen.setflen_ssp(dist.getnsci());
+  genome.dflen.setflen_ssp(dist.getnsci());
 
-  std::string prefix = p.getprefix() + "." + typestr;
-  dist.outputmpGenome(prefix);
+  std::string prefix2 = head + "." + typestr;
+  dist.outputmpGenome(prefix2);
 
-  if(typestr == "jaccard") setSSPstats(p.sspst, dist.getbackgroundUniformity(), dist.getnsc(), dist.getrsc());
-  
+  if(typestr == "jaccard") setSSPstats(sspst, dist.getbackgroundUniformity(), dist.getnsc(), dist.getrsc());
 
   return;
 }
 
-void strShiftProfile(const MyOpt::Variables &values, Mapfile &p, std::string typestr)
+void strShiftProfile(SSPstats &sspst, const MyOpt::Variables &values, SeqStatsGenome &genome, const std::string &head, const std::string &typestr)
 {
-  if(typestr=="exjaccard")    makeProfile<shiftJacVec>(p, typestr, values);
-  else if(typestr=="jaccard") makeProfile<shiftJacBit>(p, typestr, values);
-  else if(typestr=="ccp")     makeProfile<shiftCcp>(p, typestr, values);
-  else if(typestr=="hdp")     makeProfile<shiftHamming>(p, typestr, values);
+  if(typestr=="exjaccard")    makeProfile<shiftJacVec>(sspst, genome, head, typestr, values);
+  else if(typestr=="jaccard") makeProfile<shiftJacBit>(sspst, genome, head, typestr, values);
+  else if(typestr=="ccp")     makeProfile<shiftCcp>(sspst, genome, head, typestr, values);
+  else if(typestr=="hdp")     makeProfile<shiftHamming>(sspst, genome, head, typestr, values);
 
   return;
 }
@@ -258,30 +257,30 @@ void makeRscript(const std::string prefix)
   return;
 }
 
-void makeFCSProfile(const MyOpt::Variables &values, Mapfile &p, const std::string &typestr)
+void makeFCSProfile(SSPstats &sspst, const MyOpt::Variables &values, const SeqStatsGenome &genome, const std::string &head, const std::string &typestr)
 {
-  shiftFragVar dist(p, values, p.genome.dflen.getflen());
+  shiftFragVar dist(genome, values, genome.dflen.getflen());
   dist.printStartMessage();
 
-  for(uint32_t i=0; i<p.genome.chr.size(); ++i) {
-    if(!p.genome.chr[i].isautosome()) continue;
-    std::cout << p.genome.chr[i].getname() << ".." << std::flush;
-    dist.execchr(p, i);
+  for(uint32_t i=0; i<genome.chr.size(); ++i) {
+    if(!genome.chr[i].isautosome()) continue;
+    std::cout << genome.chr[i].getname() << ".." << std::flush;
+    dist.execchr(genome, i);
     if(values.count("eachchr")) {
-      std::string filename = p.getprefix() + "." + typestr + "." + p.genome.chr[i].getname() + ".csv";
+      std::string filename = head + "." + typestr + "." + genome.chr[i].getname() + ".csv";
       dist.outputfcsChr(filename, i);
     }
   }
   std::cout << "\nread number for calculating FCS: " << dist.getnumUsed4FCS() << std::endl;
 
-  std::string filename1 = p.getprefix() + ".pnf.csv";
+  std::string filename1 = head + ".pnf.csv";
   dist.printdistpnf(filename1);
-  std::string filename2 = p.getprefix() + "." + typestr + ".csv";
+  std::string filename2 = head + "." + typestr + ".csv";
   dist.outputfcsGenome(filename2);
 
-  makeRscript(p.getprefix());
+  makeRscript(head);
 
-  setFCSstats(p.sspst, dist.getMPread(), dist.getMPflen(), dist.getMP1k(), dist.getMP10k(), dist.getMP100k());
+  setFCSstats(sspst, dist.getMPread(), dist.getMPflen(), dist.getMP1k(), dist.getMP10k(), dist.getMP100k());
 
   return;
 }

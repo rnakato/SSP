@@ -5,14 +5,16 @@
 #define _MAPFILE_HPP_
 
 #include <boost/format.hpp>
-#include "BoostOptions.hpp"
 #include "SeqStats.hpp"
 #include "wigstats.h"
 #include "mthread.h"
 #include "readdata.h"
 #include "util.h"
+#include "BoostOptions.hpp"
 
 class FragmentLengthDist {
+  MyOpt::Opts opt;
+
   enum {ReadLenMax=200, FragLenMax=1000};
   int32_t flen_ssp;
   int32_t flen_def;
@@ -32,14 +34,34 @@ class FragmentLengthDist {
   }
  
  public:
- FragmentLengthDist(const MyOpt::Variables &values):
-  flen_ssp(0),
-    flen_def(values["flen"].as<int32_t>()),
-    vlenF3(ReadLenMax,0),
-    vlenF5(ReadLenMax,0),
-    vflen(FragLenMax,0),
-    nomodel(values.count("nomodel")),
-    pairedend(values.count("pair")) {}
+ FragmentLengthDist():
+   opt("Fragment",100),
+   flen_ssp(0),
+   vlenF3(ReadLenMax,0),
+   vlenF5(ReadLenMax,0),
+   vflen(FragLenMax,0)
+  {
+    opt.add_options()
+      ("nomodel", "omit fraglent length estimation (default: estimated by strand-shift profile)")
+      ("flen",
+       boost::program_options::value<int32_t>()->default_value(150)->notifier(boost::bind(&MyOpt::over<int32_t>, _1, 1, "--binsize")),
+       "predefined fragment length (with --nomodel option)")
+      ;
+  }
+
+  void setOpts(MyOpt::Opts &allopts) {
+    allopts.add(opt);
+  }
+  
+  void setValues(const MyOpt::Variables &values) {
+    DEBUGprint("FragmentLengthDist setValues...");
+    
+    flen_def = values["flen"].as<int32_t>();
+    nomodel = values.count("nomodel");
+    pairedend = values.count("pair");
+    
+    DEBUGprint("FragmentLengthDist setValues done.");
+  }
 
   int32_t getlenF3 () const { return getmaxi(vlenF3); }
   int32_t getlenF5 () const { return getmaxi(vlenF5); }
@@ -86,6 +108,8 @@ class SeqWigStats: public SeqStats {
 };
 
 class SeqStatsGenome {
+  MyOpt::Opts opt;
+
   std::string name;
   double depth;
   double sizefactor;
@@ -98,9 +122,27 @@ class SeqStatsGenome {
   std::vector<MyMthread::chrrange> vsepchr;
   FragmentLengthDist dflen;
   
- SeqStatsGenome(const MyOpt::Variables &values):
-  name("Genome"), depth(0), sizefactor(0), dflen(values)
-  {
+ SeqStatsGenome(): 
+   opt("Genome",100),
+   name("Genome"), depth(0), sizefactor(0) {
+   using namespace boost::program_options;
+   opt.add_options()
+     ("gt", value<std::string>(), "Genome table (tab-delimited file describing the name and length of each chromosome)")
+     ("mptable", value<std::string>(), "Genome table of mappable regions")
+     ("binsize,b",
+      value<int32_t>()->default_value(50)->notifier(boost::bind(&MyOpt::over<int32_t>, _1, 1, "--binsize")),
+      "bin size")
+      ;
+ }
+
+  void setOpts(MyOpt::Opts &allopts) {
+    allopts.add(opt);
+    dflen.setOpts(allopts);
+  }
+  void setValues(const MyOpt::Variables &values) {
+    DEBUGprint("SeqStatsGenome setValues...");
+    
+    dflen.setValues(values);
     readGenomeTable(values["gt"].as<std::string>(), values["binsize"].as<int32_t>());
     if(values.count("mptable")) {
       for(auto &x: chr) x.getMptable(values["mptable"].as<std::string>());
@@ -117,6 +159,7 @@ class SeqStatsGenome {
     // sepchr
     vsepchr = MyMthread::getVsepchr(getlen(), chr, values["threads"].as<int32_t>());
     
+    DEBUGprint("SeqStatsGenome setValues done.");
 #ifdef DEBUG
     std::cout << "chr\tautosome" << std::endl;
     for(auto &x: chr) std::cout << x.getname() << "\t" << x.isautosome() << std::endl;
@@ -216,5 +259,7 @@ class SeqStatsGenome {
     for(auto &x: chr) printSeqStats(x);
   }
 };
+
+std::vector<SeqWigStats>::iterator setlchr(SeqStatsGenome &genome);
 
 #endif /* _MAPFILE_HPP_ */

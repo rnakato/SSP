@@ -18,3 +18,16 @@ void SeqStatsGenome::readGenomeTable(const std::string &gt, const int binsize) {
   }
   return;
 }
+
+std::vector<SeqWigStats>::iterator setlchr(SeqStatsGenome &genome)
+{
+  std::vector<SeqWigStats>::iterator lchr;
+  uint64_t lenmax(0);
+  for(auto itr = genome.chr.begin(); itr != genome.chr.end(); ++itr) {
+    if(lenmax < itr->getlenmpbl()) {
+      lenmax = itr->getlenmpbl();
+      lchr = itr;
+    }
+  }
+  return lchr;
+}

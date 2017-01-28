@@ -3,7 +3,7 @@
  */
 
 #include "LibraryComplexity.hpp"
-#include "pw_gv.h"
+#include "Mapfile.hpp"
 
 namespace {
   using mapIntInt = std::unordered_map<int32_t, int32_t>;
@@ -118,6 +118,8 @@ void LibComp::filtering_eachchr_pair(SeqStats &chr)
 
 void LibComp::checkRedundantReads(SeqStatsGenome &genome)
 {
+  if(nofilter) return;
+  
   uint64_t nread(genome.getnread(Strand::BOTH));
   setThreshold(nread, genome.getlenmpbl());
   r4cmp = getratio(ncmp, nread) * RAND_MAX;
@@ -127,8 +129,8 @@ void LibComp::checkRedundantReads(SeqStatsGenome &genome)
   }
 
   for (auto &x: genome.chr) {
-    if (pairedend) filtering_eachchr_pair(x);
-    else           filtering_eachchr_single(x);
+    if (ispaired) filtering_eachchr_pair(x);
+    else          filtering_eachchr_single(x);
   }
   
   printf("done.\n");
