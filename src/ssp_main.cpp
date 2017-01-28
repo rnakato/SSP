@@ -21,7 +21,7 @@ namespace {
 }
 
 MyOpt::Variables getOpts(SSP::Global &ssp, int argc, char* argv[]);
-void setOpts(MyOpt::Opts &);
+//void setOpts(MyOpt::Opts &);
 void init_dump(const MyOpt::Variables &);
 
 void printVersion()
@@ -118,15 +118,15 @@ MyOpt::Variables getOpts(SSP::Global &ssp, int argc, char* argv[])
   DEBUGprint("setOpts...");
 
   MyOpt::Opts allopts("Options");
-
+  MyOpt::setOptIO(allopts, "sspout");
+  MyOpt::setOptPair(allopts);
   ssp.setOpts(allopts);
-  
-  setOpts(allopts);
-  
-  MyOpt::Variables values;
-  
+  MyOpt::setOptOther(allopts);
+
   DEBUGprint("getOpts...");
 
+  MyOpt::Variables values;
+  
   try {
     boost::program_options::parsed_options parsed = parse_command_line(argc, argv, allopts);
     store(parsed, values);
@@ -160,33 +160,6 @@ MyOpt::Variables getOpts(SSP::Global &ssp, int argc, char* argv[])
   
   DEBUGprint("getOpts done.");
   return values;
-}
-
-void setOpts(MyOpt::Opts &allopts)
-{
-  using namespace boost::program_options;
-
-  MyOpt::Opts optIO("Input/Output",100);
-  optIO.add_options()
-    ("input,i",   value<std::string>(), "Mapping file. Multiple files are allowed (separated by ',')")
-    ("output,o",  value<std::string>(), "Prefix of output files")
-    ("odir",    value<std::string>()->default_value("sspout"), "output directory name")
-    ("pair", "add when the input file is paired-end")
-    ;
-  MyOpt::Opts optOptional("Optional",100);
-  optOptional.add_options()
-    ("maxins",     value<int32_t>()->default_value(500), "maximum fragment length")
-    ("ftype,f", value<std::string>(), "{SAM|BAM|BOWTIE|TAGALIGN}: format of input file\nTAGALIGN could be gzip'ed (extension: tagAlign.gz)")
-    ;
-  MyOpt::Opts optOther("Others",100);
-  optOther.add_options()
-    ("threads,p", value<int32_t>()->default_value(1)->notifier(boost::bind(&MyOpt::over<int32_t>, _1, 1, "--thread")),
-     "number of threads to launch")
-    ("version,v", "print version")
-    ("help,h", "show help message")
-    ;
-  allopts.add(optIO).add(optOptional).add(optOther);
-  return;
 }
 
 void init_dump(const MyOpt::Variables &values){

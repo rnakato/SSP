@@ -25,6 +25,10 @@ namespace MyOpt {
     if (v < min) 
       throw Err	(Err::invalid_option_value, optname, std::to_string(v));
   }
+
+  void setOptIO(Opts &, const std::string &);
+  void setOptPair(Opts &);
+  void setOptOther(Opts &);
 }
 
 #endif /* _BOOSTOPTIONS_HPP_ */

@@ -32,8 +32,8 @@ namespace SSP {
     
     void setOpts(MyOpt::Opts &allopts) {
       genome.setOpts(allopts);
-      complexity.setOpts(allopts);
       sspst.setOpts(allopts);
+      complexity.setOpts(allopts);
     }
     void setValues(const MyOpt::Variables &values) {
       genome.setValues(values);
