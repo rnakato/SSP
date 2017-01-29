@@ -3,7 +3,8 @@
  */
 #include "Mapfile.hpp"
 
-void SeqStatsGenome::readGenomeTable(const std::string &gt, const int binsize) {
+void SeqStatsGenome::readGenomeTable(const std::string &gt)
+{
   std::vector<std::string> v;
   std::string lineStr;
   std::ifstream in(gt);
@@ -13,21 +14,21 @@ void SeqStatsGenome::readGenomeTable(const std::string &gt, const int binsize) {
     getline(in, lineStr);
     if(lineStr.empty() || lineStr[0] == '#') continue;
     boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
-    SeqWigStats s(v[0], stoi(v[1]), binsize);
+    SeqStats s(v[0], stoi(v[1]));
     chr.push_back(s);
   }
   return;
 }
 
-std::vector<SeqWigStats>::iterator setlchr(SeqStatsGenome &genome)
+int32_t setIdLongestChr(SeqStatsGenome &genome)
 {
-  std::vector<SeqWigStats>::iterator lchr;
+  int32_t id(0);
   uint64_t lenmax(0);
-  for(auto itr = genome.chr.begin(); itr != genome.chr.end(); ++itr) {
-    if(lenmax < itr->getlenmpbl()) {
-      lenmax = itr->getlenmpbl();
-      lchr = itr;
+  for(size_t i=0; i<genome.chr.size(); ++i) {
+    if(lenmax < genome.chr[i].getlenmpbl()) {
+      lenmax = genome.chr[i].getlenmpbl();
+      id = i;
     }
   }
-  return lchr;
+  return id;
 }

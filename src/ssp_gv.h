@@ -26,7 +26,6 @@ namespace SSP {
     SeqStatsGenome genome;
     class LibComp complexity;
     SSPstats sspst;
-    std::vector<SeqWigStats>::iterator lchr; // longest chromosome
   
   Global(): Greekchr(false), lackOfRead4FragmentVar(false), complexity() {}
     
@@ -39,7 +38,6 @@ namespace SSP {
       genome.setValues(values);
       complexity.setValues(values);
       sspst.setValues(values);
-      lchr = setlchr(genome);
       samplename = values["output"].as<std::string>();
       oprefix = values["odir"].as<std::string>() + "/" + values["output"].as<std::string>();
     }

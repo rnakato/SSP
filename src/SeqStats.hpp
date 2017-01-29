@@ -47,7 +47,6 @@ class SeqStats {
 
   std::string name;
   uint64_t len, len_mpbl;
-  int32_t nbin;
   strandData seq[STRANDNUM];
   bool Greekchr;
   double depth;
@@ -56,13 +55,10 @@ class SeqStats {
   double sizefactor;
 
  public:    
- SeqStats(std::string s, int32_t l=0, int32_t binsize=0):
+ SeqStats(std::string s, int32_t l):
   name(rmchr(s)), len(l), len_mpbl(l), 
   Greekchr(false), depth(0), nread_inbed(0),
-  nbp(0), ncov(0), ncovnorm(0), sizefactor(0)
-  {
-    nbin = binsize ? (l/binsize +1) : 0;
-  }
+  nbp(0), ncov(0), ncovnorm(0), sizefactor(0) {}
 
   std::string getname() const { return name; }
   void addfrag(const Fragment &frag) {
@@ -112,7 +108,6 @@ class SeqStats {
   uint64_t getnbp()       const { return nbp; }
   uint64_t getncov()      const { return ncov; }
   uint64_t getncovnorm()  const { return ncovnorm; }
-  int32_t  getnbin()      const { return nbin; }
   double   getsizefactor()const { return sizefactor; }
   double   getdepth()     const { return depth; }
 

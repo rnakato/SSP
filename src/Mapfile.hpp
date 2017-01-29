@@ -6,7 +6,6 @@
 
 #include <boost/format.hpp>
 #include "SeqStats.hpp"
-#include "wigstats.h"
 #include "mthread.h"
 #include "readdata.h"
 #include "util.h"
@@ -102,13 +101,6 @@ class FragmentLengthDist {
   }
 };
 
-class SeqWigStats: public SeqStats {
- public:
-  WigStats ws;
-  
- SeqWigStats(std::string &s, int32_t l=0, int32_t binsize=0): SeqStats(s, l, binsize) {}
-};
-
 class SeqStatsGenome {
   MyOpt::Opts opt;
 
@@ -123,10 +115,10 @@ class SeqStatsGenome {
   double sizefactor;
 
   std::vector<bed> vbed;
-  void readGenomeTable(const std::string &gt, const int binsize);
+  void readGenomeTable(const std::string &gt);
 
  public:
-  std::vector<SeqWigStats> chr;
+  std::vector<SeqStats> chr;
   std::vector<MyMthread::chrrange> vsepchr;
   FragmentLengthDist dflen;
   
@@ -137,9 +129,6 @@ class SeqStatsGenome {
    opt.add_options()
      ("gt", value<std::string>(), "Genome table (tab-delimited file describing the name and length of each chromosome)")
      ("mptable", value<std::string>(), "Genome table of mappable regions")
-     ("binsize,b",
-      value<int32_t>()->default_value(50)->notifier(boost::bind(&MyOpt::over<int32_t>, _1, 1, "--binsize")),
-      "bin size")
       ;
  }
 
@@ -166,7 +155,8 @@ class SeqStatsGenome {
     }
     
     dflen.setValues(values);
-    readGenomeTable(values["gt"].as<std::string>(), values["binsize"].as<int32_t>());
+    readGenomeTable(values["gt"].as<std::string>());
+
     if(values.count("mptable")) {
       for(auto &x: chr) x.getMptable(values["mptable"].as<std::string>());
     }
@@ -205,11 +195,6 @@ class SeqStatsGenome {
   }
   double getpmpbl() const {
     return getratio(getlenmpbl(), getlen());
-  }
-  int32_t getnbin() const {
-    int32_t nbin(0);
-    for(auto &x: chr) nbin += x.getnbin();
-    return nbin;
   }
   uint64_t getnbp() const {
     uint64_t nbp(0);
@@ -283,6 +268,6 @@ class SeqStatsGenome {
   }
 };
 
-std::vector<SeqWigStats>::iterator setlchr(SeqStatsGenome &genome);
+int32_t setIdLongestChr(SeqStatsGenome &genome);
 
 #endif /* _MAPFILE_HPP_ */
