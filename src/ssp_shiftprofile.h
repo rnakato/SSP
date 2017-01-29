@@ -14,6 +14,13 @@ class SeqStatsGenome;
 
 class SSPstats {
   MyOpt::Opts opt;
+
+  int32_t isExjac, isHd, isCc;
+  int32_t eachchr;
+  int32_t num4ssp;
+  int32_t ng_from, ng_to, ng_step;
+  int32_t ng_from_fcs, ng_to_fcs, ng_step_fcs;
+  int32_t numthreads;
   
   double nsc;
   double rsc;
@@ -23,7 +30,7 @@ class SSPstats {
   double fcs1k;
   double fcs10k;
   double fcs100k;
-  
+
  public:
  SSPstats():
   opt("Strand shift profile",100),
@@ -54,14 +61,46 @@ class SSPstats {
       ("ssp_cc",    "make ssp based on cross correlation")
       ("ssp_hd",    "make ssp based on hamming distance")
       ("ssp_exjac", "make ssp based on extended Jaccard index")
-      ("eachchr", "make chromosome-sparated ssp files")
+      ("eachchr",   "make chromosome-sparated ssp files")
       ;
   }
 
   void setOpts(MyOpt::Opts &allopts) {
     allopts.add(opt);
   }
+  
+  void setValues(const MyOpt::Variables &values) {
+    DEBUGprint("SSPstats setValues...");
+    
+    isExjac = values.count("ssp_exjac");
+    isHd    = values.count("ssp_hd");
+    isCc    = values.count("ssp_cc");
+    eachchr = values.count("eachchr");
+    num4ssp = values["num4ssp"].as<int32_t>();
+    ng_from = values["ng_from"].as<int32_t>();
+    ng_to   = values["ng_to"].as<int32_t>();
+    ng_step = values["ng_step"].as<int32_t>();
+    ng_from_fcs = values["ng_from_fcs"].as<int32_t>();
+    ng_to_fcs   = values["ng_to_fcs"].as<int32_t>();
+    ng_step_fcs = values["ng_step_fcs"].as<int32_t>();
+    numthreads = values["threads"].as<int32_t>();
+    
+    DEBUGprint("SSPstats setValues done.");
+  }
 
+  int32_t DoExjac()    const { return isExjac; }
+  int32_t DoHd()       const { return isHd; }
+  int32_t DoCc()       const { return isCc; }
+  int32_t isEachchr()  const { return eachchr; }
+  int32_t getnum4ssp() const { return num4ssp; }
+  int32_t getNgFrom()  const { return ng_from; }
+  int32_t getNgTo()    const { return ng_to; }
+  int32_t getNgStep()  const { return ng_step; }
+  int32_t getNgFromFCS() const { return ng_from_fcs; }
+  int32_t getNgToFCS()   const { return ng_to_fcs; }
+  int32_t getNgStepFCS() const { return ng_step_fcs; }
+  int32_t getnumthreads() const { return numthreads; }
+  
   void setnsc(const double c) { nsc = c; }
   void setrsc(const double c) { rsc = c; }
   void setbu(const double c) { backgroundUniformity = c; }
@@ -84,7 +123,7 @@ class SSPstats {
 };
 
 
-void strShiftProfile(SSPstats &sspst, const MyOpt::Variables &values, SeqStatsGenome &genome, const std::string &head, const std::string &typestr);
-void makeFCSProfile(SSPstats &sspst, const MyOpt::Variables &values, const SeqStatsGenome &genome, const std::string &head, const std::string &typestr);
+void strShiftProfile(SSPstats &sspst, SeqStatsGenome &genome, const std::string &head, const std::string &typestr);
+void makeFCSProfile(SSPstats &sspst, const SeqStatsGenome &genome, const std::string &head, const std::string &typestr);
 
 #endif /* _SSP_SHIFTPROFILE_H_ */

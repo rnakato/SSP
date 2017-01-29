@@ -1,5 +1,5 @@
 /* Copyright(c)  Ryuichiro Nakato <rnakato@iam.u-tokyo.ac.jp>
- * This file is a part of SSP sources.
+ * All rights reserved.
  */
 #include "ssp_shiftprofile.h"
 #include "ssp_shiftprofile_p.h"
@@ -175,9 +175,10 @@ void genThread(T &dist, const SeqStatsGenome &genome, uint32_t chr_s, uint32_t c
 }
 
 template <class T>
-void makeProfile(SSPstats &sspst, SeqStatsGenome &genome, const std::string &head, const std::string &typestr, const MyOpt::Variables &values)
+void makeProfile(SSPstats &sspst, SeqStatsGenome &genome, const std::string &head, const std::string &typestr)
 {
-  T dist(genome, values);
+  DEBUGprint("makeProfile: " + typestr );
+  T dist(sspst, genome);
   dist.printStartMessage();
   
   boost::thread_group agroup;
@@ -186,11 +187,11 @@ void makeProfile(SSPstats &sspst, SeqStatsGenome &genome, const std::string &hea
   std::string prefix(head + "." + typestr);
   if(typestr == "hdp" || typestr == "jaccard") {
     for(size_t i=0; i<genome.vsepchr.size(); i++) {
-      agroup.create_thread(bind(genThread<T>, boost::ref(dist), boost::cref(genome), genome.vsepchr[i].s, genome.vsepchr[i].e, boost::cref(prefix), values.count("eachchr")));
+      agroup.create_thread(bind(genThread<T>, boost::ref(dist), boost::cref(genome), genome.vsepchr[i].s, genome.vsepchr[i].e, boost::cref(prefix), sspst.isEachchr()));
     }
     agroup.join_all();
   } else {
-    genThread(dist, genome, 0, genome.chr.size()-1, prefix, values.count("eachchr"));
+    genThread(dist, genome, 0, genome.chr.size()-1, prefix, sspst.isEachchr());
   }
 
   for(size_t i=0; i<genome.chr.size(); ++i) {
@@ -205,16 +206,20 @@ void makeProfile(SSPstats &sspst, SeqStatsGenome &genome, const std::string &hea
 
   if(typestr == "jaccard") setSSPstats(sspst, dist.getbackgroundUniformity(), dist.getnsc(), dist.getrsc());
 
+  DEBUGprint("makeProfile: " + typestr + " done.");
   return;
 }
 
-void strShiftProfile(SSPstats &sspst, const MyOpt::Variables &values, SeqStatsGenome &genome, const std::string &head, const std::string &typestr)
+void strShiftProfile(SSPstats &sspst, SeqStatsGenome &genome, const std::string &head, const std::string &typestr)
 {
-  if(typestr=="exjaccard")    makeProfile<shiftJacVec>(sspst, genome, head, typestr, values);
-  else if(typestr=="jaccard") makeProfile<shiftJacBit>(sspst, genome, head, typestr, values);
-  else if(typestr=="ccp")     makeProfile<shiftCcp>(sspst, genome, head, typestr, values);
-  else if(typestr=="hdp")     makeProfile<shiftHamming>(sspst, genome, head, typestr, values);
+  DEBUGprint("strShiftProfile...");
+  
+  if(typestr=="exjaccard")    makeProfile<shiftJacVec>(sspst, genome, head, typestr);
+  else if(typestr=="jaccard") makeProfile<shiftJacBit>(sspst, genome, head, typestr);
+  else if(typestr=="ccp")     makeProfile<shiftCcp>(sspst, genome, head, typestr);
+  else if(typestr=="hdp")     makeProfile<shiftHamming>(sspst, genome, head, typestr);
 
+  DEBUGprint("strShiftProfile done.");
   return;
 }
 
@@ -257,16 +262,16 @@ void makeRscript(const std::string prefix)
   return;
 }
 
-void makeFCSProfile(SSPstats &sspst, const MyOpt::Variables &values, const SeqStatsGenome &genome, const std::string &head, const std::string &typestr)
+void makeFCSProfile(SSPstats &sspst, const SeqStatsGenome &genome, const std::string &head, const std::string &typestr)
 {
-  shiftFragVar dist(genome, values, genome.dflen.getflen());
+  shiftFragVar dist(sspst, genome);
   dist.printStartMessage();
 
   for(uint32_t i=0; i<genome.chr.size(); ++i) {
     if(!genome.chr[i].isautosome()) continue;
     std::cout << genome.chr[i].getname() << ".." << std::flush;
     dist.execchr(genome, i);
-    if(values.count("eachchr")) {
+    if(sspst.isEachchr()) {
       std::string filename = head + "." + typestr + "." + genome.chr[i].getname() + ".csv";
       dist.outputfcsChr(filename, i);
     }

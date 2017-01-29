@@ -29,6 +29,12 @@ namespace MyOpt {
   void setOptIO(Opts &, const std::string &);
   void setOptPair(Opts &);
   void setOptOther(Opts &);
+  void dumpIO(const Variables &);
+  void dumpGenomeTable(const Variables &);
+  void dumpPair(const Variables &);
+  void dumpLibComp(const Variables &);
+  void dumpFragmentLengthDist(const Variables &);
+  void dumpOther(const Variables &);
 }
 
 #endif /* _BOOSTOPTIONS_HPP_ */

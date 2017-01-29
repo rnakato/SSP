@@ -240,9 +240,6 @@ class ReadShiftProfile {
 };
 
 class ReadShiftProfileGenome: public ReadShiftProfile {
- private:
-  int32_t numthreads;
-  
  protected:
   int32_t ng_from;
   int32_t ng_to;
@@ -253,12 +250,11 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
   std::string name;
   std::vector<ReadShiftProfile> chr;
   
- ReadShiftProfileGenome(std::string n, const SeqStatsGenome &genome, const MyOpt::Variables &values):
-  ReadShiftProfile(genome.dflen.getlenF3(), values["ng_from"].as<int32_t>(), values["num4ssp"].as<int32_t>()),
-    numthreads(values["threads"].as<int32_t>()),
+ ReadShiftProfileGenome(const std::string n, const SSPstats &sspst, const SeqStatsGenome &genome):
+  ReadShiftProfile(genome.dflen.getlenF3(), sspst.getNgFrom(), sspst.getnum4ssp()),
     ng_from(5000),
-    ng_to(values["ng_to"].as<int32_t>()),
-    ng_step(values["ng_step"].as<int32_t>()),
+    ng_to(sspst.getNgTo()),
+    ng_step(sspst.getNgStep()),
     name(n)
     {
       for(auto &x: genome.chr) {
@@ -269,17 +265,18 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
 	}
       }
       for(auto &x: genome.chr) {
-	ReadShiftProfile v(genome.dflen.getlenF3(), values["ng_from"].as<int32_t>(), values["num4ssp"].as<int32_t>(), 0, x.getlen(), x.getnread_nonred(Strand::BOTH), x.getlenmpbl());
+	ReadShiftProfile v(genome.dflen.getlenF3(), sspst.getNgFrom(), sspst.getnum4ssp(), 0, x.getlen(), x.getnread_nonred(Strand::BOTH), x.getlenmpbl());
 	v.setrchr(nread);
 	chr.push_back(v);
       }
       // seprange
-      defSepRange(numthreads);
+      defSepRange(sspst.getnumthreads());
     }
   virtual ~ReadShiftProfileGenome(){}
+
   void defSepRange(const int32_t numthreads) {
-    int32_t length(mp_to+mp_from);
-    int32_t sepsize = length/numthreads +1;
+    int32_t length(mp_to + mp_from);
+    int32_t sepsize(length/numthreads +1);
     for(int32_t i=0; i<numthreads; ++i) {
       int32_t s = i*sepsize;
       int32_t e = (i+1)*sepsize;
@@ -287,6 +284,7 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
       seprange.push_back(range(s - mp_from, e - mp_from));
     }
   }
+
   void addmp2genome(const int32_t i) {
     addmp(mp, chr[i].mp, chr[i].rchr);
     addmp(nc, chr[i].nc, chr[i].rchr);
@@ -332,8 +330,8 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
 
 class shiftJacVec : public ReadShiftProfileGenome {
  public:
- shiftJacVec(const SeqStatsGenome &genome, const MyOpt::Variables &values):
-  ReadShiftProfileGenome("Jaccard index", genome, values) {}
+ shiftJacVec(const SSPstats &sspst, const SeqStatsGenome &genome):
+  ReadShiftProfileGenome("Jaccard index", sspst, genome) {}
 
   void setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev);
   void execchr(const SeqStatsGenome &genome, int32_t i) {
@@ -346,8 +344,8 @@ class shiftJacVec : public ReadShiftProfileGenome {
 
 class shiftJacBit : public ReadShiftProfileGenome {
  public:
- shiftJacBit(const SeqStatsGenome &genome, const MyOpt::Variables &values):
-  ReadShiftProfileGenome("Jaccard index", genome, values) {}
+ shiftJacBit(const SSPstats &sspst, const SeqStatsGenome &genome):
+  ReadShiftProfileGenome("Jaccard index", sspst, genome) {}
 
   void setDist(ReadShiftProfile &chr, const boost::dynamic_bitset<> &fwd, boost::dynamic_bitset<> &rev);
   void execchr(const SeqStatsGenome &genome, int32_t i) {
@@ -360,8 +358,8 @@ class shiftJacBit : public ReadShiftProfileGenome {
 
 class shiftCcp : public ReadShiftProfileGenome {
  public:
- shiftCcp(const SeqStatsGenome &genome, const MyOpt::Variables &values):
-  ReadShiftProfileGenome("Cross correlation", genome, values) {}
+ shiftCcp(const SSPstats &sspst, const SeqStatsGenome &genome):
+  ReadShiftProfileGenome("Cross correlation", sspst, genome) {}
 
   void setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev);
   void execchr(const SeqStatsGenome &genome, int32_t i) {
@@ -374,8 +372,8 @@ class shiftCcp : public ReadShiftProfileGenome {
 
 class shiftHamming : public ReadShiftProfileGenome {
  public:
- shiftHamming(const SeqStatsGenome &genome, const MyOpt::Variables &values):
-  ReadShiftProfileGenome("Hamming distance", genome, values) {}
+ shiftHamming(const SSPstats &sspst, const SeqStatsGenome &genome):
+  ReadShiftProfileGenome("Hamming distance", sspst, genome) {}
 
   void setDist(ReadShiftProfile &chr, const boost::dynamic_bitset<> &fwd, boost::dynamic_bitset<> &rev);
   void execchr(const SeqStatsGenome &genome, int32_t i) {
@@ -397,19 +395,20 @@ class shiftFragVar : public ReadShiftProfileGenome {
   int32_t ng_step_fcs;
 
  public:
- shiftFragVar(const SeqStatsGenome &genome, const MyOpt::Variables &values, const int32_t fl):
-  ReadShiftProfileGenome("Fragment Variability", genome, values), flen(fl), r4cmp(0), numUsed4FCS(0), lackOfReads(false),
-    ng_from_fcs(values["ng_from_fcs"].as<int32_t>()),
-    ng_to_fcs(values["ng_to_fcs"].as<int32_t>()),
-    ng_step_fcs(values["ng_step_fcs"].as<int32_t>())
+ shiftFragVar(const SSPstats &sspst, const SeqStatsGenome &genome):
+  ReadShiftProfileGenome("Fragment Variability", sspst, genome),
+    flen(genome.dflen.getflen()), r4cmp(0), numUsed4FCS(0), lackOfReads(false),
+    ng_from_fcs(sspst.getNgFromFCS()),
+    ng_to_fcs(sspst.getNgToFCS()),
+    ng_step_fcs(sspst.getNgStepFCS())
       {
-	//double r = (values["num4ssp"].as<int32_t>()/static_cast<double>(dist.getnread())) / (NUM_100M/static_cast<double>(dist.getlen()));
-	double r = getratio(values["num4ssp"].as<int32_t>(), getnread());
+	//double r = (getratio(sspst.getnum4ssp(), getnread())) / (NUM_100M/static_cast<double>(dist.getlen()));
+	double r = getratio(sspst.getnum4ssp(), getnread());
 #ifdef DEBUG
 	std::cout << "\nr for FCS\t" << r << "\t reads: " << getnread() << std::endl;
 #endif
 	if(r>1){
-	  std::cerr << "\nWarning: number of reads (" << getnread() << ") is less than num4ssp ("<<  values["num4ssp"].as<int32_t>() <<").\n";
+	  std::cerr << "\nWarning: number of reads (" << getnread() << ") is less than num4ssp ("<< sspst.getnum4ssp() <<").\n";
 	  lackOfReads=true;
 	}
 	r4cmp = r*RAND_MAX;

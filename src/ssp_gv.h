@@ -38,6 +38,7 @@ namespace SSP {
     void setValues(const MyOpt::Variables &values) {
       genome.setValues(values);
       complexity.setValues(values);
+      sspst.setValues(values);
       lchr = setlchr(genome);
       samplename = values["output"].as<std::string>();
       oprefix = values["odir"].as<std::string>() + "/" + values["output"].as<std::string>();

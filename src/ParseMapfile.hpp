@@ -6,6 +6,6 @@
 
 #include "Mapfile.hpp"
 
-void read_mapfile(const MyOpt::Variables &values, SeqStatsGenome &genome);
+void read_mapfile(SeqStatsGenome &genome);
 
 #endif /* _READMAPFILE_H_ */

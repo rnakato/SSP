@@ -21,8 +21,8 @@ class FragmentLengthDist {
   std::vector<int32_t> vlenF3;
   std::vector<int32_t> vlenF5;
   std::vector<int32_t> vflen;
-  bool nomodel;
-  bool pairedend;
+  int32_t nomodel;
+  int32_t pairedend;
 
   template <class T>
   void printVector(std::ofstream &out, const std::vector<T> v, const std::string &str, const uint64_t nread)
@@ -63,6 +63,8 @@ class FragmentLengthDist {
     DEBUGprint("FragmentLengthDist setValues done.");
   }
 
+  int32_t isnomodel() const { return nomodel; }
+  
   int32_t getlenF3 () const { return getmaxi(vlenF3); }
   int32_t getlenF5 () const { return getmaxi(vlenF5); }
   int32_t getflen4paired () const { return getmaxi(vflen); }
@@ -110,6 +112,12 @@ class SeqWigStats: public SeqStats {
 class SeqStatsGenome {
   MyOpt::Opts opt;
 
+  std::string inputfilename;
+  int32_t pairedend;
+  int32_t maxins;
+  int32_t specifyFtype;
+  std::string ftype;
+
   std::string name;
   double depth;
   double sizefactor;
@@ -123,7 +131,7 @@ class SeqStatsGenome {
   FragmentLengthDist dflen;
   
  SeqStatsGenome(): 
-   opt("Genome",100),
+   opt("Genome",100), ftype(""),
    name("Genome"), depth(0), sizefactor(0) {
    using namespace boost::program_options;
    opt.add_options()
@@ -135,12 +143,27 @@ class SeqStatsGenome {
       ;
  }
 
+  const std::string & getInputfile() const { return inputfilename; }
+  int32_t isPaired()    const { return pairedend; }
+  int32_t getmaxins()   const { return maxins; }
+  int32_t onFtype()     const { return specifyFtype; }
+  const std::string & getftype() const { return ftype; }
+
   void setOpts(MyOpt::Opts &allopts) {
     allopts.add(opt);
     dflen.setOpts(allopts);
   }
   void setValues(const MyOpt::Variables &values) {
     DEBUGprint("SeqStatsGenome setValues...");
+
+    inputfilename = values["input"].as<std::string>();
+    pairedend = values.count("pair");
+    maxins = values["maxins"].as<int32_t>();
+    specifyFtype = values.count("ftype");
+    if(onFtype()) {
+      ftype = values["ftype"].as<std::string>();
+      if(ftype != "SAM" && ftype != "BAM" && ftype != "BOWTIE" && ftype != "TAGALIGN") PRINTERR("invalid --ftype.\n");
+    }
     
     dflen.setValues(values);
     readGenomeTable(values["gt"].as<std::string>(), values["binsize"].as<int32_t>());
