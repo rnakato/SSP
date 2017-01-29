@@ -1,8 +1,8 @@
 /* Copyright(c)  Ryuichiro Nakato <rnakato@iam.u-tokyo.ac.jp>
  * All rights reserved.
  */
-#ifndef _MTHREAD_H_
-#define _MTHREAD_H_
+#ifndef _MTHREAD_HPP_
+#define _MTHREAD_HPP_
 
 #include <cstdint>
 #include <vector>
@@ -37,4 +37,4 @@ namespace MyMthread {
   }
 }
 
-#endif /* _MTHREAD_H_ */
+#endif /* _MTHREAD_HPP_ */

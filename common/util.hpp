@@ -1,8 +1,8 @@
 /* Copyright(c)  Ryuichiro Nakato <rnakato@iam.u-tokyo.ac.jp>
- * This file is a part of DROMPA sources.
+ * All rights reserved.
  */
-#ifndef _UTIL_H_
-#define _UTIL_H_
+#ifndef _UTIL_HPP_
+#define _UTIL_HPP_
 #include <iostream>
 #include <string>
 #include <vector>
@@ -107,4 +107,4 @@ int32_t findIndex(std::vector<T> array, T value)
     return index;
 }
 
-#endif /* _UTIL_H_ */
+#endif /* _UTIL_HPP_ */

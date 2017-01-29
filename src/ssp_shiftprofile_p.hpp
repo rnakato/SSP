@@ -5,8 +5,8 @@
 #define _SSP_SHIFTPROFILE_P_H_
 
 #include <boost/dynamic_bitset.hpp>
-#include "ssp_gv.h"
-#include "alglib/alglib.h"
+#include "ssp_gv.hpp"
+#include "../common/alglib/alglib.h"
 
 namespace {
   const int32_t mp_from(500);

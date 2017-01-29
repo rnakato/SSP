@@ -1,8 +1,8 @@
 /* Copyright(c)  Ryuichiro Nakato <rnakato@iam.u-tokyo.ac.jp>
- * This file is a part of DROMPA sources.
+ * All rights reserved.
  */
-#ifndef _STATISTICS_H_
-#define _STATISTICS_H_
+#ifndef _STATISTICS_HPP_
+#define _STATISTICS_HPP_
 
 #include <vector>
 #include <cmath>
@@ -59,4 +59,4 @@ namespace MyStatistics {
     };
 }
 
-#endif /* _STATISTICS_H_ */
+#endif /* _STATISTICS_HPP_ */

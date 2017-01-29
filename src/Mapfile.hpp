@@ -6,9 +6,9 @@
 
 #include <boost/format.hpp>
 #include "SeqStats.hpp"
-#include "mthread.h"
-#include "readdata.h"
-#include "util.h"
+#include "MThread.hpp"
+#include "ParseBed.hpp"
+#include "../common/util.hpp"
 #include "BoostOptions.hpp"
 
 class FragmentLengthDist {

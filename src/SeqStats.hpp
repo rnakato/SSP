@@ -1,15 +1,15 @@
 /* Copyright(c)  Ryuichiro Nakato <rnakato@iam.u-tokyo.ac.jp>
- * This file is a part of DROMPA sources.
+ * All rights reserved.
  */
 #ifndef _SEQSTATS_HPP_
 #define _SEQSTATS_HPP_
 
 #include <boost/thread.hpp>
-#include <boost/algorithm/string.hpp> 
-#include "seq.h"
-#include "macro.h"
-#include "statistics.h"
-#include "bpstatus.h"
+#include <boost/algorithm/string.hpp>
+#include "../common/seq.hpp"
+#include "../common/inline.hpp"
+#include "../common/statistics.hpp"
+#include "BpStatus.hpp"
 
 class strandData {
  public:
@@ -183,4 +183,4 @@ class SeqStats {
   }
 };
 
-#endif /* _MAPFILECLASS_H_ */
+#endif /* _SEQSTATS_HPP_ */

@@ -1,5 +1,5 @@
 /* Copyright(c) Ryuichiro Nakato <rnakato@iam.u-tokyo.ac.jp>
- * This file is a part of DROMPA sources.
+ * All rights reserved.
  */
 #ifndef _SEQ_H_
 #define _SEQ_H_
@@ -11,7 +11,6 @@
 
 std::string rmchr(const std::string &chr);
 
-//enum class Strand {FWD, REV, BOTH};
 namespace Strand {
   enum Strand {FWD, REV, BOTH};
 }
@@ -34,7 +33,6 @@ class range {
  range(): start(0), end(0) {}
  range(int32_t s, int32_t e): start(s), end(e) {}
 };
-
 
 class bed {
  public:

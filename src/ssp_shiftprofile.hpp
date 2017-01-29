@@ -7,7 +7,7 @@
 #include <fstream>
 #include <string>
 #include <boost/bind.hpp>
-#include "macro.h"
+#include "../common/inline.hpp"
 #include "BoostOptions.hpp"
 
 class SeqStatsGenome;

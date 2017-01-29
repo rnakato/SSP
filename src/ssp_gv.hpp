@@ -1,17 +1,17 @@
 /* Copyright(c) Ryuichiro Nakato <rnakato@iam.u-tokyo.ac.jp>
  * All rights reserved.
  */
-#ifndef _SSP_GV_H_
-#define _SSP_GV_H_
+#ifndef _SSP_GV_HPP_
+#define _SSP_GV_HPP_
 
 #include <fstream>
 #include <numeric>
 #include <boost/thread.hpp>
-#include "readdata.h"
-#include "mthread.h"
+//#include "readdata.h"
+#include "MThread.hpp"
 #include "LibraryComplexity.hpp"
 #include "Mapfile.hpp"
-#include "ssp_shiftprofile.h"
+#include "ssp_shiftprofile.hpp"
 
 namespace SSP {
   class Global: private Uncopyable {
@@ -57,4 +57,4 @@ namespace SSP {
   };
 }
 
-#endif /* _SSP_GV_H_ */
+#endif /* _SSP_GV_HPP_ */

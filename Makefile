@@ -4,8 +4,10 @@ LDFLAGS = -lz -lgsl -lgslcblas -lboost_thread
 LIBS += -lboost_program_options -lboost_system -lboost_filesystem 
 
 SRCDIR = ./src
+CMNDIR = ./common
 OBJDIR = ./obj
-ALGLIBDIR = ./src/alglib
+CMNOBJDIR = ./cobj
+ALGLIBDIR = ./common/alglib
 BINDIR = ./bin
 
 PROGRAMS = ssp 
@@ -16,14 +18,14 @@ ifdef DEBUG
 CFLAGS += -DDEBUG
 endif
 
-OBJS_UTIL = $(OBJDIR)/readdata.o $(OBJDIR)/util.o $(OBJDIR)/BoostOptions.o
-OBJS = $(OBJDIR)/ssp_main.o $(OBJDIR)/Mapfile.o $(OBJDIR)/ParseMapfile.o $(OBJDIR)/LibraryComplexity.o $(OBJDIR)/ssp_shiftprofile.o $(OBJDIR)/statistics.o $(ALGLIBDIR)/libalglib.a
+OBJS = $(OBJDIR)/ssp_main.o $(OBJDIR)/Mapfile.o $(OBJDIR)/ParseMapfile.o $(OBJDIR)/LibraryComplexity.o $(OBJDIR)/ssp_shiftprofile.o $(OBJDIR)/BoostOptions.o
+OBJS += $(CMNOBJDIR)/statistics.o $(CMNOBJDIR)/util.o $(ALGLIBDIR)/libalglib.a
 
 .PHONY: all clean
 
 all: $(TARGET)
 
-$(BINDIR)/ssp: $(OBJS) $(OBJS_UTIL)
+$(BINDIR)/ssp: $(OBJS)
 	@if [ ! -e `dirname $@` ]; then mkdir -p `dirname $@`; fi
 	$(CC) -o $@ $^ $(LIBS) $(LDFLAGS)
 
@@ -34,13 +36,17 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	@if [ ! -e `dirname $@` ]; then mkdir -p `dirname $@`; fi
 	$(CC) -o $@ -c $< $(CFLAGS) $(WFLAGS)
 
+$(CMNOBJDIR)/%.o: $(CMNDIR)/%.cpp
+	@if [ ! -e `dirname $@` ]; then mkdir -p `dirname $@`; fi
+	$(CC) -o $@ -c $< $(CFLAGS) $(WFLAGS)
+
 clean:
-	rm -rf bin lib obj
+	rm -rf $(BINDIR) $(OBJDIR) $(CMNOBJDIR)
 	make clean -C $(ALGLIBDIR)
 
-HEADS_UTIL = $(SRCDIR)/BoostOptions.hpp $(SRCDIR)/util.h $(SRCDIR)/readdata.h $(SRCDIR)/macro.h $(SRCDIR)/seq.h $(SRCDIR)/mthread.h $(SRCDIR)/SeqStats.hpp $(SRCDIR)/bpstatus.h
+HEADS = $(SRCDIR)/ssp_gv.hpp $(SRCDIR)/Mapfile.hpp $(SRCDIR)/ParseMapfile.hpp $(SRCDIR)/LibraryComplexity.hpp $(SRCDIR)/BoostOptions.hpp $(SRCDIR)/MThread.hpp $(SRCDIR)/SeqStats.hpp $(SRCDIR)/BpStatus.hpp $(SRCDIR)/ParseBed.hpp
+HEADS += $(CMNDIR)/inline.hpp $(CMNDIR)/seq.hpp $(CMNDIR)/statistics.hpp $(CMNDIR)/util.hpp
 
-$(OBJDIR)/ParseMapfile.o: $(SRCDIR)/ssp_shiftprofile.h
-$(OBJDIR)/ssp_shiftprofile.o: Makefile $(SRCDIR)/ssp_shiftprofile_p.h $(SRCDIR)/ssp_shiftprofile.h
-$(OBJS_UTIL): Makefile $(HEADS_UTIL)
-$(OBJS): Makefile $(SRCDIR)/ssp_gv.h $(SRCDIR)/Mapfile.hpp $(SRCDIR)/ParseMapfile.hpp $(SRCDIR)/LibraryComplexity.hpp $(SRCDIR)/statistics.h $(HEADS_UTIL)
+$(OBJDIR)/ParseMapfile.o: $(SRCDIR)/ssp_shiftprofile.hpp
+$(OBJDIR)/ssp_shiftprofile.o: Makefile $(SRCDIR)/ssp_shiftprofile_p.hpp $(SRCDIR)/ssp_shiftprofile.hpp
+$(OBJS): Makefile $(HEADS)

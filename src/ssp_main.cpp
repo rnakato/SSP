@@ -10,9 +10,9 @@
 #include <time.h>
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
-#include "ssp_gv.h"
+#include "ssp_gv.hpp"
 #include "ParseMapfile.hpp"
-#include "ssp_shiftprofile.h"
+#include "ssp_shiftprofile.hpp"
 
 #define VERSION "1.0.0"
 

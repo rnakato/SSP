@@ -1,7 +1,7 @@
 /* Copyright(c)  Ryuichiro Nakato <rnakato@iam.u-tokyo.ac.jp>
- * This file is a part of DROMPA sources.
+ * All rights reserved.
  */
-#include "util.h"
+#include "util.hpp"
 #include <algorithm>
 #include <boost/filesystem.hpp>
 

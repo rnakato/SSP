@@ -9,8 +9,8 @@
 #include <stdint.h>
 #include <unordered_map>
 #include <boost/format.hpp>
-#include "util.h"
-#include "seq.h"
+#include "../common/util.hpp"
+#include "../common/seq.hpp"
 #include "SeqStats.hpp"
 #include "BoostOptions.hpp"
 

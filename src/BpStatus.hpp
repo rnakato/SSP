@@ -1,9 +1,9 @@
 /* Copyright(c)  Ryuichiro Nakato <rnakato@iam.u-tokyo.ac.jp>
- * This file is a part of DROMPA sources.
+ * All rights reserved.
  */
-#ifndef _BPSTATUS_H_
-#define _BPSTATUS_H_
+#ifndef _BPSTATUS_HPP_
+#define _BPSTATUS_HPP_
 
 enum class BpStatus: uint8_t {UNMAPPABLE, INBED, MAPPABLE, COVREAD_ALL, COVREAD_NORM};
 
-#endif /* _MAPFILECLASS_H_ */
+#endif /* _BPSTATUS_HPP_ */

@@ -1,8 +1,8 @@
 /* Copyright(c)  Ryuichiro Nakato <rnakato@iam.u-tokyo.ac.jp>
- * This file is a part of DROMPA sources.
+ * All rights reserved.
  */
-#include "statistics.h"
-#include "macro.h"
+#include "statistics.hpp"
+#include "../common/inline.hpp"
 #include <iostream>
 #include <boost/format.hpp>
 #include <gsl/gsl_randist.h>
