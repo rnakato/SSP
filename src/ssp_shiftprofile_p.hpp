@@ -11,7 +11,7 @@
 namespace {
   const int32_t mp_from(500);
   const int32_t mp_to(1500);
-  const int32_t sizeOfvNeighborFrag = 5000;
+  const int32_t sizeOfvNeighborFrag(5000);
   const std::vector<int32_t> v4pnf{50, 100, 150, 500, 1000, 2000, 3000, 10000, 100000, 1000000};
 }
 
@@ -124,12 +124,12 @@ class ReadShiftProfile {
   double getbackgroundUniformity() const { return backgroundUniformity; }
   void setrchr(const uint64_t n) { rchr = n ? getratio(nread, n): 0; }
   int32_t getlenF3() const { return lenF3; }
-  double getnsc() const { return nsc; }
-  double getrsc() const { return rsc; }
-  int32_t getnsci() const { return nsci; }
+  double getnsc()    const { return nsc; }
+  double getrsc()    const { return rsc; }
+  int32_t getnsci()  const { return nsci; }
   uint64_t getnread() const { return nread; }
-  uint64_t getlen() const { return len; }
-  double getmpsum() const {
+  uint64_t getlen()  const { return len; }
+  double getmpsum()  const {
     double sum(0);
     for(auto itr = mp.begin(); itr != mp.end(); ++itr) sum += itr->second;
     return sum;
@@ -150,7 +150,6 @@ class ReadShiftProfile {
     int32_t threwidth(5);
     int32_t leftend(lenF3*1.2);
     if(leftend>150) leftend=150;
-    //    if(leftend<lenF3) leftend=lenF3;
 
     setControlRatio();
     nsc = mp[mp_to-1];

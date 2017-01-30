@@ -4,7 +4,7 @@
 #ifndef _READMAPFILE_H_
 #define _READMAPFILE_H_
 
-#include "Mapfile.hpp"
+class SeqStatsGenome;
 
 void read_mapfile(SeqStatsGenome &genome);
 

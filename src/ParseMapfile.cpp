@@ -7,6 +7,7 @@
 #include <boost/iostreams/device/file_descriptor.hpp>
 #include <ext/stdio_filebuf.h>
 #include "ParseMapfile.hpp"
+#include "Mapfile.hpp"
 
 namespace {
   void addFragToChr(SeqStatsGenome &genome, const Fragment &frag)

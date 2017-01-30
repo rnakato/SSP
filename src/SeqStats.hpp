@@ -8,7 +8,6 @@
 #include <boost/algorithm/string.hpp>
 #include "../common/seq.hpp"
 #include "../common/inline.hpp"
-#include "../common/statistics.hpp"
 #include "BpStatus.hpp"
 
 class strandData {

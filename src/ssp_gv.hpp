@@ -5,9 +5,6 @@
 #define _SSP_GV_HPP_
 
 #include <fstream>
-#include <numeric>
-#include <boost/thread.hpp>
-//#include "readdata.h"
 #include "MThread.hpp"
 #include "LibraryComplexity.hpp"
 #include "Mapfile.hpp"

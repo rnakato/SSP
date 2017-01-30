@@ -105,6 +105,7 @@ class SeqStatsGenome {
   MyOpt::Opts opt;
 
   std::string inputfilename;
+  std::string genometable;
   int32_t pairedend;
   int32_t maxins;
   int32_t specifyFtype;
@@ -133,6 +134,7 @@ class SeqStatsGenome {
  }
 
   const std::string & getInputfile() const { return inputfilename; }
+  const std::string & getGenomeTable() const { return genometable; }
   int32_t isPaired()    const { return pairedend; }
   int32_t getmaxins()   const { return maxins; }
   int32_t onFtype()     const { return specifyFtype; }
@@ -155,7 +157,8 @@ class SeqStatsGenome {
     }
     
     dflen.setValues(values);
-    readGenomeTable(values["gt"].as<std::string>());
+    genometable = values["gt"].as<std::string>();
+    readGenomeTable(genometable);
 
     if(values.count("mptable")) {
       for(auto &x: chr) x.getMptable(values["mptable"].as<std::string>());
