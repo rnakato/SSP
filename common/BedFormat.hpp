@@ -4,6 +4,9 @@
 #ifndef _BEDFORMAT_HPP_
 #define _BEDFORMAT_HPP_
 
+#include <fstream>
+#include <boost/algorithm/string.hpp> 
+
 class bed {
  public:
   std::string chr;
@@ -106,15 +109,14 @@ class Peak : public bed {
   }
   void print(std::ofstream &out, int32_t id, int32_t binsize) const {
     out << chr << "\t" << start*binsize << "\t" << end*binsize << "\t"
-	<< ((end - start +1)*binsize-1) << "\t" << (summit*binsize -binsize/2) << "\t" << pileup << "\t"
+	<< ((end - start +1)*binsize-1) << "\t"
+	<< (summit*binsize -binsize/2) << "\t" << pileup << "\t"
 	<< p_inter << "\t" << enrich << "\t" << q << "\tpeak " << id << std::endl;
   }
   void printHead (std::ofstream &out) const {
     out << "chromosome\tstart\tend\tlength\tabs_summit\tpileup\t-log10(pvalue)\tfold_enrichment\t-log10(qvalue)\tname" << std::endl;
   }
 };
-
-
 
 template <class T>
 std::vector<T> parseBed(const std::string &fileName)
