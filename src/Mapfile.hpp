@@ -199,22 +199,6 @@ class SeqStatsGenome {
   double getpmpbl() const {
     return getratio(getlenmpbl(), getlen());
   }
-  uint64_t getnbp() const {
-    uint64_t nbp(0);
-    for(auto &x: chr) nbp += x.getnbp();
-    return nbp;
-  }
-  uint64_t getncov() const {
-    uint64_t ncov(0);
-    for(auto &x: chr) ncov += x.getncov();
-    return ncov;
-  }
-  uint64_t getncovnorm() const {
-    uint64_t ncovnorm(0);
-    for(auto &x: chr) ncovnorm += x.getncovnorm();
-    return ncovnorm;
-  }
-  
   uint64_t getnread (const Strand::Strand strand) const {
     uint64_t nread(0);
     for(auto &x:chr) nread += x.getnread(strand);

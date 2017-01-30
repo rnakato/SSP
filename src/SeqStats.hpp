@@ -4,6 +4,7 @@
 #ifndef _SEQSTATS_HPP_
 #define _SEQSTATS_HPP_
 
+#include <fstream>
 #include <boost/thread.hpp>
 #include <boost/algorithm/string.hpp>
 #include "../common/seq.hpp"
@@ -50,14 +51,14 @@ class SeqStats {
   bool Greekchr;
   double depth;
   uint64_t nread_inbed;
-  uint64_t nbp, ncov, ncovnorm;
   double sizefactor;
 
- public:    
+ public:
+  
  SeqStats(std::string s, int32_t l):
   name(rmchr(s)), len(l), len_mpbl(l), 
   Greekchr(false), depth(0), nread_inbed(0),
-  nbp(0), ncov(0), ncovnorm(0), sizefactor(0) {}
+  sizefactor(0) {}
 
   std::string getname() const { return name; }
   void addfrag(const Fragment &frag) {
@@ -104,9 +105,6 @@ class SeqStats {
   uint64_t getlen()       const { return len; }
   uint64_t getlenmpbl()   const { return len_mpbl; }
   double   getpmpbl()     const { return getratio(getlenmpbl(), getlen()); }
-  uint64_t getnbp()       const { return nbp; }
-  uint64_t getncov()      const { return ncov; }
-  uint64_t getncovnorm()  const { return ncovnorm; }
   double   getsizefactor()const { return sizefactor; }
   double   getdepth()     const { return depth; }
 
@@ -124,13 +122,6 @@ class SeqStats {
   void setsizefactor(const double w) {
     sizefactor = w;
     for (auto strand: {Strand::FWD, Strand::REV}) seq[strand].nread_rpm = seq[strand].nread_nonred * sizefactor;
-  }
-  void calcGcov(const std::vector<BpStatus> &array) {
-    for(auto &x: array) {
-      if(x >= BpStatus::MAPPABLE)     ++nbp;      // MAPPABLE || COVREAD_ALL || COVREAD_NORM
-      if(x >= BpStatus::COVREAD_ALL)  ++ncov;     // COVREAD_ALL || COVREAD_NORM
-      if(x == BpStatus::COVREAD_NORM) ++ncovnorm;
-    }
   }
   void Greekchron() { Greekchr = true; }
 
