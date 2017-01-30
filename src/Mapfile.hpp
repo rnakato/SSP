@@ -7,9 +7,9 @@
 #include <boost/format.hpp>
 #include "SeqStats.hpp"
 #include "MThread.hpp"
-#include "ParseBed.hpp"
+#include "../common/BedFormat.hpp"
 #include "../common/util.hpp"
-#include "BoostOptions.hpp"
+#include "../common/BoostOptions.hpp"
 
 class FragmentLengthDist {
   MyOpt::Opts opt;

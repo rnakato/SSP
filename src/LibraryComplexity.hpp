@@ -9,10 +9,10 @@
 #include <stdint.h>
 #include <unordered_map>
 #include <boost/format.hpp>
+#include "SeqStats.hpp"
 #include "../common/util.hpp"
 #include "../common/seq.hpp"
-#include "SeqStats.hpp"
-#include "BoostOptions.hpp"
+#include "../common/BoostOptions.hpp"
 
 class SeqStatsGenome;
 

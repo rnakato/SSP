@@ -8,7 +8,7 @@
 #include <string>
 #include <boost/bind.hpp>
 #include "../common/inline.hpp"
-#include "BoostOptions.hpp"
+#include "../common/BoostOptions.hpp"
 
 class SeqStatsGenome;
 
