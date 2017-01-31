@@ -60,7 +60,7 @@ class SeqStats {
   Greekchr(false), depth(0), nread_inbed(0),
   sizefactor(0) {}
 
-  std::string getname() const { return name; }
+  const std::string & getname() const { return name; }
   void addfrag(const Fragment &frag) {
     Read r(frag);
     seq[frag.strand].vRead.push_back(r);
@@ -108,12 +108,23 @@ class SeqStats {
   double   getsizefactor()const { return sizefactor; }
   double   getdepth()     const { return depth; }
 
-  void setF5(int32_t flen) {
+  void setF5ToRead(const int32_t flen) {
     int32_t d;
     for (auto strand: {Strand::FWD, Strand::REV}) {
       if(strand == Strand::FWD) d = flen; else d = -flen;
       for(auto &x: seq[strand].vRead) x.F5 = x.F3 + d;
     }
+  }
+  void printvRead() const {
+#ifdef PRINTREAD
+    for (auto strand: {Strand::FWD, Strand::REV}) {
+      for(auto &x: seq[strand].vRead) {
+	std::cout << "chr:"  << getname() << "\t"
+		  << "strand:"  << strand << "\t";
+	x.print();
+      }
+    }
+#endif 
   }
   void setFRiP(const uint64_t n) { nread_inbed = n; }
   double getFRiP() const {

@@ -17,6 +17,9 @@ TARGET = $(addprefix $(BINDIR)/,$(PROGRAMS))
 ifdef DEBUG
 CFLAGS += -DDEBUG
 endif
+ifdef PRINTREAD
+CFLAGS += -DPRINTREAD
+endif
 
 OBJS = $(OBJDIR)/ssp_main.o $(OBJDIR)/Mapfile.o $(OBJDIR)/ParseMapfile.o $(OBJDIR)/LibraryComplexity.o $(OBJDIR)/ssp_shiftprofile.o
 OBJS += $(CMNOBJDIR)/statistics.o $(CMNOBJDIR)/ReadAnnotation.o $(CMNOBJDIR)/util.o $(CMNOBJDIR)/BoostOptions.o $(ALGLIBDIR)/libalglib.a

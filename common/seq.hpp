@@ -83,7 +83,6 @@ public:
    chr = rmchr(v[2]);
    readlen_F3 = v[9].length();
    if(pair) fraglen = abs(stoi(v[8]));
-   else fraglen = readlen_F3;
    if(sv&16) {
      strand = Strand::REV;
      F3 = stoi(v[3]) + readlen_F3 -1;
@@ -93,13 +92,15 @@ public:
    }
  }
  void print() const {
-   std::cout << "chr:" << chr
-	     << "\tposi:" << F3
-	     << "\tstrand:" << strand
+#ifdef PRINTFRAGMENT
+   std::cout << "chr:"       << chr
+	     << "\tposi:"    << F3
+	     << "\tstrand:"  << strand
 	     << "\tfraglen:" << fraglen
-	     <<"\treadlen:" << readlen_F3
+	     <<"\treadlen:"  << readlen_F3
 	     << std::endl;
-  }
+#endif 
+ }
 };
 
 class Read {
@@ -119,6 +120,16 @@ class Read {
     return weight/static_cast<double>(WeightNum);
   }
   void multiplyWeight(const double w) { weight *= w; }
+  void print() const {
+#ifdef PRINTREAD
+    std::cout << "F3:"      << F3
+	      << "\tF5:"    << F5
+	      << "\tweight:"<< weight
+	      << "\tduplicate:" << duplicate
+	      << "\tinpeak:"    << inpeak
+	      << std::endl;
+#endif 
+  }
 };
 
 

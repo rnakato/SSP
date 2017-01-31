@@ -243,10 +243,6 @@ class SeqStatsGenome {
     //    printBed(vbed);
   }
   const std::vector<bed> & getvbedref() const { return vbed; }
-  
-  void setF5All(const int32_t flen) {
-    for (auto &x:chr) x.setF5(flen);
-  }
 
   void printReadstats() const {
     std::cout << "name\tlength\tlen_mpbl\tread num\tnonred num\tred num\tnormed\tafterGC\tdepth" << std::endl;

@@ -47,8 +47,8 @@ namespace {
       Fragment frag;
       frag.addSAM(v, genome.isPaired(), sv);
       if(frag.fraglen > genome.getmaxins()) continue;
-      //frag.print();
-      
+      frag.print();
+
       addFragToChr(genome, frag);
     }
     
@@ -70,8 +70,7 @@ namespace {
       if(sv&64 || sv&128) std::cerr << "Warning: parsing paired-end file as single-end." << std::endl;
       Fragment frag;
       frag.addSAM(v, genome.isPaired(), sv);
-      //    std::cout << lineStr << std::endl;
-      // frag.print();
+      frag.print();
       addFragToChr(genome, frag);
     }
     
@@ -143,7 +142,7 @@ namespace {
 	    fragpair.chr = chr_F3;
 	    fragpair.fraglen = abs(F5 - fragpair.F3);
 	    if(fragpair.fraglen <= genome.getmaxins()) addFragToChr(genome, fragpair); 
-	    //	  fragpair.print();
+	    fragpair.print();
 	  }
 	  chr_F3 = "";
 	  chr_F5 = "";
@@ -161,7 +160,7 @@ namespace {
 	  frag.strand = Strand::REV;
 	  frag.F3 = stoi(v[3]) + frag.readlen_F3;
 	}
-	//      frag.print();
+	frag.print();
 	addFragToChr(genome, frag); 
       }
       
@@ -196,8 +195,7 @@ namespace {
 	  frag.strand = Strand::REV;
 	  frag.F3 = start + frag.readlen_F3;
 	}
-	//      std::cout << lineStr << std::endl;
-	//frag.print();
+	frag.print();
 	addFragToChr(genome, frag);
       }
     }

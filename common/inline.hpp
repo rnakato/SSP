@@ -71,7 +71,10 @@ inline void DEBUGprint(const std::string &str)
 {
 #ifdef DEBUG
   std::cout << str << std::endl;
+#else
+  if(str==""){}
 #endif
+
 }
 
 #endif /* _MACRO_H_ */
