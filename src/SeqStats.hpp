@@ -9,7 +9,7 @@
 #include <boost/algorithm/string.hpp>
 #include "../common/seq.hpp"
 #include "../common/inline.hpp"
-#include "BpStatus.hpp"
+#include "ReadBpStatus.hpp"
 
 class strandData {
  public:
@@ -126,7 +126,29 @@ class SeqStats {
     }
 #endif 
   }
-  void setFRiP(const uint64_t n) { nread_inbed = n; }
+  void setFRiP(const std::vector<bed> &vbed) {
+    std::vector<BpStatus> array(getlen(), BpStatus::MAPPABLE);
+    OverrideBedToArray(array, getname(), vbed);
+
+    for (auto strand: {Strand::FWD, Strand::REV}) {
+      for (auto &x: seq[strand].vRead) {
+	if(x.duplicate) continue;
+	int32_t s(std::min(x.F3, x.F5));
+	int32_t e(std::max(x.F3, x.F5));
+	for(int32_t i=s; i<=e; ++i) {
+	  if(array[i] == BpStatus::INBED) {
+	    x.inpeak = 1;
+	    ++nread_inbed;
+	    break;
+	  }
+	}
+      }
+    }
+    return;
+  }
+
+
+  
   double getFRiP() const {
     return getratio(nread_inbed, getnread_nonred(Strand::BOTH));
   }

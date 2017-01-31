@@ -83,22 +83,7 @@ class FragmentLengthDist {
   void addF5(const int32_t lenF5) { ++vlenF5[lenF5]; }
   void addvflen(const int32_t flen) { ++vflen[flen]; }
 
-  void outputDistFile(const std::string &prefix, const uint64_t nread) {
-    std::string outputfile = prefix + ".ReadLengthDist.csv";
-    std::ofstream out(outputfile);
-    printVector(out, vlenF3, "F3", nread);
-    if(pairedend) {
-      out << std::endl;
-      printVector(out, vlenF5, "F5", nread);
-    }
-    out.close();
-    
-    if(pairedend) {
-      outputfile = prefix + ".FragmentLengthDist.csv";
-      std::ofstream out(outputfile);
-      printVector(out, vflen, "Fragmemt", nread);
-    }
-  }
+  void outputDistFile(const std::string &prefix, const uint64_t nread);
 };
 
 class SeqStatsGenome {
@@ -106,6 +91,9 @@ class SeqStatsGenome {
 
   std::string inputfilename;
   std::string genometable;
+  int32_t on_bed;
+  std::string bedfilename;
+
   int32_t pairedend;
   int32_t maxins;
   int32_t specifyFtype;
@@ -130,6 +118,7 @@ class SeqStatsGenome {
    opt.add_options()
      ("gt", value<std::string>(), "Genome table (tab-delimited file describing the name and length of each chromosome)")
      ("mptable", value<std::string>(), "Genome table of mappable regions")
+     ("bed", value<std::string>(), "specify the BED file of enriched regions (e.g., peak regions)")
       ;
  }
 
@@ -144,47 +133,10 @@ class SeqStatsGenome {
     allopts.add(opt);
     dflen.setOpts(allopts);
   }
-  void setValues(const MyOpt::Variables &values) {
-    DEBUGprint("SeqStatsGenome setValues...");
+  void setValues(const MyOpt::Variables &values);
 
-    inputfilename = values["input"].as<std::string>();
-    pairedend = values.count("pair");
-    maxins = values["maxins"].as<int32_t>();
-    specifyFtype = values.count("ftype");
-    if(onFtype()) {
-      ftype = values["ftype"].as<std::string>();
-      if(ftype != "SAM" && ftype != "BAM" && ftype != "BOWTIE" && ftype != "TAGALIGN") PRINTERR("invalid --ftype.\n");
-    }
-    
-    dflen.setValues(values);
-    genometable = values["gt"].as<std::string>();
-    readGenomeTable(genometable);
-
-    if(values.count("mptable")) {
-      for(auto &x: chr) x.getMptable(values["mptable"].as<std::string>());
-    }
-    
-    // Greekchr
-    for(auto &x: chr) {
-      if(x.getname() == "I") {
-	for(auto &x:chr) x.Greekchron();
-	break;
-      }
-    }
-
-    // sepchr
-    vsepchr = MyMthread::getVsepchr(getlen(), chr, values["threads"].as<int32_t>());
-    
-    DEBUGprint("SeqStatsGenome setValues done.");
-#ifdef DEBUG
-    std::cout << "chr\tautosome" << std::endl;
-    for(auto &x: chr) std::cout << x.getname() << "\t" << x.isautosome() << std::endl;
-    for(uint32_t i=0; i<vsepchr.size(); i++)
-      std::cout << "thread " << (i+1) << ": " << vsepchr[i].s << "-" << vsepchr[i].e << std::endl;
-    printReadstats();
-#endif
-  }
-
+  int32_t isBedOn () const { return on_bed; }
+  const std::string & getbedfilename() const { return bedfilename; }
   std::string getname() const { return name; }
   uint64_t getlen() const {
     uint64_t len(0);
@@ -229,6 +181,13 @@ class SeqStatsGenome {
     for(auto &x:chr) nread += x.getnread_inbed();
     return nread;
   }
+  void setFRiP() {
+    if(isBedOn()) {
+      std::cout << "calculate FRiP score.." << std::flush;
+      for(auto &x: chr) x.setFRiP(vbed);
+      std::cout << "done." << std::endl;
+    }
+  }
   double getFRiP() const {
     return getratio(getnread_inbed(), getnread_nonred(Strand::BOTH));
   }
@@ -237,11 +196,7 @@ class SeqStatsGenome {
   double getsizefactor()const { return sizefactor; }
 
   void setsizefactor(const double w) { sizefactor = w; }
-  void setbed(const std::string &bedfilename) {
-    isFile(bedfilename);
-    vbed = parseBed<bed>(bedfilename);
-    //    printBed(vbed);
-  }
+
   const std::vector<bed> & getvbedref() const { return vbed; }
 
   void printReadstats() const {
