@@ -31,12 +31,6 @@ void SeqStatsGenome::setValues(const MyOpt::Variables &values) {
     ftype = values["ftype"].as<std::string>();
     if(ftype != "SAM" && ftype != "BAM" && ftype != "BOWTIE" && ftype != "TAGALIGN") PRINTERR("invalid --ftype.\n");
   }
-  on_bed = values.count("bed");
-  if(on_bed) {
-    bedfilename = values["bed"].as<std::string>();
-    isFile(bedfilename);
-    vbed = parseBed<bed>(bedfilename);
-  }
   
   dflen.setValues(values);
   genometable = values["gt"].as<std::string>();

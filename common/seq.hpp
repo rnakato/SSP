@@ -5,6 +5,7 @@
 #define _SEQ_H_
 
 #include <iostream>
+#include <algorithm>
 #include <vector>
 #include <string>
 #include <fstream>
@@ -78,8 +79,8 @@ public:
   int32_t fraglen;
   int32_t readlen_F3;
 
- Fragment(): fraglen(0), readlen_F3(0) {}
- void addSAM(const std::vector<std::string> &v, const bool pair, const int32_t sv) {
+  Fragment(): F3(0), fraglen(0), readlen_F3(0) {}
+  void addSAM(const std::vector<std::string> &v, const bool pair, const int32_t sv) {
    chr = rmchr(v[2]);
    readlen_F3 = v[9].length();
    if(pair) fraglen = abs(stoi(v[8]));
@@ -112,9 +113,15 @@ class Read {
   int32_t duplicate;
   int32_t inpeak;
   
- Read(const Fragment &frag): weight(WeightNum), F3(frag.F3), duplicate(0), inpeak(0) {
+  Read(const Fragment &frag, const int32_t len):
+    weight(WeightNum), F3(frag.F3), duplicate(0), inpeak(0)
+  {
     if(frag.strand == Strand::FWD) F5 = frag.F3 + frag.fraglen;
-    else F5 = frag.F3 - frag.fraglen;
+    else                           F5 = frag.F3 - frag.fraglen;
+    F3 = std::max(F3, 0);
+    F5 = std::max(F5, 0);
+    F3 = std::min(F3, len-1);
+    F5 = std::min(F5, len-1);
   }
   double getWeight() const {
     return weight/static_cast<double>(WeightNum);

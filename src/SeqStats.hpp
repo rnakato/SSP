@@ -62,7 +62,7 @@ class SeqStats {
 
   const std::string & getname() const { return name; }
   void addfrag(const Fragment &frag) {
-    Read r(frag);
+    Read r(frag, len);
     seq[frag.strand].vRead.push_back(r);
   }
   uint64_t getnread (const Strand::Strand strand) const {
@@ -115,6 +115,7 @@ class SeqStats {
       for(auto &x: seq[strand].vRead) x.F5 = x.F3 + d;
     }
   }
+  
   void printvRead() const {
 #ifdef PRINTREAD
     for (auto strand: {Strand::FWD, Strand::REV}) {
@@ -126,15 +127,17 @@ class SeqStats {
     }
 #endif 
   }
+
   void setFRiP(const std::vector<bed> &vbed) {
     std::vector<BpStatus> array(getlen(), BpStatus::MAPPABLE);
     OverrideBedToArray(array, getname(), vbed);
-
+    
     for (auto strand: {Strand::FWD, Strand::REV}) {
       for (auto &x: seq[strand].vRead) {
 	if(x.duplicate) continue;
 	int32_t s(std::min(x.F3, x.F5));
 	int32_t e(std::max(x.F3, x.F5));
+	//	std::cout << x.F3 << "\t" << x.F5 <<"\t" << s << "\t" << e << "\n";
 	for(int32_t i=s; i<=e; ++i) {
 	  if(array[i] == BpStatus::INBED) {
 	    x.inpeak = 1;
@@ -147,8 +150,6 @@ class SeqStats {
     return;
   }
 
-
-  
   double getFRiP() const {
     return getratio(nread_inbed, getnread_nonred(Strand::BOTH));
   }

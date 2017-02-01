@@ -43,7 +43,7 @@ inline bool my_overlap(const T s1, const T e1, const T s2, const T e2)
 template <class T, class S>
 inline double getratio(const T x, const S y)
 {
-  if(!y) std::cerr << "Warning: denominator=0." << std::endl;
+  //  if(!y) std::cerr << "Warning: denominator=0." << std::endl;
   return y ? x/static_cast<double>(y): 0;
 }
 

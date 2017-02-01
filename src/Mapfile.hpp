@@ -91,8 +91,6 @@ class SeqStatsGenome {
 
   std::string inputfilename;
   std::string genometable;
-  int32_t on_bed;
-  std::string bedfilename;
 
   int32_t pairedend;
   int32_t maxins;
@@ -103,7 +101,6 @@ class SeqStatsGenome {
   double depth;
   double sizefactor;
 
-  std::vector<bed> vbed;
   void readGenomeTable(const std::string &gt);
 
  public:
@@ -116,9 +113,10 @@ class SeqStatsGenome {
    name("Genome"), depth(0), sizefactor(0) {
    using namespace boost::program_options;
    opt.add_options()
-     ("gt", value<std::string>(), "Genome table (tab-delimited file describing the name and length of each chromosome)")
-     ("mptable", value<std::string>(), "Genome table of mappable regions")
-     ("bed", value<std::string>(), "specify the BED file of enriched regions (e.g., peak regions)")
+     ("gt", value<std::string>(),
+      "Genome table (tab-delimited file describing the name and length of each chromosome)")
+     ("mptable", value<std::string>(),
+      "Genome table of mappable regions")
       ;
  }
 
@@ -135,8 +133,6 @@ class SeqStatsGenome {
   }
   void setValues(const MyOpt::Variables &values);
 
-  int32_t isBedOn () const { return on_bed; }
-  const std::string & getbedfilename() const { return bedfilename; }
   std::string getname() const { return name; }
   uint64_t getlen() const {
     uint64_t len(0);
@@ -181,13 +177,6 @@ class SeqStatsGenome {
     for(auto &x:chr) nread += x.getnread_inbed();
     return nread;
   }
-  void setFRiP() {
-    if(isBedOn()) {
-      std::cout << "calculate FRiP score.." << std::flush;
-      for(auto &x: chr) x.setFRiP(vbed);
-      std::cout << "done." << std::endl;
-    }
-  }
   double getFRiP() const {
     return getratio(getnread_inbed(), getnread_nonred(Strand::BOTH));
   }
@@ -196,8 +185,6 @@ class SeqStatsGenome {
   double getsizefactor()const { return sizefactor; }
 
   void setsizefactor(const double w) { sizefactor = w; }
-
-  const std::vector<bed> & getvbedref() const { return vbed; }
 
   void printReadstats() const {
     std::cout << "name\tlength\tlen_mpbl\tread num\tnonred num\tred num\tnormed\tafterGC\tdepth" << std::endl;
