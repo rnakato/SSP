@@ -76,16 +76,22 @@ class SSPstats {
     isHd    = values.count("ssp_hd");
     isCc    = values.count("ssp_cc");
     eachchr = values.count("eachchr");
-    num4ssp = values["num4ssp"].as<int32_t>();
-    ng_from = values["ng_from"].as<int32_t>();
-    ng_to   = values["ng_to"].as<int32_t>();
-    ng_step = values["ng_step"].as<int32_t>();
-    ng_from_fcs = values["ng_from_fcs"].as<int32_t>();
-    ng_to_fcs   = values["ng_to_fcs"].as<int32_t>();
-    ng_step_fcs = values["ng_step_fcs"].as<int32_t>();
-    numthreads = values["threads"].as<int32_t>();
+    num4ssp = MyOpt::getVal<int32_t>(values, "num4ssp");
+    ng_from = MyOpt::getVal<int32_t>(values, "ng_from");
+    ng_to   = MyOpt::getVal<int32_t>(values, "ng_to");
+    ng_step = MyOpt::getVal<int32_t>(values, "ng_step");
+    ng_from_fcs = MyOpt::getVal<int32_t>(values, "ng_from_fcs");
+    ng_to_fcs   = MyOpt::getVal<int32_t>(values, "ng_to_fcs");
+    ng_step_fcs = MyOpt::getVal<int32_t>(values, "ng_step_fcs");
+    numthreads = MyOpt::getVal<int32_t>(values, "threads");
     
     DEBUGprint("SSPstats setValues done.");
+  }
+  void dump()
+  {
+    std::cout << boost::format("SSP background region: [%d,%d], step %d\n") % ng_from % ng_to % ng_step;
+    std::cout << boost::format("FCS background region: [%d,%d], step %d\n") % ng_from_fcs % ng_to_fcs % ng_step_fcs;
+    std::cout << boost::format("Read number for FCS: %d\n") % num4ssp;
   }
 
   int32_t DoExjac()    const { return isExjac; }

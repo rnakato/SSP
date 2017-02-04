@@ -78,7 +78,8 @@ namespace MyOpt {
       if (values.count("nomodel")) std::cout << boost::format("Predefined fragment length: %1%\n") % values["flen"].as<int32_t>();
     }
   }
-   
+
+
   void dumpPair(const Variables &values)
   {
     if (values.count("pair")) {

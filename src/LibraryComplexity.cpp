@@ -33,7 +33,7 @@ namespace {
     for(auto &x: chr.getvReadref_notconst(strand)) {
       int32_t Fmin(std::min(x.F3, x.F5));
       int32_t Fmax(std::max(x.F3, x.F5));
-      std::string str(IntToString(Fmin) + "-" + IntToString(Fmax));
+      std::string str(std::to_string(Fmin) + "-" + std::to_string(Fmax));
       if(mp.find(str) != mp.end()) {
 	if(mp[str] < thre) {
 	  ++mp[str];
@@ -77,7 +77,7 @@ void LibComp::hashFilterCmpPair(mapStrInt &mp, const SeqStats &chr, const Strand
     if(rand() >= r4cmp) continue;
     int32_t Fmin(std::min(x.F3, x.F5));
     int32_t Fmax(std::max(x.F3, x.F5));
-    std::string str(IntToString(Fmin) + "-" + IntToString(Fmax));
+    std::string str(std::to_string(Fmin) + "-" + std::to_string(Fmax));
     ++nt_all;
     if(mp.find(str) != mp.end()) {
       if(mp[str] < getThreshold()) {

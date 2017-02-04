@@ -35,8 +35,8 @@ namespace SSP {
       genome.setValues(values);
       complexity.setValues(values);
       sspst.setValues(values);
-      samplename = values["output"].as<std::string>();
-      oprefix = values["odir"].as<std::string>() + "/" + values["output"].as<std::string>();
+      samplename = MyOpt::getVal<std::string>(values, "output");
+      oprefix = MyOpt::getVal<std::string>(values, "odir") + "/" + MyOpt::getVal<std::string>(values, "output");
     }
     
     std::string getprefix() const { return oprefix; }      

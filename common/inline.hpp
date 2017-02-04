@@ -59,13 +59,13 @@ template <class T, class S>
   out << boost::format("%1% (%2$.1f%%)\t") % a % getpercent(a,b);
 };
 
-template <class T>
+/*template <class T>
 inline std::string IntToString(T n)
 {
   std::ostringstream stream;
   stream << n;
   return stream.str();
-}
+  }*/
 
 inline void DEBUGprint(const std::string &str)
 {

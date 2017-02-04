@@ -14,25 +14,6 @@ void isFile(const std::string &);
 int32_t isStr(std::string, std::string);
 
 template <class T>
-void printOpt(boost::program_options::variables_map &values, std::string opt, std::string str)
-{
-  if (values.count(opt)) std::cout << str << ": " << values[opt].as<T>() << std::endl;
-  return;
-}
-
-template <class T>
-void printVOpt(boost::program_options::variables_map &values, std::string opt, std::string str)
-{
-  if (values.count(opt)) {
-    auto v = values[opt].as<std::vector<T>>();
-    for(uint32_t i=0; i<v.size(); ++i) {
-	boost::format("%1% %2%: %3%\n") % str % (i+1) % v[i];
-    }
-  }
-  return;
-}
-
-template <class T>
 void chkminus(const boost::program_options::variables_map &values, std::string x, int32_t lim)
 {
   if (values.count(x)) {

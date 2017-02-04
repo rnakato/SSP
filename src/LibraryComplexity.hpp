@@ -43,13 +43,14 @@ class LibComp {
       ("nofilter", "do not filter PCR bias")
       ;
   }
+
   void setValues(const MyOpt::Variables &values) {
     DEBUGprint("Libcomp setValues...");
-    
+
     nofilter = values.count("nofilter");
     ispaired = values.count("pair");
-    thredef  = values["thre_pb"].as<int32_t>();
-    ncmp     = values["ncmp"].as<int64_t>();
+    ncmp    = MyOpt::getVal<int64_t>(values, "ncmp");
+    thredef = MyOpt::getVal<int32_t>(values, "thre_pb");
 
     DEBUGprint("Libcomp setValues done.");
   }

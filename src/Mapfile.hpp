@@ -55,8 +55,8 @@ class FragmentLengthDist {
   void setValues(const MyOpt::Variables &values) {
     DEBUGprint("FragmentLengthDist setValues...");
     
-    flen_def = values["flen"].as<int32_t>();
-    nomodel = values.count("nomodel");
+    flen_def  = MyOpt::getVal<int32_t>(values, "flen");
+    nomodel   = values.count("nomodel");
     pairedend = values.count("pair");
     
     DEBUGprint("FragmentLengthDist setValues done.");

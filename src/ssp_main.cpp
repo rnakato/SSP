@@ -77,7 +77,7 @@ Usage: ssp [option] -i <inputfile> -o <output> --gt <genome_table>)";
     return;
   }
 
-  void init_dump(const MyOpt::Variables &values){
+  void init_dump(const MyOpt::Variables &values, SSP::Global &ssp){
     std::vector<std::string> str_wigfiletype = {"BINARY", "COMPRESSED WIG", "WIG", "BEDGRAPH", "BIGWIG"};
  
     std::cout << boost::format("\n======================================\n");
@@ -89,10 +89,7 @@ Usage: ssp [option] -i <inputfile> -o <output> --gt <genome_table>)";
     MyOpt::dumpFragmentLengthDist(values);
     MyOpt::dumpPair(values);
     MyOpt::dumpLibComp(values);
-    std::cout << boost::format("background region: [%d,%d], step %d\n")
-      % values["ng_from"].as<int32_t>()
-      % values["ng_to"].as<int32_t>()
-      % values["ng_step"].as<int32_t>();
+    ssp.sspst.dump();
     
     MyOpt::dumpOther(values);
     printf("======================================\n");
@@ -116,30 +113,36 @@ Usage: ssp [option] -i <inputfile> -o <output> --gt <genome_table>)";
     try {
       boost::program_options::parsed_options parsed = parse_command_line(argc, argv, allopts);
       store(parsed, values);
-      if (values.count("version")) printVersion();
-      if (argc ==1) {
-	help_global();
-	std::cerr << "Use --help option for more information on the other options\n\n";
-	exit(0);
-      }
-      if (values.count("help")) {
-	help_global();
-	std::cout << "\n" << allopts << std::endl;
-	exit(0);
-      }
-      std::vector<std::string> opts = {"input", "output", "gt"};
-      for (auto x: opts) {
-	if (!values.count(x)) PRINTERR("specify --" << x << " option.");
-      }
+    }
+    catch(const boost::program_options::error_with_option_name& e) {
+      std::cout << e.what() << std::endl;
+      exit(0);
+    }
+    if (values.count("version")) printVersion();
+    if (argc ==1) {
+      help_global();
+      std::cerr << "Use --help option for more information on the other options\n\n";
+      exit(0);
+    }
+    if (values.count("help")) {
+      help_global();
+      std::cout << "\n" << allopts << std::endl;
+      exit(0);
+    }
+    std::vector<std::string> opts = {"input", "output", "gt"};
+    for (auto x: opts) {
+      if (!values.count(x)) PRINTERR("specify --" << x << " option.");
+    }
       
+    try {
       notify(values);
       ssp.setValues(values);
     
-      boost::filesystem::path dir(values["odir"].as<std::string>());
+      boost::filesystem::path dir(MyOpt::getVal<std::string>(values, "odir"));
       boost::filesystem::create_directory(dir);
     
-      init_dump(values);
-    } catch (std::exception &e) {
+      init_dump(values, ssp);
+    } catch(const boost::bad_any_cast& e) {
       std::cout << e.what() << std::endl;
       exit(0);
     }
