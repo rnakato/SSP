@@ -45,7 +45,7 @@ Usage: ssp [option] -i <inputfile> -o <output> --gt <genome_table>)";
     strShiftProfile(p.sspst, p.genome, head, "jaccard"); 
     t2 = clock();
     std::cout << "Jaccard Bit: " << static_cast<double>(t2 - t1) / CLOCKS_PER_SEC << "sec.\n";
-    makeFCSProfile(p.sspst, p.genome, head, "fcs");
+    makeFCSProfile(p.fcsst, p.genome, head, "fcs");
     p.outputSSPstats();
     
     clock_t t3 = clock();

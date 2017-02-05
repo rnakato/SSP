@@ -123,18 +123,6 @@ std::vector<int8_t> genVector(const std::vector<Read> &vReadref, int32_t start, 
   return array;
 }
 
-std::vector<int8_t> shiftFragVar::genVector4FixedReadsNum(const std::vector<Read> &vReadref, int32_t start, int32_t end) {
-  std::vector<int8_t> array(end-start, 0);
-  for (auto &x: vReadref) {
-    if(!x.duplicate && my_range(x.F3, start, end-1)){
-      if(rand() >= r4cmp) continue;
-      ++array[x.F3 - start];
-      ++numUsed4FCS;
-    }
-  }
-  return array;
-}
-
 boost::dynamic_bitset<> genBitset(const std::vector<Read> &vReadref, int32_t start, int32_t end)
 {
   boost::dynamic_bitset<> array(end-start);
@@ -150,14 +138,6 @@ namespace {
     p.setnsc(nsc);
     p.setrsc(rsc);
     p.setbu(bu);
-  }
-  
-  void setFCSstats(SSPstats &p, const double fcsread, const double fcsflen, const double fcs1k, const double fcs10k, const double fcs100k) {
-    p.setfcsread(fcsread);
-    p.setfcsflen(fcsflen);
-    p.setfcs1k(fcs1k);
-    p.setfcs10k(fcs10k);
-    p.setfcs100k(fcs100k);
   }
 }
 
@@ -220,113 +200,5 @@ void strShiftProfile(SSPstats &sspst, SeqStatsGenome &genome, const std::string 
   else if(typestr=="hdp")     makeProfile<shiftHamming>(sspst, genome, head, typestr);
 
   DEBUGprint("strShiftProfile done.");
-  return;
-}
-
-void makeRscript(const std::string prefix)
-{
-  std::string Rscript(prefix + ".FCS.R");
-  std::ofstream out(Rscript);
-  out << "data <- read.csv('" << prefix << ".pnf.csv', header=TRUE, row.names=1, sep='\t', quote='')" << std::endl;
-  out << "colnames(data) <- colnames(data)[-1]" << std::endl;
-  out << "data <- data[,-ncol(data)]" << std::endl;
-  out << "ncol <- ncol(data)/2" << std::endl;
-  out << "nrow <- nrow(data)" << std::endl;
-  out << "cols <- rainbow(ncol)" << std::endl;
-  out << "cpnf <- data[,(ncol+1):(ncol*2)]" << std::endl;
-  out << "x <- seq(1, nrow, 10)" << std::endl;
-  out << "cpnf10 <- cpnf[x,]" << std::endl;
-  out << "pnf <- rbind(cpnf10[-1,],cpnf[nrow,]) - cpnf10" << std::endl;
-  out << "pdf('" << prefix << ".FCS.pdf', height=5, width=15)" << std::endl;
-  out << "par(mfrow=c(1,3))" << std::endl;
-  // Proportion of NN fragments
-  out << "plot(0, 0, type = 'n', xlim = range(1:nrow), ylim = range(pnf), xlab = 'Neighboring distance (bp)', ylab = 'Proportion of nearest neibor fragments')" << std::endl;
-  out << "for (i in 1:ncol) { lines(x, pnf[,i], col=cols[i])}" << std::endl;
-  out << "legend('bottomright', legend = colnames(pnf), lty = 1, col = cols)" << std::endl;
-  // Cumurative proportion
-  out << "plot(0, 0, type = 'n', xlim = range(1:nrow), ylim = range(cpnf), xlab = 'Neighboring distance (bp)', ylab = 'Cumulative proportion')" << std::endl;
-  out << "for (i in 1:ncol) { lines(1:nrow, cpnf[,i], col=cols[i])}" << std::endl;
-  out << "legend('bottomright', legend = colnames(cpnf), lty = 1, col = cols)" << std::endl;
-  // FCS
-  out << "data <- read.csv('" << prefix << ".fcs.csv', header=TRUE, skip=4, sep='\t', quote='')" << std::endl;
-  out << "plot(data[,1],data[,2], log='x', type='l', xlab = 'Read-pair distance (bp)', ylab = 'Fragment cluster score')" << std::endl;
-  out << "dev.off()" << std::endl;
-
-  std::string command = "R --vanilla < " + Rscript + " > " + Rscript + ".log 2>&1";
-  std::cout << command << std::endl;
-  int32_t return_code = system(command.c_str());
-  if(WEXITSTATUS(return_code)) {
-    std::cerr << "Warning: command " << command << "return nonzero status." << std::endl;
-  }
-  
-  return;
-}
-
-void makeFCSProfile(SSPstats &sspst, const SeqStatsGenome &genome, const std::string &head, const std::string &typestr)
-{
-  shiftFragVar dist(sspst, genome);
-  dist.printStartMessage();
-
-  for(uint32_t i=0; i<genome.chr.size(); ++i) {
-    if(!genome.chr[i].isautosome()) continue;
-    std::cout << genome.chr[i].getname() << ".." << std::flush;
-    dist.execchr(genome, i);
-    if(sspst.isEachchr()) {
-      std::string filename = head + "." + typestr + "." + genome.chr[i].getname() + ".csv";
-      dist.outputfcsChr(filename, i);
-    }
-  }
-  std::cout << "\nread number for calculating FCS: " << dist.getnumUsed4FCS() << std::endl;
-
-  std::string filename1 = head + ".pnf.csv";
-  dist.printdistpnf(filename1);
-  std::string filename2 = head + "." + typestr + ".csv";
-  dist.outputfcsGenome(filename2);
-
-  makeRscript(head);
-
-  setFCSstats(sspst, dist.getMPread(), dist.getMPflen(), dist.getMP1k(), dist.getMP10k(), dist.getMP100k());
-
-  return;
-}
-
-double getFCS(PropNeighborFrag &fv, std::vector<double> &fvbg)
-{
-  double diffMax(0);
-  for(size_t k=0; k<sizeOfvNeighborFrag; ++k) {
-    diffMax = std::max(diffMax, fv.getCumulativePNF(k) - fvbg[k]);
-  }
-  return diffMax;
-}
-
-void shiftFragVar::setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev)
-{
-  boost::thread_group agroup;
-  boost::mutex mtx;
-
-  // make fv for background
-  std::vector<double> fvbg(sizeOfvNeighborFrag, 0);
-  int32_t n(0);
-  for(int32_t flen=ng_from_fcs; flen<ng_to_fcs; flen += ng_step_fcs) {
-    PropNeighborFrag fv;
-    fv.setNeighborFrag(flen, chr.start, chr.end, fwd, rev);    
-    for(size_t k=0; k<sizeOfvNeighborFrag; ++k) {
-      fvbg[k] += fv.getCumulativePNF(k);
-    }
-    ++n;
-  }
-  for(size_t k=0; k<sizeOfvNeighborFrag; ++k) fvbg[k] /= n;
-
-  // calculate FCS for each step
-  std::vector<int32_t> v{flen, chr.getlenF3()};
-  std::copy(v4pnf.begin(), v4pnf.end(), std::back_inserter(v));
-  for(auto len: v) {
-    PropNeighborFrag fv;
-    fv.setNeighborFrag(len, chr.start, chr.end, fwd, rev);
-
-    double fcs = getFCS(fv, fvbg);
-    chr.setmp(len, fcs, mtx);
-    distpnf[len].add2genome(fv, mtx);
-  }
   return;
 }

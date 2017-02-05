@@ -11,8 +11,6 @@
 namespace {
   const int32_t mp_from(500);
   const int32_t mp_to(1500);
-  const int32_t sizeOfvNeighborFrag(5000);
-  const std::vector<int32_t> v4pnf{50, 100, 150, 500, 1000, 2000, 3000, 10000, 100000, 1000000};
 }
 
 std::vector<int8_t> genVector(const std::vector<Read> &vReadref, int32_t start, int32_t end);
@@ -32,61 +30,6 @@ double getmpmean(const std::map<int32_t, double> mp, int32_t s, int32_t e) {
   }
   return m/n;
 }
-
-class PropNeighborFrag {
-  double sumOfvNeighborFrag;
-  std::vector<int32_t> vNeighborFrag;
-
- public:
- PropNeighborFrag(): sumOfvNeighborFrag(0), vNeighborFrag(sizeOfvNeighborFrag, 0) {}
-
-  void setNeighborFrag(const int32_t flen, const int32_t start, const int32_t end,
-		      const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev) {
-    if(start < 0 || flen < 0) {
-      std::cerr << "error: invalid start " << start << "or flen " << flen << "for setNeighborFrag." << std::endl;
-      return;
-    }
-    
-    int32_t last(start);
-    for(int32_t i=start; i<end-flen; ++i) {
-      if(fwd[i] && rev[i+flen]) {
-	int32_t distance = i-last;
-	if(distance <= 0) {
-	  //	  std::cerr << "error: invalid distance " << distance << std::endl;
-	}else if(distance < sizeOfvNeighborFrag-1) ++vNeighborFrag[distance];
-	else ++vNeighborFrag[sizeOfvNeighborFrag-1];
-	last = i;
-      }
-    }
-    sumOfvNeighborFrag = accumulate(vNeighborFrag.begin(), vNeighborFrag.end(), 0);
-  }
-  
-  double getPNF(const int32_t i) const {
-    if(i<0 || i>= sizeOfvNeighborFrag) {
-      std::cerr << "error: invalid num " << i << "for getPNF max: " << sizeOfvNeighborFrag << std::endl;
-      return -1;
-    }
-    else {
-      return sumOfvNeighborFrag ? vNeighborFrag[i] / sumOfvNeighborFrag : 0;
-    }
-  }
-  double getCumulativePNF(const int32_t i) const {
-    if(i<0 || i>= sizeOfvNeighborFrag) {
-      std::cerr << "error: invalid num " << i << "for getCumulativePNF max: " << sizeOfvNeighborFrag << std::endl;
-      return -1;
-    }
-    else {
-      double cpnf(0);
-      for(int32_t j=0; j<=i; ++j) cpnf += getPNF(j);
-      return cpnf;
-    }
-  }
-  void add2genome(const PropNeighborFrag &x, boost::mutex &mtx) {
-    boost::mutex::scoped_lock lock(mtx);
-    for(size_t i=0; i<vNeighborFrag.size(); ++i) vNeighborFrag[i] += x.vNeighborFrag[i];
-    sumOfvNeighborFrag += x.sumOfvNeighborFrag;
-  }
-};
 
 class ReadShiftProfile {
   int32_t lenF3;
@@ -116,6 +59,7 @@ class ReadShiftProfile {
  ReadShiftProfile(const int32_t lenf3, const int32_t b, const int32_t n4s, int32_t s=0, int32_t e=0, int64_t n=0, int64_t l=0):
   lenF3(lenf3), r(0), bk(0), bk_from(b), nsc(0), rsc(0), rlsc(0), nsci(0), len(l), nread(n), num4ssp(n4s), backgroundUniformity(0), start(s), end(e), width(e-s), rchr(1) {}
   virtual ~ReadShiftProfile() {}
+
   void setmp(const int32_t i, const double val, boost::mutex &mtx) {
     boost::mutex::scoped_lock lock(mtx);
     mp[i] = val;
@@ -178,11 +122,6 @@ class ReadShiftProfile {
     }
   }
 
-  double getMPread() const { return  mp.at(lenF3); }
-  double getMP1k()   const { return  mp.at(1000); }
-  double getMP10k()  const { return  mp.at(10000); }
-  double getMP100k()  const { return  mp.at(100000); }
-
   void print2file(const std::string &filename, const std::string &name) {
     if(!nread) {
       std::cerr << filename << ": no read" << std::endl;
@@ -194,7 +133,7 @@ class ReadShiftProfile {
     double const_bu = getratio(num4ssp, (4*NUM_100M - num4ssp));  // 1/39 N/(4*L-N), N=10M, L=100M
     //    std::cout << "####### " << num4ssp << "\t  " << const_bu << "\t" << rRPKM << "\t" << bk << std::endl;
     //    std::cout << "####### " << nread << "\t  " << NUM_100M << "\t" << len << std::endl;
-    rlsc = getMPread() *r;
+    rlsc = mp.at(lenF3) *r;
     backgroundUniformity = const_bu / be;
 
     std::ofstream out(filename);
@@ -218,23 +157,6 @@ class ReadShiftProfile {
 	  << (itr->second/sum)     << "\t"
 	  << (itr->second * rRPKM) << "\t"
 	  << (itr->second * r)     << std::endl;
-  }
-  void print2file4fcs(const std::string &filename, const std::string &name, const int32_t flen, const bool lackOfReads) const {
-    if(!nread) std::cerr << filename << ": no read" << std::endl;
-
-    //    std::cout << flen <<"," << lenF3 <<std::endl;
-
-    std::ofstream out(filename);
-    std::string str("");
-    if(lackOfReads) str = " (read number is insufficient)";
-    out << "Read length"     << str << "\t" << getMPread() << std::endl;
-    out << "Fragment length" << str << "\t" << mp.at(flen) << std::endl;
-    out << "Broad (1 kbp)"   << str << "\t" << getMP1k()   << std::endl;
-    out << "Broad (10 kbp)"  << str << "\t" << getMP10k()  << std::endl;
-    out << "Strand shift\t"  << name << std::endl;
-    for(auto itr = mp.begin(); itr != mp.end(); ++itr)
-      //     if(itr->first != flen && itr->first != lenF3)
-	out << itr->first << "\t" << itr->second << std::endl;
   }
 };
 
@@ -330,7 +252,7 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
 class shiftJacVec : public ReadShiftProfileGenome {
  public:
  shiftJacVec(const SSPstats &sspst, const SeqStatsGenome &genome):
-  ReadShiftProfileGenome("Jaccard index", sspst, genome) {}
+   ReadShiftProfileGenome("Jaccard index", sspst, genome) {}
 
   void setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev);
   void execchr(const SeqStatsGenome &genome, int32_t i) {
@@ -381,73 +303,6 @@ class shiftHamming : public ReadShiftProfileGenome {
     
     setDist(chr[i], fwd, rev);
   }
-};
-
-class shiftFragVar : public ReadShiftProfileGenome {
-  std::map<int32_t, PropNeighborFrag> distpnf;
-  int32_t flen;
-  double r4cmp;
-  uint32_t numUsed4FCS;
-  bool lackOfReads;
-  int32_t ng_from_fcs;
-  int32_t ng_to_fcs;
-  int32_t ng_step_fcs;
-
- public:
- shiftFragVar(const SSPstats &sspst, const SeqStatsGenome &genome):
-  ReadShiftProfileGenome("Fragment Variability", sspst, genome),
-    flen(genome.dflen.getflen()), r4cmp(0), numUsed4FCS(0), lackOfReads(false),
-    ng_from_fcs(sspst.getNgFromFCS()),
-    ng_to_fcs(sspst.getNgToFCS()),
-    ng_step_fcs(sspst.getNgStepFCS())
-      {
-	//double r = (getratio(sspst.getnum4ssp(), getnread())) / (NUM_100M/static_cast<double>(dist.getlen()));
-	double r = getratio(sspst.getnum4ssp(), getnread());
-#ifdef DEBUG
-	std::cout << "\nr for FCS\t" << r << "\t reads: " << getnread() << std::endl;
-#endif
-	if(r>1){
-	  std::cerr << "\nWarning: number of reads (" << getnread() << ") is less than num4ssp ("<< sspst.getnum4ssp() <<").\n";
-	  lackOfReads=true;
-	}
-	r4cmp = r*RAND_MAX;
-      }
-  std::vector<int8_t> genVector4FixedReadsNum(const std::vector<Read> &, int32_t start, int32_t end);
-
-  void setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev);
-  void execchr(const SeqStatsGenome &genome, const int32_t i) {
-    auto fwd = genVector4FixedReadsNum(genome.chr[i].getvReadref(Strand::FWD),  chr[i].start, chr[i].end);
-    auto rev = genVector4FixedReadsNum(genome.chr[i].getvReadref(Strand::REV), chr[i].start, chr[i].end);
-
-    setDist(chr[i], fwd, rev);
-    addmp2genome(i);
-  }
-
-  uint32_t getnumUsed4FCS() const { return numUsed4FCS; }
-
-  void printdistpnf(const std::string &filename) const {
-    std::ofstream out(filename);
-
-    for(auto &x: v4pnf) out << "\tPNF len"  << x;
-    for(auto &x: v4pnf) out << "\tCPNF len" << x;
-    out << std::endl;
-
-    for(size_t k=0; k<sizeOfvNeighborFrag-1; ++k) {
-      out << k << "\t";
-      for(auto &x: v4pnf) out << distpnf.at(x).getPNF(k)           << "\t";
-      for(auto &x: v4pnf) out << distpnf.at(x).getCumulativePNF(k) << "\t";
-      out << std::endl;
-    }
-  }
-  
-  void outputfcsGenome(const std::string &filename) const {
-    print2file4fcs(filename, name, flen, lackOfReads);
-  }
-  void outputfcsChr(const std::string &filename, const int32_t i) const {  
-    chr[i].print2file4fcs(filename, name, flen, lackOfReads);
-  }
-
-  double getMPflen() const { return mp.at(flen); } 
 };
 
 #endif /* _SSP_SHIFTPROFILE_P_H_ */
