@@ -10,7 +10,6 @@
 class bed;
 
 std::vector<int32_t> readMpbl(const std::string &, const std::string &, const int32_t, const int32_t);
-std::vector<BpStatus> readMpbl_binary(const int32_t);
 std::vector<BpStatus> readMpbl_binary(const std::string &, const std::string &, const int32_t);
 std::vector<BpStatus> OverrideBedToArray(std::vector<BpStatus> &, const std::string &, const std::vector<bed> &);
 

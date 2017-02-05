@@ -12,7 +12,6 @@
 #include <boost/filesystem.hpp>
 #include "ssp_gv.hpp"
 #include "ParseMapfile.hpp"
-#include "ssp_shiftprofile.hpp"
 
 #define VERSION "1.0.0"
 

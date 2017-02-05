@@ -8,7 +8,7 @@
 #include "MThread.hpp"
 #include "LibraryComplexity.hpp"
 #include "Mapfile.hpp"
-#include "ssp_shiftprofile.hpp"
+#include "ShiftProfile.hpp"
 
 namespace SSP {
   class Global: private Uncopyable {

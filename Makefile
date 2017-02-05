@@ -21,7 +21,7 @@ ifdef PRINTREAD
 CFLAGS += -DPRINTREAD
 endif
 
-OBJS = $(OBJDIR)/ssp_main.o $(OBJDIR)/Mapfile.o $(OBJDIR)/ParseMapfile.o $(OBJDIR)/ReadBpStatus.o $(OBJDIR)/LibraryComplexity.o $(OBJDIR)/ssp_shiftprofile.o
+OBJS = $(OBJDIR)/ssp_main.o $(OBJDIR)/Mapfile.o $(OBJDIR)/ParseMapfile.o $(OBJDIR)/ReadBpStatus.o $(OBJDIR)/LibraryComplexity.o $(OBJDIR)/ShiftProfile.o
 OBJS += $(CMNOBJDIR)/statistics.o $(CMNOBJDIR)/ReadAnnotation.o $(CMNOBJDIR)/util.o $(CMNOBJDIR)/BoostOptions.o $(ALGLIBDIR)/libalglib.a
 
 .PHONY: all clean
@@ -50,6 +50,6 @@ clean:
 HEADS = $(SRCDIR)/ssp_gv.hpp $(SRCDIR)/Mapfile.hpp $(SRCDIR)/ParseMapfile.hpp $(SRCDIR)/LibraryComplexity.hpp $(CMNDIR)/BoostOptions.hpp $(SRCDIR)/MThread.hpp $(SRCDIR)/SeqStats.hpp $(SRCDIR)/BpStatus.hpp $(CMNDIR)/BedFormat.hpp $(SRCDIR)/ReadBpStatus.hpp
 HEADS += $(CMNDIR)/inline.hpp $(CMNDIR)/seq.hpp $(CMNDIR)/statistics.hpp $(CMNDIR)/util.hpp
 
-$(OBJDIR)/ParseMapfile.o: $(SRCDIR)/ssp_shiftprofile.hpp
-$(OBJDIR)/ssp_shiftprofile.o: Makefile $(SRCDIR)/ssp_shiftprofile_p.hpp $(SRCDIR)/ssp_shiftprofile.hpp
+$(OBJDIR)/ParseMapfile.o: $(SRCDIR)/ShiftProfile.hpp
+$(OBJDIR)/ShiftProfile.o: Makefile $(SRCDIR)/ShiftProfile_p.hpp $(SRCDIR)/ShiftProfile.hpp
 $(OBJS): Makefile $(HEADS)
