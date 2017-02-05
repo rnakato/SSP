@@ -36,13 +36,22 @@ std::vector<int32_t> readMpbl(const std::string &mpfile, const std::string &chrn
 
 std::vector<BpStatus> readMpbl_binary(const std::string &mpfile, const std::string &chrname, const int32_t chrlen)
 {
+  static int on(0);
+  
   if(mpfile == "") {
-    std::cout << "Mappability file is not specified. All genomeic regions are considered as mappable." << std::endl;
+    if(!on) {
+      std::cout << "Mappability file is not specified. All genomeic regions are considered as mappable." << std::endl;
+      on=1;
+    }
     return std::vector<BpStatus>(chrlen, BpStatus::MAPPABLE);
   }
   
   std::string filename = mpfile + "/map_" + chrname + "_binary.txt";
-  std::cout << "Mappability file is specified: " << filename << std::endl;
+  
+  if(!on) {
+    std::cout << "Mappability file is specified: " << filename << std::endl;
+    on=1;
+  }
   std::vector<BpStatus> mparray(chrlen, BpStatus::UNMAPPABLE);
 
   isFile(filename);
