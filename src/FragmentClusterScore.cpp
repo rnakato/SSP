@@ -1,62 +1,63 @@
 /* Copyright(c) Ryuichiro Nakato <rnakato@iam.u-tokyo.ac.jp>
  * All rights reserved.
  */
-
 #include "FragmentClusterScore.hpp"
 #include "Mapfile.hpp"
+#include "FragmentClusterScore_p.hpp"
 
-std::vector<int8_t> genVector4FixedReadsNum(const SeqStats &chr, const double r4cmp, int32_t &numUsed4FCS, Strand::Strand strand)
-{
-  int32_t chrlen(chr.getlen());
-  std::vector<int8_t> array(chrlen, 0);
-  for (auto &x: chr.getvReadref(strand)) {
-    if(!x.duplicate && my_range(x.F3, 0, chrlen-1)){
-      if(rand() >= r4cmp) continue;
-      ++array[x.F3];
-      ++numUsed4FCS;
+namespace {
+  std::vector<int8_t> genVector4FixedReadsNum(const SeqStats &chr, const double r4cmp, int32_t &numUsed4FCS, Strand::Strand strand)
+  {
+    int32_t chrlen(chr.getlen());
+    std::vector<int8_t> array(chrlen, 0);
+    for (auto &x: chr.getvReadref(strand)) {
+      if(!x.duplicate && my_range(x.F3, 0, chrlen-1)){
+	if(rand() >= r4cmp) continue;
+	++array[x.F3];
+	++numUsed4FCS;
+      }
     }
+    return array;
   }
-  return array;
-}
 
+  void makeRscript(const std::string prefix)
+  {
+    std::string Rscript(prefix + ".FCS.R");
+    std::ofstream out(Rscript);
+    out << "data <- read.csv('" << prefix << ".pnf.csv', header=TRUE, row.names=1, sep='\t', quote='')" << std::endl;
+    out << "colnames(data) <- colnames(data)[-1]" << std::endl;
+    out << "data <- data[,-ncol(data)]" << std::endl;
+    out << "ncol <- ncol(data)/2" << std::endl;
+    out << "nrow <- nrow(data)" << std::endl;
+    out << "cols <- rainbow(ncol)" << std::endl;
+    out << "cpnf <- data[,(ncol+1):(ncol*2)]" << std::endl;
+    out << "x <- seq(1, nrow, 10)" << std::endl;
+    out << "cpnf10 <- cpnf[x,]" << std::endl;
+    out << "pnf <- rbind(cpnf10[-1,],cpnf[nrow,]) - cpnf10" << std::endl;
+    out << "pdf('" << prefix << ".FCS.pdf', height=5, width=15)" << std::endl;
+    out << "par(mfrow=c(1,3))" << std::endl;
+    // Proportion of NN fragments
+    out << "plot(0, 0, type = 'n', xlim = range(1:nrow), ylim = range(pnf), xlab = 'Neighboring distance (bp)', ylab = 'Proportion of nearest neibor fragments')" << std::endl;
+    out << "for (i in 1:ncol) { lines(x, pnf[,i], col=cols[i])}" << std::endl;
+    out << "legend('bottomright', legend = colnames(pnf), lty = 1, col = cols)" << std::endl;
+    // Cumurative proportion
+    out << "plot(0, 0, type = 'n', xlim = range(1:nrow), ylim = range(cpnf), xlab = 'Neighboring distance (bp)', ylab = 'Cumulative proportion')" << std::endl;
+    out << "for (i in 1:ncol) { lines(1:nrow, cpnf[,i], col=cols[i])}" << std::endl;
+    out << "legend('bottomright', legend = colnames(cpnf), lty = 1, col = cols)" << std::endl;
+    // FCS
+    out << "data <- read.csv('" << prefix << ".fcs.csv', header=TRUE, skip=4, sep='\t', quote='')" << std::endl;
+    out << "plot(data[,1],data[,2], log='x', type='l', xlab = 'Read-pair distance (bp)', ylab = 'Fragment cluster score')" << std::endl;
+    out << "dev.off()" << std::endl;
 
-void makeRscript(const std::string prefix)
-{
-  std::string Rscript(prefix + ".FCS.R");
-  std::ofstream out(Rscript);
-  out << "data <- read.csv('" << prefix << ".pnf.csv', header=TRUE, row.names=1, sep='\t', quote='')" << std::endl;
-  out << "colnames(data) <- colnames(data)[-1]" << std::endl;
-  out << "data <- data[,-ncol(data)]" << std::endl;
-  out << "ncol <- ncol(data)/2" << std::endl;
-  out << "nrow <- nrow(data)" << std::endl;
-  out << "cols <- rainbow(ncol)" << std::endl;
-  out << "cpnf <- data[,(ncol+1):(ncol*2)]" << std::endl;
-  out << "x <- seq(1, nrow, 10)" << std::endl;
-  out << "cpnf10 <- cpnf[x,]" << std::endl;
-  out << "pnf <- rbind(cpnf10[-1,],cpnf[nrow,]) - cpnf10" << std::endl;
-  out << "pdf('" << prefix << ".FCS.pdf', height=5, width=15)" << std::endl;
-  out << "par(mfrow=c(1,3))" << std::endl;
-  // Proportion of NN fragments
-  out << "plot(0, 0, type = 'n', xlim = range(1:nrow), ylim = range(pnf), xlab = 'Neighboring distance (bp)', ylab = 'Proportion of nearest neibor fragments')" << std::endl;
-  out << "for (i in 1:ncol) { lines(x, pnf[,i], col=cols[i])}" << std::endl;
-  out << "legend('bottomright', legend = colnames(pnf), lty = 1, col = cols)" << std::endl;
-  // Cumurative proportion
-  out << "plot(0, 0, type = 'n', xlim = range(1:nrow), ylim = range(cpnf), xlab = 'Neighboring distance (bp)', ylab = 'Cumulative proportion')" << std::endl;
-  out << "for (i in 1:ncol) { lines(1:nrow, cpnf[,i], col=cols[i])}" << std::endl;
-  out << "legend('bottomright', legend = colnames(cpnf), lty = 1, col = cols)" << std::endl;
-  // FCS
-  out << "data <- read.csv('" << prefix << ".fcs.csv', header=TRUE, skip=4, sep='\t', quote='')" << std::endl;
-  out << "plot(data[,1],data[,2], log='x', type='l', xlab = 'Read-pair distance (bp)', ylab = 'Fragment cluster score')" << std::endl;
-  out << "dev.off()" << std::endl;
-
-  std::string command = "R --vanilla < " + Rscript + " > " + Rscript + ".log 2>&1";
-  std::cout << command << std::endl;
-  int32_t return_code = system(command.c_str());
-  if(WEXITSTATUS(return_code)) {
-    std::cerr << "Warning: command " << command << "return nonzero status." << std::endl;
-  }
+    std::string command = "R --vanilla < " + Rscript + " > " + Rscript + ".log 2>&1";
+    std::cout << command << std::endl;
+    int32_t return_code = system(command.c_str());
+    if(WEXITSTATUS(return_code)) {
+      std::cerr << "Warning: command " << command << "return nonzero status." << std::endl;
+    }
   
-  return;
+    return;
+  }
 }
 
 void makeFCSProfile(FCSstats &fcsst, const SeqStatsGenome &genome, const std::string &head, const std::string &typestr)
@@ -64,7 +65,7 @@ void makeFCSProfile(FCSstats &fcsst, const SeqStatsGenome &genome, const std::st
   shiftFragVar dist(fcsst, genome);
   std::cout << "Making FCS profile..." << std::flush;
 
-  for(uint32_t i=0; i<genome.chr.size(); ++i) {
+  for(size_t i=0; i<genome.chr.size(); ++i) {
     if(!genome.chr[i].isautosome()) continue;
     std::cout << genome.chr[i].getname() << ".." << std::flush;
     dist.execchr(genome.chr[i]);
