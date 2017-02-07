@@ -30,8 +30,7 @@ namespace MyMthread {
       }
       i--;
       uint32_t e = i;
-      chrrange sep(s,e);
-      vsep.push_back(sep);
+      vsep.emplace_back(s, e);
     }
     return vsep;
   }

@@ -136,8 +136,7 @@ std::vector<T> parseBed(const std::string &fileName)
     if(lineStr.empty() || lineStr[0] == '#') continue;
     boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
     if(v[1] == "start") continue;
-    T bed(v);
-    vbed.push_back(bed);
+    vbed.emplace_back(v);
   }
 
   return vbed;

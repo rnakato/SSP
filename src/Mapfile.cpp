@@ -73,8 +73,7 @@ void SeqStatsGenome::readGenomeTable(const std::string &gt)
     getline(in, lineStr);
     if(lineStr.empty() || lineStr[0] == '#') continue;
     boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
-    SeqStats s(v[0], stoi(v[1]));
-    chr.push_back(s);
+    chr.emplace_back(v[0], stoi(v[1]));
   }
   return;
 }

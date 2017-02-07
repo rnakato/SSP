@@ -62,8 +62,7 @@ class SeqStats {
 
   const std::string & getname() const { return name; }
   void addfrag(const Fragment &frag) {
-    Read r(frag, len);
-    seq[frag.strand].vRead.push_back(r);
+    seq[frag.strand].vRead.emplace_back(frag, len);
   }
   uint64_t getnread (const Strand::Strand strand) const {
     if(strand==Strand::BOTH) return seq[Strand::FWD].getnread() + seq[Strand::REV].getnread();

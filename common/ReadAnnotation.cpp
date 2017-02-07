@@ -93,9 +93,8 @@ HashOfGeneDataMap parseRefFlat(const std::string& fileName)
     boost::split(exonStarts, v[9], boost::algorithm::is_any_of(","));
     boost::split(exonEnds,  v[10], boost::algorithm::is_any_of(","));
 
-    for(int32_t i=0; i<tmp[chr][tname].exonCount; i++){
-      range exon(stoi(exonStarts[i]), stoi(exonEnds[i]));
-      tmp[chr][tname].exon.push_back(exon);
+    for(int32_t i=0; i<tmp[chr][tname].exonCount; i++) {
+      tmp[chr][tname].exon.emplace_back(stoi(exonStarts[i]), stoi(exonEnds[i]));
     }
   }
   return tmp;
@@ -163,9 +162,8 @@ HashOfGeneDataMap parseGtf(const std::string& fileName)
     } else if(feat == "exon") {
       tmp[chr][tname].exonCount++;
       if(!tmp[chr][tname].txStart || start < tmp[chr][tname].txStart) tmp[chr][tname].txStart = start;
-      if(end > tmp[chr][tname].txEnd) tmp[chr][tname].txEnd   = end;
-      range exon(start, end);
-      tmp[chr][tname].exon.push_back(exon);
+      if(end > tmp[chr][tname].txEnd) tmp[chr][tname].txEnd = end;
+      tmp[chr][tname].exon.emplace_back(start, end);
     }
 
     tmp[chr][tname].gsrc = gsrc;
@@ -254,8 +252,7 @@ std::vector<chrsize> read_genometable(const std::string& fileName)
     if(lineStr.empty() || lineStr[0] == '#') continue;
     std::vector<std::string> v;
     boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
-    chrsize temp(rmchr(v[0]), stoi(v[1]));
-    gt.push_back(temp);
+    gt.emplace_back(rmchr(v[0]), stoi(v[1]));
   }
   return gt;
 }
