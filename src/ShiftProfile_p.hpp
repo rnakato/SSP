@@ -215,7 +215,7 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
     std::string Rscript(prefix + ".R");
     std::ofstream out(Rscript);
 
-    out << "data <- read.csv('" << filename << "', header=TRUE, skip=6, sep='\t', quote='')" << std::endl;
+    out << "data <- read.csv('" << filename << "', header=TRUE, skip=6, sep='\\t', quote='')" << std::endl;
     out << "output <- '" << prefix << "'" << std::endl;
     out << "pdf(paste(output, '.pdf', sep=''), height=7, width=14)" << std::endl;
     out << "par(mfrow=c(1,2))" << std::endl;
