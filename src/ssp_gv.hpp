@@ -22,7 +22,7 @@ namespace SSP {
   
   public:
     SeqStatsGenome genome;
-    class LibComp complexity;
+    LibComp complexity;
     SSPstats sspst;
     FCSstats fcsst;
   

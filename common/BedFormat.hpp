@@ -5,7 +5,9 @@
 #define _BEDFORMAT_HPP_
 
 #include <fstream>
-#include <boost/algorithm/string.hpp> 
+#include <boost/algorithm/string.hpp>
+
+std::string rmchr(const std::string &chr);
 
 class bed {
  public:
@@ -15,13 +17,12 @@ class bed {
   int32_t summit;
  bed(): start(0), end(0), summit(0) {}
   virtual ~bed(){}
- bed(int32_t s, int32_t e, std::string c): chr(c), start(s), end(e) {}
- bed(std::vector<std::string> s): start(stoi(s[1])), end(stoi(s[2])), summit((start + end)/2) {
-    if(!s[0].find("chr")) chr = s[0].substr(3);
-    else chr = s[0];
-  }
-  void print()      const { std::cout << "chr" << chr << "\t" << start  << "\t" << end ; }
-  void printHead () const { std::cout << "chromosome\tstart\tend"; }
+  bed(const std::string &c, const int32_t s, const int32_t e):
+    chr(rmchr(c)), start(s), end(e) {}
+  bed(const std::vector<std::string> &s):
+    chr(rmchr(s[0])), start(stoi(s[1])), end(stoi(s[2])), summit((start + end)/2) {}
+  void print()     const { std::cout << "chr" << chr << "\t" << start  << "\t" << end ; }
+  void printHead() const { std::cout << "chromosome\tstart\tend"; }
   int32_t length() const { return abs(end - start); }
 };
 
@@ -55,7 +56,7 @@ class bed12 : public bed {
 	<< thickStart << "\t" << thickEnd << "\t" << itemRgb << "\t"
 	<< blockCount << "\t" << blockSizes << "\t" << blockStarts;
  }
- void printHead () const {
+ void printHead() const {
    std::cout << "chromosome\tstart\tend\tname\tscore\tstrand\tthickStart\tthickEnd\titemRgb\tblockCount\tblockSizes\tblockStarts";
  }
 };
@@ -97,8 +98,8 @@ class Peak : public bed {
   double enrich;
   double p_inter, p_enr;
   double q;
- Peak(int32_t s, int32_t e, std::string c, double val, double p):
-  bed(s,e,c), summit(s), pileup(val), enrich(0), p_inter(p), p_enr(0), q(0) {}
+ Peak(const std::string &c, const int32_t s, const int32_t e, const double val, const double p):
+   bed(c,s,e), summit(s), pileup(val), enrich(0), p_inter(p), p_enr(0), q(0) {}
   void renew(int32_t i, double val, double p) {
     end = i;
     pileup += val;
