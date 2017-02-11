@@ -1,7 +1,6 @@
 /* Copyright(c) Ryuichiro Nakato <rnakato@iam.u-tokyo.ac.jp>
  * All rights reserved.
  */
-
 #include "LibraryComplexity.hpp"
 #include "Mapfile.hpp"
 
