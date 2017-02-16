@@ -1,8 +1,8 @@
 /* Copyright(c)  Ryuichiro Nakato <rnakato@iam.u-tokyo.ac.jp>
  * This file is a part of DROMPA sources.
  */
-#ifndef _MACRO_H_
-#define _MACRO_H_
+#ifndef _INLINE_H_
+#define _INLINE_H_
 
 #include <iostream>
 #include <sstream>
@@ -59,14 +59,6 @@ template <class T, class S>
   out << boost::format("%1% (%2$.1f%%)\t") % a % getpercent(a,b);
 };
 
-/*template <class T>
-inline std::string IntToString(T n)
-{
-  std::ostringstream stream;
-  stream << n;
-  return stream.str();
-  }*/
-
 inline void DEBUGprint(const std::string &str)
 {
 #ifdef DEBUG
@@ -77,4 +69,4 @@ inline void DEBUGprint(const std::string &str)
 
 }
 
-#endif /* _MACRO_H_ */
+#endif /* _INLINE_H_ */

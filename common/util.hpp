@@ -13,6 +13,18 @@ std::string rmchr(const std::string &chr);
 void isFile(const std::string &);
 int32_t isStr(std::string, std::string);
 
+
+void printList();
+
+template <class Thead, class... Tbody>
+void printList(Thead head, Tbody... body)
+{
+  std::cout << head;
+  if(sizeof...(body) > 0) std::cout << '\t';
+  printList(body...);
+}
+
+
 template <class T>
 void chkminus(const boost::program_options::variables_map &values, std::string x, int32_t lim)
 {
@@ -37,7 +49,7 @@ void chkrange(const boost::program_options::variables_map &values, std::string x
     }
   }
   return;
-}
+  }
 
 template <class T>
 int32_t getmaxi(std::vector<T> v)

@@ -54,7 +54,7 @@ void SeqStatsGenome::setValues(const MyOpt::Variables &values) {
   DEBUGprint("SeqStatsGenome setValues done.");
 #ifdef DEBUG
   std::cout << "chr\tautosome" << std::endl;
-  for(auto &x: chr) std::cout << x.getname() << "\t" << x.isautosome() << std::endl;
+  for(auto &x: chr) printList(x.getname(), x.isautosome());
   for(uint32_t i=0; i<vsepchr.size(); i++)
     std::cout << "thread " << (i+1) << ": " << vsepchr[i].s << "-" << vsepchr[i].e << std::endl;
   printReadstats();

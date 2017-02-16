@@ -11,6 +11,10 @@
 #include "../common/inline.hpp"
 #include "ReadBpStatus.hpp"
 
+template <class Thead, class... Tbody>
+void printList(Thead head, Tbody... body);
+
+  
 class strandData {
  public:
   std::vector<Read> vRead;
@@ -22,7 +26,7 @@ class strandData {
  strandData(): nread_nonred(0), nread_red(0), nread_rpm(0), nread_afterGC(0) {}
   size_t getnread() const { return vRead.size(); }
   void print() const {
-    std::cout << getnread() << "\t" << nread_nonred << "\t" << nread_red << "\t" << nread_rpm << "\t" << nread_afterGC << std::endl;
+    printList(getnread(), nread_nonred, nread_red, nread_rpm, nread_afterGC);
   }
 
   void setnread_nonread_nofilter() {
@@ -33,13 +37,13 @@ class strandData {
 template <class T>
 void printSeqStats(const T &obj)
 {
-  std::cout << obj.getname() << "\t" << obj.getlen() << "\t" << obj.getlenmpbl() << "\t"
-	    << obj.getnread(Strand::BOTH)        << "\t"
-	    << obj.getnread_nonred(Strand::BOTH) << "\t"
-	    << obj.getnread_red(Strand::BOTH)    << "\t"
-	    << obj.getnread_rpm(Strand::BOTH)    << "\t"
-	    << obj.getnread_afterGC(Strand::BOTH)<< "\t"
-	    << obj.getdepth() << std::endl;
+  printList(obj.getname(), obj.getlen(), obj.getlenmpbl(),
+	    obj.getnread(Strand::BOTH),
+	    obj.getnread_nonred(Strand::BOTH),
+	    obj.getnread_red(Strand::BOTH),
+	    obj.getnread_rpm(Strand::BOTH),
+	    obj.getnread_afterGC(Strand::BOTH),
+	    obj.getdepth());
 }
 
 class SeqStats {
