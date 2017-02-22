@@ -9,8 +9,9 @@
 
 void addmp(std::map<int32_t, double> &mpto, const std::map<int32_t, double> &mpfrom, double w)
 {
-  for(auto itr = mpfrom.begin(); itr != mpfrom.end(); ++itr) {
-    if(!std::isnan(itr->second)) mpto[itr->first] += itr->second * w;
+  for(auto x: mpfrom) {
+    //  for(auto itr = mpfrom.begin(); itr != mpfrom.end(); ++itr) {
+    if(!std::isnan(x.second)) mpto[x.first] += x.second * w;
   }
 }
 
@@ -75,8 +76,8 @@ void shiftCcp::setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, co
   }
 
   double val = 1/(x.getsd() * y.getsd() * (chr.width-ng_to - mp_from - 1));
-  for(auto itr = chr.mp.begin(); itr != chr.mp.end(); ++itr) itr->second *= val;
-  for(auto itr = chr.nc.begin(); itr != chr.nc.end(); ++itr) itr->second *= val;
+  for(auto &x: mp) x.second *= val;
+  for(auto &x: nc) x.second *= val;
 }
 
 void shiftJacBit::setDist(ReadShiftProfile &chr, const boost::dynamic_bitset<> &fwd, boost::dynamic_bitset<> &rev)

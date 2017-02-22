@@ -144,7 +144,7 @@ void shiftFragVar::execchr(const SeqStats &chr)
   for(int32_t flen=ng_from_fcs; flen<ng_to_fcs; flen += ng_step_fcs) {
     pnfbg[flen].setNeighborFrag(flen, chr.getlen(), fwd, rev);
   }
-  for(auto itr = pnf.begin(); itr != pnf.end(); ++itr) {
-    pnf[itr->first].setNeighborFrag(itr->first, chr.getlen(), fwd, rev);
+  for(auto x: pnf) {
+    pnf[x.first].setNeighborFrag(x.first, chr.getlen(), fwd, rev);
   }
 }

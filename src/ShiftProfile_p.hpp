@@ -75,14 +75,14 @@ class ReadShiftProfile {
   uint64_t getlen()  const { return len; }
   double getmpsum()  const {
     double sum(0);
-    for(auto itr = mp.begin(); itr != mp.end(); ++itr) sum += itr->second;
+    for(auto pair: mp) sum += pair.second;
     return sum;
   }
   void setControlRatio() {
     int32_t n(0);
-    for(auto itr = nc.begin(); itr != nc.end(); ++itr) {
-      if(itr->first >= bk_from) {
-	bk += itr->second;
+    for(auto pair: nc) {
+      if(pair.first >= bk_from) {
+	bk += pair.second;
 	++n;
       }
     }
@@ -145,18 +145,18 @@ class ReadShiftProfile {
     out << "Background uniformity\t" << backgroundUniformity << std::endl;
 
     out << "Strand shift\t" << name << "\tProportion\tper " << num4ssp/NUM_1M << "M reads for 100Mbp len\tper control" << std::endl;
-    for(auto itr = mp.begin(); itr != mp.end(); ++itr) 
-      out << itr->first            << "\t"
-	  << itr->second           << "\t"
-	  << (itr->second/sum)     << "\t"
-	  << (itr->second * rRPKM) << "\t"
-	  << (itr->second * r)     << std::endl;
-    for(auto itr = nc.begin(); itr != nc.end(); ++itr) 
-      out << itr->first            << "\t"
-	  << itr->second           << "\t"
-	  << (itr->second/sum)     << "\t"
-	  << (itr->second * rRPKM) << "\t"
-	  << (itr->second * r)     << std::endl;
+    for(auto pair: mp)
+      out << pair.first            << "\t"
+	  << pair.second           << "\t"
+	  << (pair.second/sum)     << "\t"
+	  << (pair.second * rRPKM) << "\t"
+	  << (pair.second * r)     << std::endl;
+    for(auto pair: nc)
+      out << pair.first            << "\t"
+	  << pair.second           << "\t"
+	  << (pair.second/sum)     << "\t"
+	  << (pair.second * rRPKM) << "\t"
+	  << (pair.second * r)     << std::endl;
   }
 };
 

@@ -9,8 +9,10 @@
 int32_t countmp(HashOfGeneDataMap &mp)
 {
   int32_t n(0);
-  for(auto itr = mp.begin(); itr != mp.end(); ++itr) {
-    for(auto itr2 = mp.at(itr->first).begin(); itr2 != mp.at(itr->first).end(); ++itr2) n++;
+  for(auto pair: mp) {
+    //  for(auto itr = mp.begin(); itr != mp.end(); ++itr) {
+    //    for(auto itr2 = mp.at(itr->first).begin(); itr2 != mp.at(itr->first).end(); ++itr2) n++;
+    for(auto x: mp.at(pair.first)) n++;
   }
   return n;
 }
@@ -18,10 +20,11 @@ int32_t countmp(HashOfGeneDataMap &mp)
 std::vector<std::string> scanGeneName(const HashOfGeneDataMap &mp)
 {
   std::vector<std::string> vgname;
-  for(auto itr = mp.begin(); itr != mp.end(); ++itr) {
-    for(auto itr2 = mp.at(itr->first).begin(); itr2 != mp.at(itr->first).end(); ++itr2) {
-      vgname.push_back(itr2->first);
-    }
+  for(auto pair: mp) {
+    for(auto x: mp.at(pair.first)) vgname.push_back(x.first);
+    //  for(auto itr = mp.begin(); itr != mp.end(); ++itr) {
+    //    for(auto itr2 = mp.at(itr->first).begin(); itr2 != mp.at(itr->first).end(); ++itr2) {
+      //    }
   }
   return vgname;
 }
@@ -31,9 +34,10 @@ HashOfGeneDataMap extract_mp(const HashOfGeneDataMap &tmp, const std::vector<std
   HashOfGeneDataMap mp;
 
   for(auto &x: glist) {
-    for(auto itr = tmp.begin(); itr != tmp.end(); ++itr) {
-      std::string chr = itr->first;
-      if(tmp.at(chr).find(x) != tmp.at(chr).end()){
+    for(auto pair: tmp) {
+    //    for(auto itr = tmp.begin(); itr != tmp.end(); ++itr) {
+      std::string chr(pair.first);
+      if (tmp.at(chr).find(x) != tmp.at(chr).end()) {
 	mp[chr][x] = tmp.at(chr).at(x);
 	break;
       }
@@ -180,22 +184,20 @@ HashOfGeneDataMap construct_gmp(const HashOfGeneDataMap &tmp)
 {
   HashOfGeneDataMap gmp;
 
-  for(auto itr = tmp.begin(); itr != tmp.end(); ++itr) {
-    std::string chr = itr->first;
-    for(auto itr2 = itr->second.begin(); itr2 != itr->second.end(); ++itr2) {
-      std::string gname = itr2->second.gname;
-      if(gmp.find(chr) == gmp.end() || gmp[chr].find(gname) == gmp[chr].end()) gmp[chr][gname] = itr2->second;
-      else if(itr2->second.ttag == "CCDS") {
-	if(gmp[chr][gname].ttag != "CCDS" || gmp[chr][gname].length() < itr2->second.length()) gmp[chr][gname] = itr2->second;
-      }else if(itr2->second.ttag == "basic") {
+  for(auto pair: tmp) {
+    std::string chr(pair.first);
+    for(auto x: pair.second) {
+      std::string gname(x.second.gname);
+      if(gmp.find(chr) == gmp.end() || gmp[chr].find(gname) == gmp[chr].end()) gmp[chr][gname] = x.second;
+      else if(x.second.ttag == "CCDS") {
+	if(gmp[chr][gname].ttag != "CCDS" || gmp[chr][gname].length() < x.second.length()) gmp[chr][gname] = x.second;
+      }else if(x.second.ttag == "basic") {
 	if(gmp[chr][gname].ttag != "CCDS" &&
-	   ((gmp[chr][gname].ttag == "basic" && gmp[chr][gname].length() < itr2->second.length()) ||
-	    gmp[chr][gname].ttag != "basic")) gmp[chr][gname] = itr2->second;
+	   ((gmp[chr][gname].ttag == "basic" && gmp[chr][gname].length() < x.second.length()) ||
+	    gmp[chr][gname].ttag != "basic")) gmp[chr][gname] = x.second;
       }
-
-
-      else if(gmp[chr][gname].ttag != "basic" && (itr2->second.ttag == "basic" || gmp[chr][gname].length() < itr2->second.length())) gmp[chr][gname] = itr2->second;
-      else if(itr2->second.ttag == "basic" || gmp[chr][gname].length() < itr2->second.length()) gmp[chr][gname] = itr2->second;
+      else if(gmp[chr][gname].ttag != "basic" && (x.second.ttag == "basic" || gmp[chr][gname].length() < x.second.length())) gmp[chr][gname] = x.second;
+      else if(x.second.ttag == "basic" || gmp[chr][gname].length() < x.second.length()) gmp[chr][gname] = x.second;
     }
   }
   return gmp;
@@ -203,9 +205,9 @@ HashOfGeneDataMap construct_gmp(const HashOfGeneDataMap &tmp)
 
 void printMap(const HashOfGeneDataMap &mp)
 {
-  for(auto itr = mp.begin(); itr != mp.end(); ++itr) {
-    for(auto itr2 = itr->second.begin(); itr2 != itr->second.end(); ++itr2) {
-      itr2->second.printall();
+  for(auto pair: mp) {
+    for(auto x: pair.second) {
+      x.second.printall();
       std::cout << std::endl;
     }
   }
@@ -214,25 +216,25 @@ void printMap(const HashOfGeneDataMap &mp)
 
 void printRefFlat(const HashOfGeneDataMap &mp, const int32_t nameflag)
 {
-  for(auto itr = mp.begin(); itr != mp.end(); ++itr) {
-    for(auto itr2 = itr->second.begin(); itr2 != itr->second.end(); ++itr2) {
-      if(nameflag) std::cout << itr2->second.gname << "\t" << itr2->second.tname << "\t";
-      else std::cout << itr2->second.gid << "\t" << itr2->second.tid << "\t";
-      std::cout << itr->first << "\t"
-	   << itr2->second.strand << "\t"
-	   << itr2->second.txStart << "\t"
-	   << itr2->second.txEnd << "\t";
-      if(itr2->second.cdsStart) {
-	std::cout << itr2->second.cdsStart << "\t"
-	     << itr2->second.cdsEnd   << "\t";
+  for(auto pair: mp) {
+    for(auto x: pair.second) {
+      if(nameflag) std::cout << x.second.gname << "\t" << x.second.tname << "\t";
+      else std::cout << x.second.gid << "\t" << x.second.tid << "\t";
+      std::cout << pair.first << "\t"
+	   << x.second.strand << "\t"
+	   << x.second.txStart << "\t"
+	   << x.second.txEnd << "\t";
+      if(x.second.cdsStart) {
+	std::cout << x.second.cdsStart << "\t"
+	     << x.second.cdsEnd   << "\t";
       } else {
-	std::cout << itr2->second.txEnd << "\t"
-	     << itr2->second.txEnd << "\t";
+	std::cout << x.second.txEnd << "\t"
+	     << x.second.txEnd << "\t";
       }
-      std::cout << itr2->second.exonCount << "\t";
-      for (auto &x: itr2->second.exon) std::cout << x.start << ",";
+      std::cout << x.second.exonCount << "\t";
+      for (auto &ex: x.second.exon) std::cout << ex.start << ",";
       std::cout << "\t";
-      for (auto &x: itr2->second.exon) std::cout << x.end   << ",";
+      for (auto &ex: x.second.exon) std::cout << ex.end   << ",";
       std::cout << std::endl;
     }
   }

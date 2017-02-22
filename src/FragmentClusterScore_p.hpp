@@ -59,8 +59,9 @@ class shiftFragVar {
   uint32_t getnumUsed4FCS() const { return numUsed4FCS; }
   double getpnfbg(const int32_t i) const {
     double v(0);
-    for(auto itr = pnfbg.begin(); itr != pnfbg.end(); ++itr) {
-      v += itr->second.getCumulativePNF(i);
+    for(auto x: pnfbg) {
+      //    for(auto itr = pnfbg.begin(); itr != pnfbg.end(); ++itr) {
+      v += x.second.getCumulativePNF(i);
     }
     return v/pnfbg.size();
   }
@@ -73,9 +74,10 @@ class shiftFragVar {
   }
   void calcFCS() {
     std::cout << "Calculate FCS score..." << std::flush;
-    for(auto itr = pnf.begin(); itr != pnf.end(); ++itr) {
-      std::cout << itr->first << "..." << std::flush;
-      mpFCS[itr->first] = getFCS(itr->first);
+    for(auto x: pnf) {
+      //    for(auto itr = pnf.begin(); itr != pnf.end(); ++itr) {
+      std::cout << x.first << "..." << std::flush;
+      mpFCS[x.first] = getFCS(x.first);
     }
     std::cout << "done." << std::endl;
   } 
@@ -113,11 +115,10 @@ class shiftFragVar {
     out << "Broad (1 kbp)"   << str << "\t" << mpFCS.at(1000)  << std::endl;
     out << "Broad (10 kbp)"  << str << "\t" << mpFCS.at(10000) << std::endl;
     out << "Strand shift\tFragment cluster score" << std::endl;
-    for(auto itr = mpFCS.begin(); itr != mpFCS.end(); ++itr) {
-      out << itr->first << "\t" << mpFCS.at(itr->first) << std::endl;
+    for(auto x: mpFCS) {
+      out << x.first << "\t" << mpFCS.at(x.first) << std::endl;
     }
   }
 };
-
 
 #endif /* _FRAGMENTCLUSTERSCORE_P_H_ */
