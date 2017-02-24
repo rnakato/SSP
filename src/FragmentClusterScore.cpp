@@ -1,6 +1,7 @@
 /* Copyright(c) Ryuichiro Nakato <rnakato@iam.u-tokyo.ac.jp>
  * All rights reserved.
  */
+#include <numeric>
 #include "FragmentClusterScore.hpp"
 #include "Mapfile.hpp"
 #include "FragmentClusterScore_p.hpp"

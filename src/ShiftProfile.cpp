@@ -2,6 +2,7 @@
  * All rights reserved.
  */
 #include <map>
+#include <numeric>
 #include <boost/thread.hpp>
 #include "ShiftProfile.hpp"
 #include "ShiftProfile_p.hpp"
