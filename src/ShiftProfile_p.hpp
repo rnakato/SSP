@@ -205,7 +205,6 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
       seprange.push_back(range(s - mp_from, e - mp_from));
     }
   }
-
   void addmp2genome(const int32_t i) {
     addmp(mp, chr[i].mp, chr[i].rchr);
     addmp(nc, chr[i].nc, chr[i].rchr);
@@ -224,6 +223,7 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
     else if(name == "Cross correlation") out << "sub=sprintf('NSC=%g, RSC=%g, RLSC=%g', " << nsc << "," << rsc << ","  << rlsc << "))" << std::endl;
     else out << ")" << std::endl;
     out << "abline(v=" << nsci <<",lty=2,col=2)" << std::endl;
+    out << "abline(v=" << getlenF3() <<",lty=2,col='blue')" << std::endl;
     out << "legend('bottomright', legend=paste('Estimated fragment length = ', " << nsci << "))" << std::endl;
     out << "plot(data[,1], data[,5], type='l', xlab='Strand shift',ylab='Score relative to background', main='Long distance (log scale)', log='x', xlim=c(1,1000000))" << std::endl;
     out << "dev.off()" << std::endl;
