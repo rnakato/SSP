@@ -39,6 +39,7 @@ class PropNeighborFrag {
 
 class shiftFragVar {
   std::map<int32_t, double> mpFCS;
+  std::map<int32_t, double> mpKLD;
   std::map<int32_t, PropNeighborFrag> pnf;
   std::map<int32_t, PropNeighborFrag> pnfbg;
   int32_t lenF3;
@@ -60,10 +61,18 @@ class shiftFragVar {
   double getpnfbg(const int32_t i) const {
     double v(0);
     for(auto x: pnfbg) {
-      //    for(auto itr = pnfbg.begin(); itr != pnfbg.end(); ++itr) {
       v += x.second.getCumulativePNF(i);
     }
     return v/pnfbg.size();
+  }
+  double getKLD(const int32_t len) const { // Kullback-Leibler divergence
+    double e(0);
+    for(size_t k=0; k<sizeOfvNeighborFrag; ++k) {
+      double p(pnf.at(len).getCumulativePNF(k));
+      double q(getpnfbg(k));
+      if(p && q) e += p * log2(p/q);
+    }
+    return e;
   }
   double getFCS(const int32_t len) const {
     double diffMax(0);
@@ -75,9 +84,9 @@ class shiftFragVar {
   void calcFCS() {
     std::cout << "Calculate FCS score..." << std::flush;
     for(auto x: pnf) {
-      //    for(auto itr = pnf.begin(); itr != pnf.end(); ++itr) {
       std::cout << x.first << "..." << std::flush;
       mpFCS[x.first] = getFCS(x.first);
+      mpKLD[x.first] = getKLD(x.first);
     }
     std::cout << "done." << std::endl;
   } 
@@ -117,6 +126,21 @@ class shiftFragVar {
     out << "Strand shift\tFragment cluster score" << std::endl;
     for(auto x: mpFCS) {
       out << x.first << "\t" << mpFCS.at(x.first) << std::endl;
+    }
+  }
+  void outputKLD(const std::string &filename) const {
+    if(!nread) std::cerr << filename << ": no read" << std::endl;
+
+    std::ofstream out(filename);
+    std::string str("");
+    if(lackOfReads) str = " (read number is insufficient)";
+    out << "Read length"     << str << "\t" << mpKLD.at(lenF3) << std::endl;
+    out << "Fragment length" << str << "\t" << mpKLD.at(flen)  << std::endl;
+    out << "Broad (1 kbp)"   << str << "\t" << mpKLD.at(1000)  << std::endl;
+    out << "Broad (10 kbp)"  << str << "\t" << mpKLD.at(10000) << std::endl;
+    out << "Strand shift\tFragment cluster score" << std::endl;
+    for(auto x: mpKLD) {
+      out << x.first << "\t" << mpKLD.at(x.first) << std::endl;
     }
   }
 };
