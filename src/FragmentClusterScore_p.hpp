@@ -4,7 +4,6 @@
 #ifndef _FRAGMENTCLUSTERSCORE_P_H_
 #define _FRAGMENTCLUSTERSCORE_P_H_
 
-
 class PropNeighborFrag {
   double sumOfvNeighborFrag;
   std::vector<int32_t> vNeighborFrag;
