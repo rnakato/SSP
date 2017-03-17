@@ -1,5 +1,5 @@
 /* Copyright(c)  Ryuichiro Nakato <rnakato@iam.u-tokyo.ac.jp>
- * This file is a part of DROMPA sources.
+ * All rights reserved.
  */
 #ifndef _INLINE_H_
 #define _INLINE_H_
