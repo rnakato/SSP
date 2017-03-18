@@ -83,17 +83,12 @@ void shiftCcp::setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, co
 void shiftJacBit::setDist(ReadShiftProfile &chr, const boost::dynamic_bitset<> &fwd, boost::dynamic_bitset<> &rev)
 {
   double xysum(fwd.count() + rev.count());
-  std::vector<double> Jac;
-  for(int32_t i=0; i<10000; i++) {
-    Jac.emplace_back(i/(xysum-i));
-  }
   
   rev <<= mp_from;
   for(int32_t step=-mp_from; step<mp_to; ++step) {
     rev >>= 1;
     int32_t xy((fwd & rev).count());
-    if(xy<10000) chr.mp[step] = Jac[xy];
-    else chr.mp[step] = xy/(xysum-xy);
+    chr.mp[step] = xy/(xysum-xy);
   }
   
   rev >>= (ng_from - mp_to);
@@ -101,8 +96,7 @@ void shiftJacBit::setDist(ReadShiftProfile &chr, const boost::dynamic_bitset<> &
   for(int32_t step=ng_from; step<ng_to; step+=ng_step) {
     rev >>= ng_step;
     int32_t xy((fwd & rev).count());
-    if(xy<10000) chr.nc[step] = Jac[xy];
-    else chr.nc[step] = xy/(xysum-xy);
+    chr.nc[step] = xy/(xysum-xy);
   }
 }
 
