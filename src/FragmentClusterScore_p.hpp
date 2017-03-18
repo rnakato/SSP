@@ -35,7 +35,6 @@ class PropNeighborFrag {
   }
 };
 
-
 class shiftFragVar {
   std::map<int32_t, double> mpFCS;
   std::map<int32_t, double> mpKLD;
@@ -59,9 +58,7 @@ class shiftFragVar {
   uint32_t getnumUsed4FCS() const { return numUsed4FCS; }
   double getpnfbg(const int32_t i) const {
     double v(0);
-    for(auto x: pnfbg) {
-      v += x.second.getCumulativePNF(i);
-    }
+    for(auto x: pnfbg) v += x.second.getCumulativePNF(i);
     return v/pnfbg.size();
   }
   double getKLD(const int32_t len) const { // Kullback-Leibler divergence

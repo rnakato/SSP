@@ -102,14 +102,17 @@ void PropNeighborFrag::setNeighborFrag(const int32_t flen, const int32_t end,
   for(int32_t i=0; i<end-flen; ++i) {
     if(fwd[i] && rev[i+flen]) {
       int32_t distance = i-last;
-      if(distance <= 0) {
-	//	  std::cerr << "error: invalid distance " << distance << std::endl;
-      }else if(distance < sizeOfvNeighborFrag-1) ++vNeighborFrag[distance];
+      /*if(distance <= 0) {
+	//	std::cerr << "error: invalid distance " << distance << std::endl;
+	}else*/
+      if(distance < sizeOfvNeighborFrag-1) ++vNeighborFrag[distance];
       else ++vNeighborFrag[sizeOfvNeighborFrag-1];
       last = i;
     }
   }
-  sumOfvNeighborFrag = accumulate(vNeighborFrag.begin(), vNeighborFrag.end(), 0);
+
+  sumOfvNeighborFrag = 0;
+  for(auto x: vNeighborFrag) sumOfvNeighborFrag += x;
 }
   
 shiftFragVar::shiftFragVar(const FCSstats &fcsst, const SeqStatsGenome &genome):
