@@ -7,9 +7,12 @@
 class PropNeighborFrag {
   double sumOfvNeighborFrag;
   std::vector<int32_t> vNeighborFrag;
+  std::vector<double> vcPNF;
 
  public:
- PropNeighborFrag(): sumOfvNeighborFrag(0), vNeighborFrag(sizeOfvNeighborFrag, 0) {}
+ PropNeighborFrag(): sumOfvNeighborFrag(0),
+		     vNeighborFrag(sizeOfvNeighborFrag, 0),
+		     vcPNF(sizeOfvNeighborFrag, 0) {}
 
   void setNeighborFrag(const int32_t flen, const int32_t end, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev);
 
@@ -28,16 +31,14 @@ class PropNeighborFrag {
       return -1;
     }
     else {
-      double cpnf(0);
-      for(int32_t j=0; j<=i; ++j) cpnf += getPNF(j);
-      return cpnf;
+      return vcPNF[i];
     }
   }
 };
 
 class shiftFragVar {
   std::map<int32_t, double> mpFCS;
-  std::map<int32_t, double> mpKLD;
+  //  std::map<int32_t, double> mpKLD;
   std::map<int32_t, PropNeighborFrag> pnf;
   std::map<int32_t, PropNeighborFrag> pnfbg;
   int32_t lenF3;
@@ -61,7 +62,7 @@ class shiftFragVar {
     for(auto x: pnfbg) v += x.second.getCumulativePNF(i);
     return v/pnfbg.size();
   }
-  double getKLD(const int32_t len) const { // Kullback-Leibler divergence
+  /*  double getKLD(const int32_t len) const { // Kullback-Leibler divergence
     double e(0);
     for(size_t k=0; k<sizeOfvNeighborFrag; ++k) {
       double p(pnf.at(len).getCumulativePNF(k));
@@ -69,7 +70,7 @@ class shiftFragVar {
       if(p && q) e += p * log2(p/q);
     }
     return e;
-  }
+    }*/
   double getFCS(const int32_t len) const {
     double diffMax(0);
     for(size_t k=0; k<sizeOfvNeighborFrag; ++k) {
@@ -82,10 +83,10 @@ class shiftFragVar {
     for(auto x: pnf) {
       std::cout << x.first << "..." << std::flush;
       mpFCS[x.first] = getFCS(x.first);
-      mpKLD[x.first] = getKLD(x.first);
+      //      mpKLD[x.first] = getKLD(x.first);
     }
     std::cout << "done." << std::endl;
-  } 
+  }
   void outputPnf(const std::string &filename) const {
     std::ofstream out(filename);
 
@@ -124,7 +125,7 @@ class shiftFragVar {
       out << x.first << "\t" << mpFCS.at(x.first) << std::endl;
     }
   }
-  void outputKLD(const std::string &filename) const {
+  /*  void outputKLD(const std::string &filename) const {
     if(!nread) std::cerr << filename << ": no read" << std::endl;
 
     std::ofstream out(filename);
@@ -138,7 +139,7 @@ class shiftFragVar {
     for(auto x: mpKLD) {
       out << x.first << "\t" << mpKLD.at(x.first) << std::endl;
     }
-  }
+    }*/
 };
 
 #endif /* _FRAGMENTCLUSTERSCORE_P_H_ */

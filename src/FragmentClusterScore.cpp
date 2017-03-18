@@ -1,7 +1,6 @@
 /* Copyright(c) Ryuichiro Nakato <rnakato@iam.u-tokyo.ac.jp>
  * All rights reserved.
  */
-#include <numeric>
 #include "FragmentClusterScore.hpp"
 #include "Mapfile.hpp"
 #include "FragmentClusterScore_p.hpp"
@@ -36,7 +35,7 @@ namespace {
     out << "cpnf10 <- cpnf[x,]" << std::endl;
     out << "pnf <- rbind(cpnf10[-1,],cpnf[nrow,]) - cpnf10" << std::endl;
     out << "pdf('" << prefix << ".FCS.pdf', height=5, width=15)" << std::endl;
-    out << "par(mfrow=c(1,4))" << std::endl;
+    out << "par(mfrow=c(1,3))" << std::endl;
     // Proportion of NN fragments
     out << "plot(0, 0, type = 'n', xlim = range(1:nrow), ylim = c(0,max(c(max(pnf),0.2))), xlab = 'Neighboring distance (bp)', ylab = 'Proportion of nearest neibor fragments')" << std::endl;
     out << "for (i in 1:ncol) { lines(x, pnf[,i], col=cols[i])}" << std::endl;
@@ -48,8 +47,8 @@ namespace {
     // FCS
     out << "data <- read.csv('" << prefix << ".fcs.csv', header=TRUE, skip=4, sep='\t', quote='')" << std::endl;
     out << "plot(data[,1],data[,2], log='x', type='l', ylim = c(0,max(c(data[,2],0.2))), xlab = 'Read-pair distance (bp)', ylab = 'Fragment cluster score')" << std::endl;
-    out << "data <- read.csv('" << prefix << ".KLD.csv', header=TRUE, skip=4, sep='\t', quote='')" << std::endl;
-    out << "plot(data[,1],data[,2], log='x', type='l', ylim = c(0,max(c(data[,2],0.2))), xlab = 'Read-pair distance (bp)', ylab = 'Kullback-Leibler divergence')" << std::endl;
+    ///    out << "data <- read.csv('" << prefix << ".KLD.csv', header=TRUE, skip=4, sep='\t', quote='')" << std::endl;
+    //    out << "plot(data[,1],data[,2], log='x', type='l', ylim = c(0,max(c(data[,2],0.2))), xlab = 'Read-pair distance (bp)', ylab = 'Kullback-Leibler divergence')" << std::endl;
     out << "dev.off()" << std::endl;
 
     std::string command = "R --vanilla < " + Rscript + " > " + Rscript + ".log 2>&1";
@@ -80,8 +79,8 @@ void makeFCSProfile(FCSstats &fcsst, const SeqStatsGenome &genome, const std::st
   dist.outputPnf(filename1);
   std::string filename2 = head + "." + typestr + ".csv";
   dist.outputFCS(filename2);
-  filename2 = head + ".KLD.csv";
-  dist.outputKLD(filename2);
+  //  filename2 = head + ".KLD.csv";
+  // dist.outputKLD(filename2);
 
   makeRscript(head);
   
@@ -90,31 +89,6 @@ void makeFCSProfile(FCSstats &fcsst, const SeqStatsGenome &genome, const std::st
   return;
 }
 
-void PropNeighborFrag::setNeighborFrag(const int32_t flen, const int32_t end,
-		      const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev)
-{
-  if(flen < 0) {
-    std::cerr << "error: invalid flen " << flen << "for setNeighborFrag." << std::endl;
-    return;
-  }
-  
-  int32_t last(0);
-  for(int32_t i=0; i<end-flen; ++i) {
-    if(fwd[i] && rev[i+flen]) {
-      int32_t distance = i-last;
-      /*if(distance <= 0) {
-	//	std::cerr << "error: invalid distance " << distance << std::endl;
-	}else*/
-      if(distance < sizeOfvNeighborFrag-1) ++vNeighborFrag[distance];
-      else ++vNeighborFrag[sizeOfvNeighborFrag-1];
-      last = i;
-    }
-  }
-
-  sumOfvNeighborFrag = 0;
-  for(auto x: vNeighborFrag) sumOfvNeighborFrag += x;
-}
-  
 shiftFragVar::shiftFragVar(const FCSstats &fcsst, const SeqStatsGenome &genome):
    lenF3(genome.dflen.getlenF3()), flen(genome.dflen.getflen()),
    r4cmp(0), numUsed4FCS(0), lackOfReads(false),
@@ -143,6 +117,34 @@ shiftFragVar::shiftFragVar(const FCSstats &fcsst, const SeqStatsGenome &genome):
     r4cmp = r*RAND_MAX;
   }
 
+void PropNeighborFrag::setNeighborFrag(const int32_t flen, const int32_t end,
+		      const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev)
+{
+  if(flen < 0) {
+    std::cerr << "error: invalid flen " << flen << "for setNeighborFrag." << std::endl;
+    return;
+  }
+  
+  int32_t distance(0);
+  for(int32_t i=0; i<end-flen; ++i) {
+    if(fwd[i] && rev[i+flen]) {
+      if(distance < sizeOfvNeighborFrag-1) ++vNeighborFrag[distance];
+      else ++vNeighborFrag[sizeOfvNeighborFrag-1];
+      distance = 0;
+    }
+    ++distance;
+  }
+
+  sumOfvNeighborFrag = 0;
+  for(auto x: vNeighborFrag) sumOfvNeighborFrag += x;
+
+  
+  for(size_t i=0; i<sizeOfvNeighborFrag; ++i) {
+    if(!i) vcPNF[i] = getPNF(0);
+    else   vcPNF[i] = vcPNF[i-1] + getPNF(i);
+  }
+}
+
 void shiftFragVar::execchr(const SeqStats &chr)
 {
   auto fwd = genVector4FixedReadsNum(chr, r4cmp, numUsed4FCS, Strand::FWD);
@@ -155,3 +157,4 @@ void shiftFragVar::execchr(const SeqStats &chr)
     pnf[x.first].setNeighborFrag(x.first, chr.getlen(), fwd, rev);
   }
 }
+
