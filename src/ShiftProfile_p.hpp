@@ -13,8 +13,8 @@ namespace {
   const int32_t mp_to(1500);
 }
 
-std::vector<int8_t> genVector(const std::vector<Read> &vReadref, int32_t start, int32_t end);
-boost::dynamic_bitset<> genBitset(const std::vector<Read> &vReadref, int32_t, int32_t);
+std::vector<int8_t> genVector(const std::vector<Read> &vReadref, const int32_t start, const int32_t end);
+boost::dynamic_bitset<> genBitset(const std::vector<Read> &vReadref, const int32_t, const int32_t);
 void addmp(std::map<int32_t, double> &, const std::map<int32_t, double> &, double w);
 
 double getmpmean(const std::map<int32_t, double> mp, int32_t s, int32_t e) {
@@ -270,7 +270,7 @@ class shiftJacBit : public ReadShiftProfileGenome {
 
   void setDist(ReadShiftProfile &chr, const boost::dynamic_bitset<> &fwd, boost::dynamic_bitset<> &rev);
   void execchr(const SeqStatsGenome &genome, int32_t i) {
-    auto fwd = genBitset(genome.chr[i].getvReadref(Strand::FWD),  chr[i].start, chr[i].end);
+    auto fwd = genBitset(genome.chr[i].getvReadref(Strand::FWD), chr[i].start, chr[i].end);
     auto rev = genBitset(genome.chr[i].getvReadref(Strand::REV), chr[i].start, chr[i].end);
 
     setDist(chr[i], fwd, rev);

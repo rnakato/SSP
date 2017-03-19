@@ -115,7 +115,7 @@ void shiftHamming::setDist(ReadShiftProfile &chr, const boost::dynamic_bitset<> 
   }
 }
 
-std::vector<int8_t> genVector(const std::vector<Read> &vReadref, int32_t start, int32_t end)
+std::vector<int8_t> genVector(const std::vector<Read> &vReadref, const int32_t start, const int32_t end)
 {
   std::vector<int8_t> array(end-start, 0);
   for (auto &x: vReadref) {
@@ -124,7 +124,7 @@ std::vector<int8_t> genVector(const std::vector<Read> &vReadref, int32_t start, 
   return array;
 }
 
-boost::dynamic_bitset<> genBitset(const std::vector<Read> &vReadref, int32_t start, int32_t end)
+boost::dynamic_bitset<> genBitset(const std::vector<Read> &vReadref, const int32_t start, const int32_t end)
 {
   boost::dynamic_bitset<> array(end-start);
   for (auto &x: vReadref) {
@@ -135,7 +135,8 @@ boost::dynamic_bitset<> genBitset(const std::vector<Read> &vReadref, int32_t sta
 }
 
 namespace {
-  void setSSPstats(SSPstats &p, const double bu, const double nsc, const double rsc) {
+  void setSSPstats(SSPstats &p, const double bu, const double nsc, const double rsc)
+  {
     p.setnsc(nsc);
     p.setrsc(rsc);
     p.setbu(bu);
@@ -143,7 +144,8 @@ namespace {
 }
 
 template <class T>
-void genThread(T &dist, const SeqStatsGenome &genome, uint32_t chr_s, uint32_t chr_e, const std::string &prefix, const bool output_eachchr) {
+void genThread(T &dist, const SeqStatsGenome &genome, uint32_t chr_s, uint32_t chr_e, const std::string &prefix, const bool output_eachchr)
+{
   for(uint32_t i=chr_s; i<=chr_e; ++i) {
     std::cout << genome.chr[i].getname() << ".." << std::flush;
 
