@@ -83,7 +83,6 @@ void shiftCcp::setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, co
   }
 
   double val = 1/(x.getsd() * y.getsd() * (chr.width - ng_to - mp_from - 1));
-  std::cout<< val << std::endl;
   for(auto &x: mp) x.second *= val;
   for(auto &x: nc) x.second *= val;
 }
