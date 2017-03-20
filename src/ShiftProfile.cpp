@@ -60,8 +60,14 @@ void genThreadCcp(ReadShiftProfile &chr, int32_t ng_to, const std::vector<int8_t
 
 void shiftCcp::setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev)
 {
-  MyStatistics::moment<int8_t> x(fwd, mp_from, chr.width-ng_to);
-  MyStatistics::moment<int8_t> y(rev, mp_from, chr.width-ng_to);
+  if(chr.width < ng_to) {
+    std::cerr << "\nerror: chromosome length " << chr.width << " is shorter than background distance " << ng_to << std::endl;
+    std::cerr << "please specify shorter length with --ng_from and --ng_to options." << std::endl;
+    exit(0);
+  }
+  
+  MyStatistics::moment<int8_t> x(fwd, mp_from, chr.width - ng_to);
+  MyStatistics::moment<int8_t> y(rev, mp_from, chr.width - ng_to);
 
   boost::thread_group agroup;
   boost::mutex mtx;
@@ -76,7 +82,8 @@ void shiftCcp::setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, co
     chr.nc[step] = xy;
   }
 
-  double val = 1/(x.getsd() * y.getsd() * (chr.width-ng_to - mp_from - 1));
+  double val = 1/(x.getsd() * y.getsd() * (chr.width - ng_to - mp_from - 1));
+  std::cout<< val << std::endl;
   for(auto &x: mp) x.second *= val;
   for(auto &x: nc) x.second *= val;
 }
