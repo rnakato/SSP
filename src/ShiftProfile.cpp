@@ -89,9 +89,7 @@ void shiftCcp::setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, co
 
 void shiftJacBit::setDist(ReadShiftProfile &chr, boost::dynamic_bitset<> &fwd, boost::dynamic_bitset<> &rev)
 {
-  /*
-
-  rev >>= 150; //getlenF3();
+  /*  rev >>= getlenF3();
   std::vector<int8_t> array(fwd.size()/100 +1, 0);
   for(uint32_t i=0; i<fwd.size()-getlenF3(); ++i) {
     if(fwd.test(i) && rev.test(i)) {
@@ -104,7 +102,7 @@ void shiftJacBit::setDist(ReadShiftProfile &chr, boost::dynamic_bitset<> &fwd, b
   std::cerr << (int)MyStatistics::getPercentile(array, 0.95) << "\t"<< (int)MyStatistics::getPercentile(array, 0.98) << std::endl;
   int max = MyStatistics::getPercentile(array, 0.98);
   for(uint32_t i=0; i<fwd.size()/100; ++i) {
-    if(array[i]>=2) {
+    if(array[i]>=3) {
       std::cout << (i*100) << "\t"<< ((int)array[i]) << std::endl;
       for(int32_t j=i*100; j<(i+1)*100; ++j) {
 	fwd.reset(j);
