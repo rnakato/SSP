@@ -7,6 +7,7 @@
 #include "ShiftProfile.hpp"
 #include "ShiftProfile_p.hpp"
 #include "../common/inline.hpp"
+#include "../common/statistics.hpp"
 
 void addmp(std::map<int32_t, double> &mpto, const std::map<int32_t, double> &mpfrom, double w)
 {
@@ -80,8 +81,34 @@ void shiftCcp::setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, co
   for(auto &x: nc) x.second *= val;
 }
 
-void shiftJacBit::setDist(ReadShiftProfile &chr, const boost::dynamic_bitset<> &fwd, boost::dynamic_bitset<> &rev)
+void shiftJacBit::setDist(ReadShiftProfile &chr, boost::dynamic_bitset<> &fwd, boost::dynamic_bitset<> &rev)
 {
+  /*
+
+  rev >>= 150; //getlenF3();
+  std::vector<int8_t> array(fwd.size()/100 +1, 0);
+  for(uint32_t i=0; i<fwd.size()-getlenF3(); ++i) {
+    if(fwd.test(i) && rev.test(i)) {
+      //      fwd.reset(i);
+      //rev.reset(i);
+      ++array[i/100]; //std::cout << i << std::endl;
+    }
+  }
+  
+  std::cerr << (int)MyStatistics::getPercentile(array, 0.95) << "\t"<< (int)MyStatistics::getPercentile(array, 0.98) << std::endl;
+  int max = MyStatistics::getPercentile(array, 0.98);
+  for(uint32_t i=0; i<fwd.size()/100; ++i) {
+    if(array[i]>=2) {
+      std::cout << (i*100) << "\t"<< ((int)array[i]) << std::endl;
+      for(int32_t j=i*100; j<(i+1)*100; ++j) {
+	fwd.reset(j);
+	rev.reset(j);
+      }
+    }
+  }
+  rev <<= getlenF3();
+  exit(0);*/
+  
   double xysum(fwd.count() + rev.count());
   
   rev <<= mp_from;
@@ -154,6 +181,7 @@ void genThread(T &dist, const SeqStatsGenome &genome, uint32_t chr_s, uint32_t c
     
     std::string filename = prefix + "." + genome.chr[i].getname() + ".csv";
     if(output_eachchr) dist.outputmpChr(filename, i);
+    //    exit(0);
   }
 }
 

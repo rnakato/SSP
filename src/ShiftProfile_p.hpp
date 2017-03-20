@@ -268,7 +268,7 @@ class shiftJacBit : public ReadShiftProfileGenome {
  shiftJacBit(const SSPstats &sspst, const SeqStatsGenome &genome):
   ReadShiftProfileGenome("Jaccard index", sspst, genome) {}
 
-  void setDist(ReadShiftProfile &chr, const boost::dynamic_bitset<> &fwd, boost::dynamic_bitset<> &rev);
+  void setDist(ReadShiftProfile &chr, boost::dynamic_bitset<> &fwd, boost::dynamic_bitset<> &rev);
   void execchr(const SeqStatsGenome &genome, int32_t i) {
     auto fwd = genBitset(genome.chr[i].getvReadref(Strand::FWD), chr[i].start, chr[i].end);
     auto rev = genBitset(genome.chr[i].getvReadref(Strand::REV), chr[i].start, chr[i].end);
