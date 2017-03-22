@@ -22,13 +22,14 @@ class SSPstats {
   int32_t numthreads;
   
   double nsc;
+  double rlsc;
   double rsc;
   double backgroundUniformity;
 
  public:
  SSPstats():
   opt("Strand shift profile",100),
-    nsc(0), rsc(0), backgroundUniformity(0){
+  nsc(0), rlsc(0), rsc(0), backgroundUniformity(0) {
     using namespace boost::program_options;
     opt.add_options()
       ("num4ssp",
@@ -86,14 +87,15 @@ class SSPstats {
   int32_t getnumthreads() const { return numthreads; }
   
   void setnsc(const double c) { nsc = c; }
+  void setrlsc(const double c) { rlsc = c; }
   void setrsc(const double c) { rsc = c; }
   void setbu(const double c) { backgroundUniformity = c; }
 
   void printhead(std::ofstream &out) {
-    out << "NSC\tRSC\tbackground uniformity";
+    out << "NSC\tRLSC\tRSC\tbackground uniformity";
   }
   void print(std::ofstream &out) {
-    out << nsc << "\t" << rsc << "\t" << backgroundUniformity;
+    out << nsc << "\t" << rlsc << "\t" << rsc << "\t" << backgroundUniformity;
   }
 };
 

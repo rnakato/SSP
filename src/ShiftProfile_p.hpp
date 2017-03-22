@@ -69,6 +69,7 @@ class ReadShiftProfile {
   void setrchr(const uint64_t n) { rchr = n ? getratio(nread, n): 0; }
   int32_t getlenF3() const { return lenF3; }
   double getnsc()    const { return nsc; }
+  double getrlsc()    const { return rlsc; }
   double getrsc()    const { return rsc; }
   int32_t getnsci()  const { return nsci; }
   uint64_t getnread() const { return nread; }

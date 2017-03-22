@@ -89,30 +89,6 @@ void shiftCcp::setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, co
 
 void shiftJacBit::setDist(ReadShiftProfile &chr, boost::dynamic_bitset<> &fwd, boost::dynamic_bitset<> &rev)
 {
-  /*  rev >>= getlenF3();
-  std::vector<int8_t> array(fwd.size()/100 +1, 0);
-  for(uint32_t i=0; i<fwd.size()-getlenF3(); ++i) {
-    if(fwd.test(i) && rev.test(i)) {
-      //      fwd.reset(i);
-      //rev.reset(i);
-      ++array[i/100]; //std::cout << i << std::endl;
-    }
-  }
-  
-  std::cerr << (int)MyStatistics::getPercentile(array, 0.95) << "\t"<< (int)MyStatistics::getPercentile(array, 0.98) << std::endl;
-  int max = MyStatistics::getPercentile(array, 0.98);
-  for(uint32_t i=0; i<fwd.size()/100; ++i) {
-    if(array[i]>=3) {
-      std::cout << (i*100) << "\t"<< ((int)array[i]) << std::endl;
-      for(int32_t j=i*100; j<(i+1)*100; ++j) {
-	fwd.reset(j);
-	rev.reset(j);
-      }
-    }
-  }
-  rev <<= getlenF3();
-  exit(0);*/
-  
   double xysum(fwd.count() + rev.count());
   
   rev <<= mp_from;
@@ -166,9 +142,10 @@ boost::dynamic_bitset<> genBitset(const std::vector<Read> &vReadref, const int32
 }
 
 namespace {
-  void setSSPstats(SSPstats &p, const double bu, const double nsc, const double rsc)
+  void setSSPstats(SSPstats &p, const double bu, const double nsc, const double rlsc, const double rsc)
   {
     p.setnsc(nsc);
+    p.setrlsc(rlsc);
     p.setrsc(rsc);
     p.setbu(bu);
   }
@@ -192,7 +169,7 @@ void genThread(T &dist, const SeqStatsGenome &genome, uint32_t chr_s, uint32_t c
 template <class T>
 void makeProfile(SSPstats &sspst, SeqStatsGenome &genome, const std::string &head, const std::string &typestr)
 {
-  DEBUGprint("makeProfile: " + typestr );
+  DEBUGprint("makeProfile: " + typestr);
   T dist(sspst, genome);
   dist.printStartMessage();
   
@@ -219,7 +196,7 @@ void makeProfile(SSPstats &sspst, SeqStatsGenome &genome, const std::string &hea
   std::string prefix2 = head + "." + typestr;
   dist.outputmpGenome(prefix2);
 
-  if(typestr == "jaccard") setSSPstats(sspst, dist.getbackgroundUniformity(), dist.getnsc(), dist.getrsc());
+  if(typestr == "jaccard") setSSPstats(sspst, dist.getbackgroundUniformity(), dist.getnsc(), dist.getrlsc(), dist.getrsc());
 
   DEBUGprint("makeProfile: " + typestr + " done.");
   return;

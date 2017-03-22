@@ -159,7 +159,7 @@ int main(int argc, char* argv[])
 
   read_mapfile(p.genome);
   p.complexity.checkRedundantReads(p.genome);
-  
+
   estimateFragLength(p);
 
 #ifdef DEBUG
