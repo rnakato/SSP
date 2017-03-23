@@ -24,26 +24,30 @@ namespace {
   {
     std::string Rscript(prefix + ".FCS.R");
     std::ofstream out(Rscript);
-    out << "data <- read.csv('" << prefix << ".pnf.csv', header=TRUE, row.names=1, sep='\t', quote='')" << std::endl;
+    out << "data <- read.csv('" << prefix << ".pnf.csv', header=TRUE, row.names=1, sep='\\t', quote='')" << std::endl;
     out << "colnames(data) <- colnames(data)[-1]" << std::endl;
     out << "data <- data[,-ncol(data)]" << std::endl;
-    out << "ncol <- ncol(data)/2" << std::endl;
     out << "nrow <- nrow(data)" << std::endl;
+    out << "array <- c('50','150', '500', '1000', '5000', '10000', '100000', '1000000')" << std::endl;
+
+    out << "ncol <- length(array)" << std::endl;
     out << "cols <- rainbow(ncol)" << std::endl;
-    out << "cpnf <- data[,(ncol+1):(ncol*2)]" << std::endl;
+    out << "cpnf <- data[,paste('CPNF.len', array, sep='')]" << std::endl;
+    out << "colnames(cpnf) <- paste('len', array, sep='')" << std::endl;
     out << "x <- seq(1, nrow, 10)" << std::endl;
     out << "cpnf10 <- cpnf[x,]" << std::endl;
     out << "pnf <- rbind(cpnf10[-1,],cpnf[nrow,]) - cpnf10" << std::endl;
+    out << std::endl;
     out << "pdf('" << prefix << ".FCS.pdf', height=5, width=15)" << std::endl;
     out << "par(mfrow=c(1,3))" << std::endl;
     // Proportion of NN fragments
     out << "plot(0, 0, type = 'n', xlim = range(1:nrow), ylim = c(0,max(c(max(pnf),0.2))), xlab = 'Neighboring distance (bp)', ylab = 'Proportion of nearest neibor fragments')" << std::endl;
     out << "for (i in 1:ncol) { lines(x, pnf[,i], col=cols[i])}" << std::endl;
-    out << "legend('bottomright', legend = colnames(pnf), lty = 1, col = cols)" << std::endl;
+    out << "legend('topright', legend = colnames(pnf), lty = 1, col = cols)" << std::endl;
     // Cumurative proportion
     out << "plot(0, 0, type = 'n', xlim = range(1:nrow), ylim = c(0,max(c(max(cpnf),0.4))), xlab = 'Neighboring distance (bp)', ylab = 'Cumulative proportion')" << std::endl;
     out << "for (i in 1:ncol) { lines(1:nrow, cpnf[,i], col=cols[i])}" << std::endl;
-    out << "legend('bottomright', legend = colnames(cpnf), lty = 1, col = cols)" << std::endl;
+    out << "legend('topright', legend = colnames(cpnf), lty = 1, col = cols)" << std::endl;
     // FCS
     out << "data <- read.csv('" << prefix << ".fcs.csv', header=TRUE, skip=4, sep='\t', quote='')" << std::endl;
     out << "plot(data[,1],data[,2], log='x', type='l', ylim = c(0,max(c(data[,2],0.2))), xlab = 'Read-pair distance (bp)', ylab = 'Fragment cluster score')" << std::endl;
