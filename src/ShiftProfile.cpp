@@ -63,7 +63,7 @@ void shiftCcp::setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, co
   if(chr.width < ng_to) {
     std::cerr << "\nerror: chromosome length " << chr.width << " is shorter than background distance " << ng_to << std::endl;
     std::cerr << "please specify shorter length with --ng_from and --ng_to options." << std::endl;
-    exit(0);
+    return;
   }
   
   MyStatistics::moment<int8_t> x(fwd, mp_from, chr.width - ng_to);
