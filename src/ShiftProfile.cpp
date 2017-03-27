@@ -61,7 +61,7 @@ void genThreadCcp(ReadShiftProfile &chr, int32_t ng_to, const std::vector<int8_t
 void shiftCcp::setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev)
 {
   if(chr.width < ng_to) {
-    std::cerr << "\nerror: chromosome length " << chr.width << " is shorter than background distance " << ng_to << std::endl;
+    std::cerr << "\nwarning: chromosome length " << chr.width << " is shorter than background distance " << ng_to << std::endl;
     std::cerr << "please specify shorter length with --ng_from and --ng_to options." << std::endl;
     return;
   }
@@ -155,6 +155,7 @@ template <class T>
 void genThread(T &dist, const SeqStatsGenome &genome, uint32_t chr_s, uint32_t chr_e, const std::string &prefix, const bool output_eachchr)
 {
   for(uint32_t i=chr_s; i<=chr_e; ++i) {
+    if(genome.chr[i].getname() == "M") continue;
     std::cout << genome.chr[i].getname() << ".." << std::flush;
 
     dist.execchr(genome, i);
@@ -162,7 +163,6 @@ void genThread(T &dist, const SeqStatsGenome &genome, uint32_t chr_s, uint32_t c
     
     std::string filename = prefix + "." + genome.chr[i].getname() + ".csv";
     if(output_eachchr) dist.outputmpChr(filename, i);
-    //    exit(0);
   }
 }
 
