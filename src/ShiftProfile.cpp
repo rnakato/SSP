@@ -17,9 +17,14 @@ void addmp(std::map<int32_t, double> &mpto, const std::map<int32_t, double> &mpf
 
 double getJaccard(int32_t step, int32_t to, int64_t xysum, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev)
 {
-  int64_t xy(0);
-  for(int32_t j=mp_from; j<to; ++j) if(std::min(fwd[j], rev[j+step])) xy += std::max(fwd[j], rev[j+step]);
-  return getratio(xy, xysum-xy);
+  int64_t xy(0); //, bothsum(0)
+  for(int32_t j=mp_from; j<to; ++j) {
+    //    bothsum += std::max(fwd[j], rev[j+step]);
+    if(std::min(fwd[j], rev[j+step])) xy += std::max(fwd[j], rev[j+step]);
+  }
+  return xy;
+  //  return getratio(xy, xysum-xy);
+  //  return getratio(xy, bothsum-xy);
 }
 
 void genThreadJacVec(ReadShiftProfile &chr, int32_t ng_to, int64_t xysum, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev, int32_t s, int32_t e, boost::mutex &mtx)
