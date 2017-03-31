@@ -60,11 +60,11 @@ void genThreadCcp(ReadShiftProfile &chr, int32_t ng_to, const std::vector<int8_t
 
 void shiftCcp::setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev)
 {
-  if(chr.width < ng_to) {
+  /*if(chr.width < ng_to) {
     std::cerr << "\nwarning: chromosome length " << chr.width << " is shorter than background distance " << ng_to << std::endl;
     std::cerr << "please specify shorter length with --ng_from and --ng_to options." << std::endl;
     return;
-  }
+    }*/
   
   MyStatistics::moment<int8_t> x(fwd, mp_from, chr.width - ng_to);
   MyStatistics::moment<int8_t> y(rev, mp_from, chr.width - ng_to);
@@ -152,10 +152,14 @@ namespace {
 }
 
 template <class T>
-void genThread(T &dist, const SeqStatsGenome &genome, uint32_t chr_s, uint32_t chr_e, const std::string &prefix, const bool output_eachchr)
+void genThread(T &dist, const SeqStatsGenome &genome, uint32_t chr_s, uint32_t chr_e, const std::string &prefix, const bool output_eachchr, const int32_t ng_to)
 {
   for(uint32_t i=chr_s; i<=chr_e; ++i) {
-    if(genome.chr[i].getname() == "M") continue;
+    if(genome.chr[i].getlen() < ng_to) {
+      std::cerr << "\nWarning: length of chromosome " << genome.chr[i].getname() << ": " << genome.chr[i].getlen() << " is shorter than background distance " << ng_to << ". Skipped." << std::endl;
+      //      std::cerr << "please specify shorter length with --ng_from and --ng_to options." << std::endl;
+      continue;
+    }
     std::cout << genome.chr[i].getname() << ".." << std::flush;
 
     dist.execchr(genome, i);
@@ -179,11 +183,11 @@ void makeProfile(SSPstats &sspst, SeqStatsGenome &genome, const std::string &hea
   std::string prefix(head + "." + typestr);
   if(typestr == "hdp" || typestr == "jaccard") {
     for(size_t i=0; i<genome.vsepchr.size(); i++) {
-      agroup.create_thread(bind(genThread<T>, boost::ref(dist), boost::cref(genome), genome.vsepchr[i].s, genome.vsepchr[i].e, boost::cref(prefix), sspst.isEachchr()));
+      agroup.create_thread(bind(genThread<T>, boost::ref(dist), boost::cref(genome), genome.vsepchr[i].s, genome.vsepchr[i].e, boost::cref(prefix), sspst.isEachchr(), sspst.getNgTo()));
     }
     agroup.join_all();
   } else {
-    genThread(dist, genome, 0, genome.chr.size()-1, prefix, sspst.isEachchr());
+    genThread(dist, genome, 0, genome.chr.size()-1, prefix, sspst.isEachchr(), sspst.getNgTo());
   }
 
   for(size_t i=0; i<genome.chr.size(); ++i) {

@@ -97,7 +97,8 @@ class ReadShiftProfile {
     if(leftend>150) leftend=150;
 
     setControlRatio();
-    nsc = mp[mp_to-1];
+    if(name == "Hamming distance") nsc = mp[mp_to-1];
+    else nsc = mp[mp_to-1]*r;
 
     std::map<int32_t, double> mpsmooth;
     for(int32_t i=mp_to-1-2; i > leftend-threwidth; --i) {
@@ -106,7 +107,7 @@ class ReadShiftProfile {
 
     for(int32_t i=mp_to-1-threwidth-2; i > leftend; --i) {
       if(name == "Hamming distance") {
-	if(mpsmooth.at(i) < mpsmooth.at(i+threwidth) || mpsmooth.at(i) < mpsmooth.at(i-threwidth)) continue;
+	if(mpsmooth.at(i) > mpsmooth.at(i+threwidth) || mpsmooth.at(i) > mpsmooth.at(i-threwidth)) continue;
 	if(nsc > mp.at(i)) {
 	  nsc  = mp.at(i);
 	  nsci = i;
