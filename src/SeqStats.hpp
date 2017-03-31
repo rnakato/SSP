@@ -90,6 +90,10 @@ class SeqStats {
   }
   uint64_t getnread_inbed() const { return nread_inbed; }
 
+  void setnread_nonread_nofilter() {
+    for (auto strand: {Strand::FWD, Strand::REV}) seq[strand].setnread_nonread_nofilter();
+  }
+  
   void incNReadNonred (const Strand::Strand strand) { ++seq[strand].nread_nonred; }
   void incNReadRed    (const Strand::Strand strand) { ++seq[strand].nread_red;    }
 

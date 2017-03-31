@@ -258,8 +258,8 @@ class shiftJacVec : public ReadShiftProfileGenome {
 
   void setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev);
   void execchr(const SeqStatsGenome &genome, int32_t i) {
-    auto fwd = genVector(genome.chr[i].getvReadref(Strand::FWD),  chr[i].start, chr[i].end);
-    auto rev = genVector(genome.chr[i].getvReadref(Strand::REV),  chr[i].start, chr[i].end);
+    auto fwd = genVector(genome.chr[i].getvReadref(Strand::FWD), chr[i].start, chr[i].end);
+    auto rev = genVector(genome.chr[i].getvReadref(Strand::REV), chr[i].start, chr[i].end);
 
     setDist(chr[i], fwd, rev);  
   }

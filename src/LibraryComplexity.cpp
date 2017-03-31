@@ -117,7 +117,10 @@ void LibComp::filtering_eachchr_pair(SeqStats &chr)
 
 void LibComp::checkRedundantReads(SeqStatsGenome &genome)
 {
-  if(nofilter) return;
+  if(nofilter) {
+    for (auto &x: genome.chr) x.setnread_nonread_nofilter();
+    return;
+  }
   
   uint64_t nread(genome.getnread(Strand::BOTH));
   setThreshold(nread, genome.getlenmpbl());

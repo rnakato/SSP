@@ -2,7 +2,6 @@
  * All rights reserved.
  */
 #include <map>
-#include <numeric>
 #include <boost/thread.hpp>
 #include "ShiftProfile.hpp"
 #include "ShiftProfile_p.hpp"
@@ -16,14 +15,14 @@ void addmp(std::map<int32_t, double> &mpto, const std::map<int32_t, double> &mpf
   }
 }
 
-double getJaccard(int32_t step, int32_t to, int32_t xysum, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev)
+double getJaccard(int32_t step, int32_t to, int64_t xysum, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev)
 {
-  int32_t xy(0);
-  for(int32_t j=mp_from; j<to; ++j) if(fwd[j] * rev[j+step]) xy += std::max(fwd[j], rev[j+step]);
+  int64_t xy(0);
+  for(int32_t j=mp_from; j<to; ++j) if(std::min(fwd[j], rev[j+step])) xy += std::max(fwd[j], rev[j+step]);
   return getratio(xy, xysum-xy);
 }
 
-void genThreadJacVec(ReadShiftProfile &chr, int32_t ng_to, int32_t xysum, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev, int32_t s, int32_t e, boost::mutex &mtx)
+void genThreadJacVec(ReadShiftProfile &chr, int32_t ng_to, int64_t xysum, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev, int32_t s, int32_t e, boost::mutex &mtx)
 {
   for(int32_t step=s; step<e; ++step) {
     chr.setmp(step, getJaccard(step, chr.width-ng_to, xysum, fwd, rev), mtx);
@@ -32,18 +31,19 @@ void genThreadJacVec(ReadShiftProfile &chr, int32_t ng_to, int32_t xysum, const 
 
 void shiftJacVec::setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev)
 {
-  int32_t xx = accumulate(fwd.begin(), fwd.end(), 0);
-  int32_t yy = accumulate(rev.begin(), rev.end(), 0);
-
+  int64_t bothsum(0);
+  for(auto x: fwd) bothsum += x;
+  for(auto x: rev) bothsum += x;
+  
   boost::thread_group agroup;
   boost::mutex mtx;
   for(uint32_t i=0; i<seprange.size(); i++) {
-    agroup.create_thread(bind(&genThreadJacVec, boost::ref(chr), ng_to, xx+yy, boost::cref(fwd), boost::cref(rev), seprange[i].start, seprange[i].end, boost::ref(mtx)));
+    agroup.create_thread(bind(&genThreadJacVec, boost::ref(chr), ng_to, bothsum, boost::cref(fwd), boost::cref(rev), seprange[i].start, seprange[i].end, boost::ref(mtx)));
   }
   agroup.join_all();
 
   for(int32_t step=ng_from; step<ng_to; step+=ng_step) {
-    chr.nc[step] = getJaccard(step, chr.width-ng_to, xx+yy, fwd, rev);
+    chr.nc[step] = getJaccard(step, chr.width-ng_to, bothsum, fwd, rev);
   }
 }
 
@@ -60,12 +60,6 @@ void genThreadCcp(ReadShiftProfile &chr, int32_t ng_to, const std::vector<int8_t
 
 void shiftCcp::setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev)
 {
-  /*if(chr.width < ng_to) {
-    std::cerr << "\nwarning: chromosome length " << chr.width << " is shorter than background distance " << ng_to << std::endl;
-    std::cerr << "please specify shorter length with --ng_from and --ng_to options." << std::endl;
-    return;
-    }*/
-  
   MyStatistics::moment<int8_t> x(fwd, mp_from, chr.width - ng_to);
   MyStatistics::moment<int8_t> y(rev, mp_from, chr.width - ng_to);
 
@@ -155,7 +149,7 @@ template <class T>
 void genThread(T &dist, const SeqStatsGenome &genome, uint32_t chr_s, uint32_t chr_e, const std::string &prefix, const bool output_eachchr, const int32_t ng_to)
 {
   for(uint32_t i=chr_s; i<=chr_e; ++i) {
-    if(genome.chr[i].getlen() < ng_to) {
+    if(static_cast<int32_t>(genome.chr[i].getlen()) < ng_to) {
       std::cerr << "\nWarning: length of chromosome " << genome.chr[i].getname() << ": " << genome.chr[i].getlen() << " is shorter than background distance " << ng_to << ". Skipped." << std::endl;
       //      std::cerr << "please specify shorter length with --ng_from and --ng_to options." << std::endl;
       continue;
