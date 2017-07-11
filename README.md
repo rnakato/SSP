@@ -122,6 +122,17 @@ In default, FCS is calcutated for 10M nonredundant reads. If the number of nonre
 
 When specifying smaller read number for --num4ssp, FCS score becomes smaller, but the magnitude relation among samples is consistent.
 
+#### 3.3. Output files
+* ChIP.stats.txt: Stats of the sample (read number, read length, estimated fragment length, NSC, RLSC, RSC, background uniformity, FCS)
+* ChIP.jaccard.csv: Jaccard score for each strand shift d
+* ChIP.jaccard.pdf: Strand-shift profiles (-500 < d < 1500 and 0 < d < 1M)
+* ChIP.jaccard.R: R script to make ChIP.jaccard.pdf
+* ChIP.jaccard.R.log: Log file of ChIP.jaccard.R
+* ChIP.fcs.csv: FCS for each strand shift d
+* ChIP.pnf.csv: PNF (the proportion of neighboring fragments) for each s
+* ChIP.FCS.pdf: Profiles of PNF, cPNF (the cumulative proportion of neighboring fragments) and FCS
+* ChIP.FCS.R, ChIP.FCS.R.log: R script and log file to make ChIP.FCS.pdf
+
 # 4. Annotation files
 #### 4.1. Genome table
 The genome table file is a tab-delimited file describing the name and length of each chromosome. To make it,  makegenometable.pl in DROMPA3 (https://github.com/rnakato/DROMPA3) can be used.
