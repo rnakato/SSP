@@ -16,7 +16,7 @@ SSP is written in C++ and requires the following programs and libraries:
 * [zlib](http://www.zlib.net/)
 * [SAMtools](http://samtools.sourceforge.net/) (for BAM formatted input)
 
-#### 2.1. Install required libraries
+### 2.1. Install required libraries
 for Ubuntu and Debian:
 
     sudo apt-get install git build-essential libboost-all-dev libgsl-dev libz-dev samtools
@@ -26,18 +26,18 @@ for CentOS and Red Hat:
     sudo yum -y install git gcc-c++ boost-devel zlib-devel gsl-devel
 and install samtools from [the website](http://samtools.sourceforge.net/).
 
-#### 2.3. Install SSP
+### 2.3. Install SSP
     git clone https://github.com/rnakato/SSP.git
     cd SSP
     make
 
-#### 2.4. Add the PATH environment variable
+### 2.4. Add the PATH environment variable
 For example, if you downloaded SSP into the $HOME/my_chipseq_exp directory, type:
 
     export PATH = $PATH:$HOME/my_chipseq_exp/SSP/bin
 
 # 3. Usage
-#### 3.1. Options
+### 3.1. Options
     Usage: ssp [option] -i <inputfile> -o <output> --gt <genome_table>
 
     Options:
@@ -90,7 +90,7 @@ For example, if you downloaded SSP into the $HOME/my_chipseq_exp directory, type
 
 
 
-#### 3.2. Tutorial
+### 3.2. Tutorial
 The simplest command is:
 
     ssp -i ChIP.sam -o ChIP --gt genometable.txt
@@ -122,7 +122,7 @@ In default, FCS is calcutated for 10M nonredundant reads. If the number of nonre
 
 When specifying smaller read number for --num4ssp, FCS score becomes smaller, but the magnitude relation among samples is consistent.
 
-#### 3.3. Output files
+### 3.3. Output files
 * ChIP.stats.txt: Stats of the sample (read number, read length, estimated fragment length, NSC, RLSC, RSC, background uniformity, FCS)
 * ChIP.jaccard.csv: Jaccard score for each strand shift d
 * ChIP.jaccard.pdf: Strand-shift profiles (-500 < d < 1500 and 0 < d < 1M)
@@ -134,10 +134,10 @@ When specifying smaller read number for --num4ssp, FCS score becomes smaller, bu
 * ChIP.FCS.R, ChIP.FCS.R.log: R script and log file to make ChIP.FCS.pdf
 
 # 4. Annotation files
-#### 4.1. Genome table
+### 4.1. Genome table
 The genome table file is a tab-delimited file describing the name and length of each chromosome. To make it,  makegenometable.pl in DROMPA3 (https://github.com/rnakato/DROMPA3) can be used.
 
-#### 4.2. Mappability table
+### 4.2. Mappability table
 The mappability tables generated for several species are provided in mptable directory.
 
 # 5. Reference
