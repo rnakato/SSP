@@ -100,7 +100,7 @@ The format of input file is automatically detected by postfix(.sam/.bam/.bowtie/
 If the mappable genome table is supplied
 
      ssp -i ChIP.bam -o ChIP --gt genometable.txt --mptable mptable.txt -p 4
-"-p 4" specifies the number of CPUs used. Mappable genome table files for several species and mapping parameters are included in data directory.
+"-p 4" specifies the number of CPUs used. The mappable genome table file is necessary for accurate estimation of background uniformity.
 
 
 SSP allows multiple input files (separated by ",")
