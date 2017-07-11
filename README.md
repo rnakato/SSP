@@ -29,7 +29,7 @@ and install samtools from [the website](http://samtools.sourceforge.net/).
 #### 2.3. Install SSP
     git clone https://github.com/rnakato/SSP.git
     cd SSP
-    make -j4
+    make
 
 #### 2.4. Add the PATH environment variable
 For example, if you downloaded SSP into the $HOME/my_chipseq_exp directory, type:
