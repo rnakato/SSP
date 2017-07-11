@@ -66,7 +66,9 @@ In default, FCS is calcutated for 10M reads. If the number of nonredundant reads
 
 When specifying smaller read number for --num4ssp, FCS score becomes smaller, but the magnitude relation among samples is consistent.
 
-# 4. Annotation data
+# 4. Annotation files
+#### 4.1. Mappability files
+The mappability tables generated for several species are provided in mptable directory.
 
 # 5. Reference
 
