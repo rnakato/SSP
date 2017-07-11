@@ -97,7 +97,9 @@ The simplest command is:
 then the output files (prefix: "ChIP") are generated in the directory "sspout (default)".
 The format of input file is automatically detected by postfix(.sam/.bam/.bowtie/.tagalign(.gz)). If the detection does not work well, supply -f option (e.g., "-f BAM").
 
-If the mappable genome table is supplied
+The genome table file is 
+
+To supply the mappable genome table:
 
      ssp -i ChIP.bam -o ChIP --gt genometable.txt --mptable mptable.txt -p 4
 "-p 4" specifies the number of CPUs used. The mappable genome table file is necessary for accurate estimation of background uniformity.
@@ -121,7 +123,10 @@ In default, FCS is calcutated for 10M nonredundant reads. If the number of nonre
 When specifying smaller read number for --num4ssp, FCS score becomes smaller, but the magnitude relation among samples is consistent.
 
 # 4. Annotation files
-#### 4.1. Mappability files
+#### 4.1. Genome table
+The genome table file is a tab-delimited file describing the name and length of each chromosome. To make it,  makegenometable.pl in DROMPA3 (https://github.com/rnakato/DROMPA3) can be used.
+
+#### 4.2. Mappability table
 The mappability tables generated for several species are provided in mptable directory.
 
 # 5. Reference
