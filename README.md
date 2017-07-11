@@ -1,4 +1,4 @@
-# SSP (Strand shift profile)
+# SSP Readme
 
 # 1. Overview
 SSP (strand-shift profile) is a tool for quality assessment of ChIP-seq data without peak calling. 
