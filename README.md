@@ -103,7 +103,7 @@ If the mappable genome table is supplied
 "-p 4" specifies the number of CPUs used. Mappable genome table files for several species and mapping parameters are included in data directory.
 
 
-Multiple input files are allowed (separated by ",")
+SSP allows multiple input files (separated by ",")
 
      ssp -i ChIP1.bam,ChIP2.bam,ChIP3.bam -o ChIP --gt genometable.txt 
 
