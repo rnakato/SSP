@@ -1,6 +1,12 @@
 # SSP (Strand shift profile)
 
 # 1. Overview
+SSP (strand-shift profile) is a tool for quality assessment of ChIP-seq data without peak calling. 
+SSP provides metrics to quantify the S/N for both point- and broad-source factors (NSC), 
+and to estimate peak reliability based on the mapped-read distribution throughout a genome (Bu).
+SSP also provides a metric to estimate peak intensity and peak mode (point- or broad-source, FCS).
+
+The outputs of SSP are displayed in PDF format and also written to text files.
 
 # 2. Install
 SSP is written in C++ and requires the following programs and libraries:
