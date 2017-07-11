@@ -1,8 +1,8 @@
 # SSP (Strand shift profile)
 
-#1. Overview
+# 1. Overview
 
-#2. Install
+# 2. Install
 SSP is written in C++ and requires the following programs and libraries:
 * [Boost C++ library](http://www.boost.org/)
 * [GTK library](http://www.gtk.org/)
@@ -31,7 +31,7 @@ For example, if you downloaded SSP into the $HOME/my_chipseq_exp directory, type
 
     export PATH = $PATH:$HOME/my_chipseq_exp/SSP/bin
 
-#3. Usage
+# 3. Usage
 The simplest command is:
 
     ssp -i ChIP.sam -o ChIP --gt genometable.txt
@@ -61,6 +61,6 @@ In default, FCS is calcutated for 10M reads. If the number of nonredundant reads
 
 When specifying smaller read number for --num4ssp, FCS score becomes smaller, but the magnitude relation among samples is consistent.
 
-#4. Reference
+# 4. Reference
 
 Under preparation.
