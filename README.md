@@ -142,4 +142,4 @@ The mappability tables generated for several species are provided in mptable dir
 
 # 5. Reference
 
-Under preparation.
+Nakato R., Shirahige K., Sensitive and robust assessment of ChIP-seq read distribution using a strand-shift profile, submitted.
