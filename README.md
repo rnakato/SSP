@@ -37,6 +37,60 @@ For example, if you downloaded SSP into the $HOME/my_chipseq_exp directory, type
     export PATH = $PATH:$HOME/my_chipseq_exp/SSP/bin
 
 # 3. Usage
+#### 3.1. Options
+    Usage: ssp [option] -i <inputfile> -o <output> --gt <genome_table>
+
+    Options:
+    
+    Input/Output:
+      -i [ --input ] arg           Mapping file. Multiple files are allowed (separated by ',')
+      -o [ --output ] arg          Prefix of output files
+      --odir arg (=sspout)         output directory name
+      -f [ --ftype ] arg           {SAM|BAM|BOWTIE|TAGALIGN}: format of input file
+                                   TAGALIGN could be gzip'ed (extension: tagAlign.gz)
+    
+    For paired-end:
+      --pair                       add when the input file is paired-end
+      --maxins arg (=500)          maximum fragment length
+    
+    Genome:
+      --gt arg                     Genome table (tab-delimited file describing the name and length of 
+                                   each chromosome)
+      --mptable arg                Genome table of mappable regions
+    
+    Fragment:
+      --nomodel                    omit fraglent length estimation (default: estimated by strand-shift profile)
+      --flen arg (=150)            predefined fragment length (with --nomodel option)
+    
+    Strand shift profile:
+      --num4ssp arg (=10000000)    Read number for calculating backgroud uniformity (per 100 Mbp)
+      --ng_from arg (=500000)      start shift of background
+      --ng_to arg (=1000000)       end shift of background
+      --ng_step arg (=5000)        step shift on of background
+      --ssp_cc                     make ssp based on cross correlation
+      --ssp_hd                     make ssp based on hamming distance
+      --ssp_exjac                  make ssp based on extended Jaccard index
+      --eachchr                    make chromosome-sparated ssp files
+
+    Fragment cluster score:
+      --ng_from_fcs arg (=100000)  fcs start of background
+      --ng_to_fcs arg (=1000000)   fcs end of background
+      --ng_step_fcs arg (=100000)  fcs step on of background
+
+    Library complexity:
+      --thre_pb arg (=0)           PCRbias threshold (default: more than max(1 read, 10 times greater 
+                                   than genome average)) 
+      --ncmp arg (=10000000)       read number for calculating library complexity
+      --nofilter                   do not filter PCR bias
+    
+    Others:
+      -p [ --threads ] arg (=1)    number of threads to launch
+      -v [ --version ]             print version
+      -h [ --help ]                show help message
+
+
+
+#### 3.2. Tutorial
 The simplest command is:
 
     ssp -i ChIP.sam -o ChIP --gt genometable.txt
