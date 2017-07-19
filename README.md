@@ -143,7 +143,7 @@ To make it, use makegenometable.pl in scripts directory as follows:
 
 ### 4.2. Mappability table
 The mappability table file is a tab-delimited file describing the name and 'mappabile' length of each chromosome.
-The mappability tables generated for several species (36 mer and 50 mer) are provided in mptable directory, which are based on the code from Peakseq. See the manual for [DROMPA3](https://github.com/rnakato/DROMPA3) for detail.
+The mappability tables generated for several species (36 mer and 50 mer) are provided in mptable directory, which are based on the code from [Peakseq](http://info.gersteinlab.org/PeakSeq). See the manual for [DROMPA3](https://github.com/rnakato/DROMPA3) for detail.
 
 # 5. Reference
 
