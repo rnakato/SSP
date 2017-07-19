@@ -13,7 +13,7 @@
 #include "ssp_gv.hpp"
 #include "ParseMapfile.hpp"
 
-#define VERSION "1.0.0"
+#define VERSION "1.0.1"
 
 namespace {
   void printVersion()
@@ -36,7 +36,7 @@ Usage: ssp [option] -i <inputfile> -o <output> --gt <genome_table>)";
   void estimateFragLength(SSP::Global &p)
   {
     DEBUGprint("estimateFragLength...");
-    if(p.genome.isPaired() || p.genome.dflen.isnomodel()) return;
+    if(p.genome.dflen.isnomodel()) return; // p.genome.isPaired()
     
     std::string head(p.getprefix());
     
