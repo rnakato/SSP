@@ -97,9 +97,10 @@ The simplest command is:
 then the output files (prefix: "ChIP") are generated in the directory "sspout (default)".
 The format of input file is automatically detected by postfix(.sam/.bam/.bowtie/.tagalign(.gz)). If the detection does not work well, supply -f option (e.g., "-f BAM").
 
-The genome table file is 
+The genome table file (genometable.txt) is a tab-delimited file describing the name and length of each chromosome (see 4.1.)
+The chromosome names in the map file and the genome table file must be same.
 
-To supply the mappable genome table:
+To supply the mappable genome table and use multiple CPUs:
 
      ssp -i ChIP.bam -o ChIP --gt genometable.txt --mptable mptable.txt -p 4
 "-p 4" specifies the number of CPUs used. The mappable genome table file is necessary for accurate estimation of background uniformity.
@@ -114,9 +115,9 @@ Note that the chromosome length should be enough longer than the background leng
 
      ssp -i ChIP1.bam -o ChIP --gt genometable.txt --ng_from 10000 --ng_to 50000 --ng_step 500
      
-In this parameter, the background region for FCS is the average ranging from 10k to 50k at steps of 500 bp.
+In this parameter set, the background region is the average ranging from 10k to 50k at steps of 500 bp.
 
-In default, FCS is calcutated for 10M nonredundant reads. If the number of nonredundant reads are smaller than 10M, specify smaller number for fair comparison among samples as follows:
+In default, FCS is calcutated for 10M nonredundant reads. If the number of nonredundant reads in the input data are smaller than 10M, specify smaller number for fair comparison among samples as follows:
 
      ssp -i ChIP1.bam -o ChIP --gt genometable.txt --num4ssp 5000000
 
@@ -135,11 +136,15 @@ When specifying smaller read number for --num4ssp, FCS score becomes smaller, bu
 
 # 4. Annotation files
 ### 4.1. Genome table
-The genome table file is a tab-delimited file describing the name and length of each chromosome. To make it,  makegenometable.pl in DROMPA3 (https://github.com/rnakato/DROMPA3) can be used.
+The genome table file is a tab-delimited file describing the name and length of each chromosome.
+To make it, use makegenometable.pl in scripts directory as follows:
+
+     scripts/makegenometable.pl genome.fa > genometable.txt
 
 ### 4.2. Mappability table
-The mappability tables generated for several species are provided in mptable directory.
+The mappability table file is a tab-delimited file describing the name and 'mappabile' length of each chromosome.
+The mappability tables generated for several species (36 mer and 50 mer) are provided in mptable directory, which are based on the code from [Peakseq](http://info.gersteinlab.org/PeakSeq). See the manual for [DROMPA3](https://github.com/rnakato/DROMPA3) for detail.
 
 # 5. Reference
 
-Nakato R., Shirahige K. Sensitive and robust assessment of ChIP-seq read distribution using a strand-shift profile, submitted.
+Nakato R., Shirahige K. Sensitive and robust assessment of ChIP-seq read distribution using a strand-shift profile, bioRxiv, doi: [10.1101/165050](http://www.biorxiv.org/content/early/2017/07/18/165050)
