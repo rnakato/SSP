@@ -47,7 +47,7 @@ namespace MyOpt {
 
   void dumpIO(const Variables &values)
   {
-    std::cout << boost::format("Input file %1%\n") % values["input"].as<std::string>();
+    std::cout << boost::format("Input file: %1%\n") % values["input"].as<std::string>();
     if(values.count("ftype")) std::cout << boost::format("\tFormat: %1%\n") % values["ftype"].as<std::string>();
     std::cout << boost::format("Output file: %1%/%2%\n") % values["odir"].as<std::string>() % values["output"].as<std::string>();
   }
