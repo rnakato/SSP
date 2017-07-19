@@ -97,7 +97,7 @@ The simplest command is:
 then the output files (prefix: "ChIP") are generated in the directory "sspout (default)".
 The format of input file is automatically detected by postfix(.sam/.bam/.bowtie/.tagalign(.gz)). If the detection does not work well, supply -f option (e.g., "-f BAM").
 
-The genome table file is 
+The genome table file (genometable.txt) is a tab-delimited file describing the name and length of each chromosome (see 4.1.)
 
 To supply the mappable genome table:
 
@@ -135,7 +135,9 @@ When specifying smaller read number for --num4ssp, FCS score becomes smaller, bu
 
 # 4. Annotation files
 ### 4.1. Genome table
-The genome table file is a tab-delimited file describing the name and length of each chromosome. To make it,  makegenometable.pl in DROMPA3 (https://github.com/rnakato/DROMPA3) can be used.
+The genome table file is a tab-delimited file describing the name and length of each chromosome.
+To make it, use makegenometable.pl in scripts directory as follows:
+$ scripts/makegenometable.pl genome.fa > genometable.txt
 
 ### 4.2. Mappability table
 The mappability tables generated for several species are provided in mptable directory.
