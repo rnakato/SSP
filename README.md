@@ -98,6 +98,7 @@ then the output files (prefix: "ChIP") are generated in the directory "sspout (d
 The format of input file is automatically detected by postfix(.sam/.bam/.bowtie/.tagalign(.gz)). If the detection does not work well, supply -f option (e.g., "-f BAM").
 
 The genome table file (genometable.txt) is a tab-delimited file describing the name and length of each chromosome (see 4.1.)
+The chromosome name in the map file and the genome table file must be same.
 
 To supply the mappable genome table and use multiple CPUs:
 
