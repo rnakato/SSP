@@ -115,7 +115,7 @@ Note that the chromosome length should be enough longer than the background leng
 
      ssp -i ChIP1.bam -o ChIP --gt genometable.txt --ng_from 10000 --ng_to 50000 --ng_step 500
      
-In this parameter, the background region for FCS is the average ranging from 10k to 50k at steps of 500 bp.
+In this parameter set, the background region for FCS is the average ranging from 10k to 50k at steps of 500 bp.
 
 In default, FCS is calcutated for 10M nonredundant reads. If the number of nonredundant reads are smaller than 10M, specify smaller number for fair comparison among samples as follows:
 
