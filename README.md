@@ -142,6 +142,7 @@ To make it, use makegenometable.pl in scripts directory as follows:
      scripts/makegenometable.pl genome.fa > genometable.txt
 
 ### 4.2. Mappability table
+The mappability table file is a tab-delimited file describing the name and 'mappabile' length of each chromosome.
 The mappability tables generated for several species are provided in mptable directory.
 
 # 5. Reference
