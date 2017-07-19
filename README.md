@@ -99,7 +99,7 @@ The format of input file is automatically detected by postfix(.sam/.bam/.bowtie/
 
 The genome table file (genometable.txt) is a tab-delimited file describing the name and length of each chromosome (see 4.1.)
 
-To supply the mappable genome table:
+To supply the mappable genome table and use multiple CPUs:
 
      ssp -i ChIP.bam -o ChIP --gt genometable.txt --mptable mptable.txt -p 4
 "-p 4" specifies the number of CPUs used. The mappable genome table file is necessary for accurate estimation of background uniformity.
