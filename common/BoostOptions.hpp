@@ -39,14 +39,16 @@ namespace MyOpt {
   }
 
   template <class T>
-  void printOpt(boost::program_options::variables_map &values, std::string &opt, std::string &str)
+  void printOpt(const boost::program_options::variables_map &values,
+		const std::string &opt, const std::string &str)
   {
     if (values.count(opt)) std::cout << str << ": " << values[opt].as<T>() << std::endl;
     return;
   }
 
   template <class T>
-  void printVOpt(boost::program_options::variables_map &values, std::string &opt, std::string &str)
+  void printVOpt(const boost::program_options::variables_map &values,
+		 const std::string &opt, const std::string &str)
   {
     if (values.count(opt)) { 
       auto v = values[opt].as<std::vector<T>>();
