@@ -21,7 +21,6 @@ class chrsize {
   int32_t len;
 
  public:
- chrsize(): name(""), len(0) {}
  chrsize(const std::string &n, const int32_t l): name(n), len(l) {}
   std::string getname() const { return name; }
   int32_t getlen() const { return len; }
