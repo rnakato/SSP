@@ -17,12 +17,14 @@ namespace Strand {
 }
 
 class chrsize {
+  std::string refname;
   std::string name;
   int32_t len;
 
  public:
- chrsize(const std::string &n, const int32_t l): name(n), len(l) {}
-  std::string getname() const { return name; }
+  chrsize(const std::string &n, const int32_t l): refname(n), name(rmchr(n)), len(l) {}
+  const std::string & getrefname() const { return refname; }
+  const std::string & getname() const { return name; }
   int32_t getlen() const { return len; }
 };
 

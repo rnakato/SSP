@@ -254,7 +254,7 @@ std::vector<chrsize> read_genometable(const std::string& fileName)
     if(lineStr.empty() || lineStr[0] == '#') continue;
     std::vector<std::string> v;
     boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
-    gt.emplace_back(rmchr(v[0]), stoi(v[1]));
+    gt.emplace_back(v[0], stoi(v[1]));
   }
   return gt;
 }
