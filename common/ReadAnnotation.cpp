@@ -95,9 +95,9 @@ HashOfGeneDataMap parseSGD(const std::string& fileName)
     boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
 
     std::string chr(changeIntToGreek(rmchr(v[8])));
-
     std::string type(v[1]);
     std::string tname(v[0]);
+
     if (type == "ARS") continue;
     else if (type == "centromere") tmp[chr][tname].gname = "CEN_chr" + chr;
     else if (type == "teromere")   tmp[chr][tname].gname = v[3];
@@ -117,7 +117,6 @@ HashOfGeneDataMap parseSGD(const std::string& fileName)
     else continue;
     
     tmp[chr][tname].chr = chr;
-    tmp[chr][tname].gname = tname;
     tmp[chr][tname].gtype = type;
     if (v[11] == "C") {
       tmp[chr][tname].txStart = stoi(v[10]);
