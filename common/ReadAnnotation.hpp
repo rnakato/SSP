@@ -15,6 +15,7 @@ int32_t countmp(HashOfGeneDataMap &);
 std::vector<std::string> scanGeneName(const HashOfGeneDataMap &);
 HashOfGeneDataMap extract_mp(const HashOfGeneDataMap &, const std::vector<std::string>);
 std::vector<std::string> readGeneList(const std::string&);
+HashOfGeneDataMap parseSGD(const std::string&);
 HashOfGeneDataMap parseRefFlat(const std::string&);
 HashOfGeneDataMap parseGtf(const std::string&);
 HashOfGeneDataMap construct_gmp(const HashOfGeneDataMap &);
