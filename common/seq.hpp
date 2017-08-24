@@ -20,12 +20,57 @@ class chrsize {
   std::string refname;
   std::string name;
   int32_t len;
+  bool Greekchr;
 
  public:
-  chrsize(const std::string &n, const int32_t l): refname(n), name(rmchr(n)), len(l) {}
+  chrsize(const std::string &n, const int32_t l):
+    refname(n), name(rmchr(n)), len(l), Greekchr(false)
+  {}
+  
   const std::string & getrefname() const { return refname; }
   const std::string & getname() const { return name; }
+  const std::string & getrefname_GreekToInt() const {
+    std::string chrnum;
+    if(name=="chrI")         chrnum = "chr1";
+    else if(name=="chrII")   chrnum = "chr2";
+    else if(name=="chrIII")  chrnum = "chr3";
+    else if(name=="chrIV")   chrnum = "chr4";
+    else if(name=="chrV")    chrnum = "chr5";
+    else if(name=="chrVI")   chrnum = "chr6";
+    else if(name=="chrVII")  chrnum = "chr7";
+    else if(name=="chrVIII") chrnum = "chr8";
+    else if(name=="chrIX")   chrnum = "chr9";
+    else if(name=="chrX")    chrnum = "chr10";
+    else if(name=="chrXI")   chrnum = "chr11";
+    else if(name=="chrXII")  chrnum = "chr12";
+    else if(name=="chrXIII") chrnum = "chr13";
+    else if(name=="chrXIV")  chrnum = "chr14";
+    else if(name=="chrXV")   chrnum = "chr15";
+    else if(name=="XVIchr")  chrnum = "chr16";
+    return refname;
+  }
+  const std::string & getname_GreekToInt() const {
+    std::string chrnum;
+    if(name=="I")         chrnum = "1";
+    else if(name=="II")   chrnum = "2";
+    else if(name=="III")  chrnum = "3";
+    else if(name=="IV")   chrnum = "4";
+    else if(name=="V")    chrnum = "5";
+    else if(name=="VI")   chrnum = "6";
+    else if(name=="VII")  chrnum = "7";
+    else if(name=="VIII") chrnum = "8";
+    else if(name=="IX")   chrnum = "9";
+    else if(name=="X")    chrnum = "10";
+    else if(name=="XI")   chrnum = "11";
+    else if(name=="XII")  chrnum = "12";
+    else if(name=="XIII") chrnum = "13";
+    else if(name=="XIV")  chrnum = "14";
+    else if(name=="XV")   chrnum = "15";
+    else if(name=="XVI")  chrnum = "16";
+    return name;
+  }
   int32_t getlen() const { return len; }
+  void Greekchron() { Greekchr = true; }
 };
 
 class range {

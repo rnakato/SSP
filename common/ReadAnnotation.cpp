@@ -77,7 +77,6 @@ HashOfGeneDataMap parseSGD(const std::string& fileName)
     
     std::string type(v[1]);
     std::string tname(v[0]);
-    tmp[chr][tname].gtype = type;
     if (type == "ARS") continue;
     else if (type == "centromere") tmp[chr][tname].gname = "CEN_chr" + chr;
     else if (type == "teromere")   tmp[chr][tname].gname = v[3];
@@ -95,9 +94,10 @@ HashOfGeneDataMap parseSGD(const std::string& fileName)
     else if (type == "repeat_region") tmp[chr][tname].gname = v[6];
     else if (type == "retrotransposon") tmp[chr][tname].gname = v[3];
     else continue;
-
+    
     tmp[chr][tname].chr = chr;
     tmp[chr][tname].gname = tname;
+    tmp[chr][tname].gtype = type;
     if (v[11] == "C") {
       tmp[chr][tname].txStart = stoi(v[10]);
       tmp[chr][tname].txEnd   = stoi(v[9]);
@@ -306,6 +306,13 @@ std::vector<chrsize> read_genometable(const std::string& fileName)
     std::vector<std::string> v;
     boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
     gt.emplace_back(v[0], stoi(v[1]));
+  }
+  // Greekchr
+  for(auto &x: gt) {
+    if(x.getname() == "I") {
+      for(auto &x:gt) x.Greekchron();
+      break;
+    }
   }
   return gt;
 }
