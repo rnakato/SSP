@@ -62,6 +62,86 @@ std::vector<std::string> readGeneList(const std::string& fileName)
   return glist;
 }
 
+HashOfGeneDataMap parseSGD(const std::string& fileName)
+{
+  if(isStr(fileName, ".gtf")) {
+    std::cerr << "Warning: gene file seems to be gtf format but is parsed as refFlat." << std::endl;
+  }
+
+  std::ifstream in(fileName);
+  if(!in) PRINTERR(fileName << " does not exist.");
+
+  HashOfGeneDataMap tmp;
+  std::string lineStr;
+  
+  while (!in.eof()) {
+    getline(in, lineStr);
+    if(lineStr.empty()) continue;
+
+    std::vector<std::string> v;
+    boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
+
+    std::string chr = rmchr(v[8]);
+    
+    std::string type(v[1]);
+    std::string tname(v[0]);
+    if (type == "ARS") continue;
+    else if (type == "centromere") {
+      tmp[chr][tname].gname = "CEN_chr" + chr;
+      tmp[chr][tname].genetype = GeneAnnoType::CENTROMERE;
+    }
+    else if (type == "teromere") {
+      tmp[chr][tname].gname = v[3];
+      tmp[chr][tname].genetype = GeneAnnoType::TEROMERE;
+    }
+    else if (type == "ORF") {
+      if(v[4] != "") tmp[chr][tname].gname = v[4];
+      else tmp[chr][tname].gname = v[3];
+      tmp[chr][tname].genetype = GeneAnnoType::CODING;
+    }
+    else if (type == "tRNA") {
+      if(v[4] != "") tmp[chr][tname].gname = v[4];
+      else tmp[chr][tname].gname = v[3];
+      tmp[chr][tname].genetype = GeneAnnoType::NONCODING;
+    }
+    else if (type == "rRNA") {
+      tmp[chr][tname].gname = "rRNA";
+      tmp[chr][tname].genetype = GeneAnnoType::rRNA;
+    }
+    else if (type == "snoRNA") {
+      tmp[chr][tname].gname = "snoRNA";
+      tmp[chr][tname].genetype = GeneAnnoType::snoRNA;
+    }
+    else if (type == "long_terminal_repeat") {
+      tmp[chr][tname].gname = "LTR";
+      tmp[chr][tname].genetype = GeneAnnoType::LTR;
+    }
+    else if (type == "repeat_region") {
+      tmp[chr][tname].gname = v[6];
+      tmp[chr][tname].genetype = GeneAnnoType::REPEAT;
+    }
+    else if (type == "retrotransposon") {
+      tmp[chr][tname].gname = v[3];
+      tmp[chr][tname].genetype = GeneAnnoType::RETROPOSON;
+    }
+    else continue;
+
+    tmp[chr][tname].chr = chr;
+    tmp[chr][tname].gname = tname;
+    if (v[11] == "C") {
+      tmp[chr][tname].txStart = stoi(v[10]);
+      tmp[chr][tname].txEnd   = stoi(v[9]);
+      tmp[chr][tname].strand  = "-";
+    } else {
+      tmp[chr][tname].txStart = stoi(v[9]);
+      tmp[chr][tname].txEnd   = stoi(v[10]);
+      tmp[chr][tname].strand  = "+";
+    }
+    if(type == "ARS" || type == "centromere"|| type == "teromere") tmp[chr][tname].strand = "";
+  }
+  return tmp;
+}
+
 HashOfGeneDataMap parseRefFlat(const std::string& fileName)
 {
   if(isStr(fileName, ".gtf")) {
@@ -235,6 +315,7 @@ void printRefFlat(const HashOfGeneDataMap &mp, const int32_t nameflag)
       for (auto &ex: x.second.exon) std::cout << ex.start << ",";
       std::cout << "\t";
       for (auto &ex: x.second.exon) std::cout << ex.end   << ",";
+      std::cout << "\t" << x.second.gtype;
       std::cout << std::endl;
     }
   }

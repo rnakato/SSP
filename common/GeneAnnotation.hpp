@@ -6,6 +6,24 @@
 
 #include "seq.hpp"
 
+enum class GeneAnnoType: uint8_t {
+  CODING,
+  NONCODING,
+  MIRNA,
+  PSEUDO,
+  PROCESS,
+  OTHERS,
+  ARS,
+  TER,
+  CENTROMERE,
+  TEROMERE,
+  rRNA,
+  snoRNA,
+  LTR,
+  REPEAT,
+  RETROPOSON
+};
+
 enum status {INTERGENIC, GENIC, INTRON, EXON, DOWNSTREAM, UPSTREAM, TSS, PARALLEL, DIVERGENT, CONVERGENT};
 
 class genedata {
@@ -22,6 +40,7 @@ class genedata {
   int32_t exonCount; // "Number of exons"
   std::string strand;
   std::vector<range> exon;
+  GeneAnnoType genetype;
 
   // for Ensembl
   std::string gsrc;  // gene source
@@ -30,7 +49,7 @@ class genedata {
   std::string ttype; // transcript biotype
   std::string ttag;  // Gencode tag
 
-  genedata(): txStart(0), txEnd(0), cdsStart(0), cdsEnd(0), exonCount(0) {}
+  genedata(): txStart(0), txEnd(0), cdsStart(0), cdsEnd(0), exonCount(0), genetype(GeneAnnoType::CODING) {}
 
   int32_t length() const { return (txEnd - txStart); }
   void printall() const {
