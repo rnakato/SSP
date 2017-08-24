@@ -9,11 +9,7 @@
 int32_t countmp(HashOfGeneDataMap &mp)
 {
   int32_t n(0);
-  for(auto pair: mp) {
-    //  for(auto itr = mp.begin(); itr != mp.end(); ++itr) {
-    //    for(auto itr2 = mp.at(itr->first).begin(); itr2 != mp.at(itr->first).end(); ++itr2) n++;
-    for(auto x: mp.at(pair.first)) n++;
-  }
+  for(auto pair: mp) for(auto x: mp.at(pair.first)) n++;
   return n;
 }
 
@@ -22,9 +18,6 @@ std::vector<std::string> scanGeneName(const HashOfGeneDataMap &mp)
   std::vector<std::string> vgname;
   for(auto pair: mp) {
     for(auto x: mp.at(pair.first)) vgname.push_back(x.first);
-    //  for(auto itr = mp.begin(); itr != mp.end(); ++itr) {
-    //    for(auto itr2 = mp.at(itr->first).begin(); itr2 != mp.at(itr->first).end(); ++itr2) {
-      //    }
   }
   return vgname;
 }
@@ -35,7 +28,6 @@ HashOfGeneDataMap extract_mp(const HashOfGeneDataMap &tmp, const std::vector<std
 
   for(auto &x: glist) {
     for(auto pair: tmp) {
-    //    for(auto itr = tmp.begin(); itr != tmp.end(); ++itr) {
       std::string chr(pair.first);
       if (tmp.at(chr).find(x) != tmp.at(chr).end()) {
 	mp[chr][x] = tmp.at(chr).at(x);
@@ -85,45 +77,23 @@ HashOfGeneDataMap parseSGD(const std::string& fileName)
     
     std::string type(v[1]);
     std::string tname(v[0]);
+    tmp[chr][tname].gtype = type;
     if (type == "ARS") continue;
-    else if (type == "centromere") {
-      tmp[chr][tname].gname = "CEN_chr" + chr;
-      tmp[chr][tname].genetype = GeneAnnoType::CENTROMERE;
-    }
-    else if (type == "teromere") {
-      tmp[chr][tname].gname = v[3];
-      tmp[chr][tname].genetype = GeneAnnoType::TEROMERE;
-    }
+    else if (type == "centromere") tmp[chr][tname].gname = "CEN_chr" + chr;
+    else if (type == "teromere")   tmp[chr][tname].gname = v[3];
     else if (type == "ORF") {
       if(v[4] != "") tmp[chr][tname].gname = v[4];
       else tmp[chr][tname].gname = v[3];
-      tmp[chr][tname].genetype = GeneAnnoType::CODING;
     }
     else if (type == "tRNA") {
       if(v[4] != "") tmp[chr][tname].gname = v[4];
       else tmp[chr][tname].gname = v[3];
-      tmp[chr][tname].genetype = GeneAnnoType::NONCODING;
     }
-    else if (type == "rRNA") {
-      tmp[chr][tname].gname = "rRNA";
-      tmp[chr][tname].genetype = GeneAnnoType::rRNA;
-    }
-    else if (type == "snoRNA") {
-      tmp[chr][tname].gname = "snoRNA";
-      tmp[chr][tname].genetype = GeneAnnoType::snoRNA;
-    }
-    else if (type == "long_terminal_repeat") {
-      tmp[chr][tname].gname = "LTR";
-      tmp[chr][tname].genetype = GeneAnnoType::LTR;
-    }
-    else if (type == "repeat_region") {
-      tmp[chr][tname].gname = v[6];
-      tmp[chr][tname].genetype = GeneAnnoType::REPEAT;
-    }
-    else if (type == "retrotransposon") {
-      tmp[chr][tname].gname = v[3];
-      tmp[chr][tname].genetype = GeneAnnoType::RETROPOSON;
-    }
+    else if (type == "rRNA")   tmp[chr][tname].gname = "rRNA";
+    else if (type == "snoRNA") tmp[chr][tname].gname = "snoRNA";
+    else if (type == "long_terminal_repeat") tmp[chr][tname].gname = "LTR";
+    else if (type == "repeat_region") tmp[chr][tname].gname = v[6];
+    else if (type == "retrotransposon") tmp[chr][tname].gname = v[3];
     else continue;
 
     tmp[chr][tname].chr = chr;
