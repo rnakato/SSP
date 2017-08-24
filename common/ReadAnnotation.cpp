@@ -54,6 +54,27 @@ std::vector<std::string> readGeneList(const std::string& fileName)
   return glist;
 }
 
+const std::string changeIntToGreek(const std::string& name)
+{
+  if (name=="1")       return "I";
+  else if (name=="2")  return "II";
+  else if (name=="3")  return "III";
+  else if (name=="4")  return "IV";
+  else if (name=="5")  return "V";
+  else if (name=="6")  return "VI";
+  else if (name=="7")  return "VII";
+  else if (name=="8")  return "VIII";
+  else if (name=="9")  return "IX";
+  else if (name=="10") return "X";
+  else if (name=="11") return "XI";
+  else if (name=="12") return "XII";
+  else if (name=="13") return "XIII";
+  else if (name=="14") return "XIV";
+  else if (name=="15") return "XV";
+  else if (name=="16") return "XVI";
+  else return name;
+}
+
 HashOfGeneDataMap parseSGD(const std::string& fileName)
 {
   if(isStr(fileName, ".gtf")) {
@@ -73,8 +94,8 @@ HashOfGeneDataMap parseSGD(const std::string& fileName)
     std::vector<std::string> v;
     boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
 
-    std::string chr = rmchr(v[8]);
-    
+    std::string chr(changeIntToGreek(rmchr(v[8])));
+
     std::string type(v[1]);
     std::string tname(v[0]);
     if (type == "ARS") continue;
@@ -308,12 +329,12 @@ std::vector<chrsize> read_genometable(const std::string& fileName)
     gt.emplace_back(v[0], stoi(v[1]));
   }
   // Greekchr
-  for(auto &x: gt) {
+  /*  for(auto &x: gt) {
     if(x.getname() == "I") {
       for(auto &x:gt) x.Greekchron();
       break;
     }
-  }
+    }*/
   return gt;
 }
 
