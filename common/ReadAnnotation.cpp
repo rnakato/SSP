@@ -194,6 +194,7 @@ HashOfGeneDataMap parseRefFlat(const std::string& fileName)
     std::cerr << "Warning: gene file seems to be gtf format but is parsed as refFlat." << std::endl;
   }
 
+  bool UCSC(false);
   std::ifstream in(fileName);
   if(!in) PRINTERR("refFlat file does not exist.");
 
@@ -209,6 +210,7 @@ HashOfGeneDataMap parseRefFlat(const std::string& fileName)
 
     std::string tname(v[1]);
     std::string chr = rmchr(v[2]);
+    if(isStr(tname, "NM") || isStr(tname, "NR")) UCSC = true;
     
     tmp[chr][tname].tname   = tname;
     tmp[chr][tname].gname   = v[0];
@@ -219,7 +221,12 @@ HashOfGeneDataMap parseRefFlat(const std::string& fileName)
     tmp[chr][tname].cdsStart = stoi(v[6]);
     tmp[chr][tname].cdsEnd   = stoi(v[7]);
     tmp[chr][tname].exonCount = stoi(v[8]);
-
+    if(v.size() >= 12) tmp[chr][tname].gtype = v[11];
+    else if(UCSC) {
+      if(isStr(tname, "NM")) tmp[chr][tname].gtype = "protein_coding";
+      else tmp[chr][tname].gtype = "noncoding RNA";
+    }
+    
     boost::split(exonStarts, v[9], boost::algorithm::is_any_of(","));
     boost::split(exonEnds,  v[10], boost::algorithm::is_any_of(","));
 
