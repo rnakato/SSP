@@ -75,6 +75,62 @@ const std::string changeIntToGreek(const std::string& name)
   else return name;
 }
 
+void parseARSOriDB(const std::string& fileName, HashOfGeneDataMap &mp)
+{
+  std::ifstream in(fileName);
+  if(!in) PRINTERR("ARS file does not exist.");
+
+  std::string lineStr;
+  
+  while (!in.eof()) {
+    getline(in, lineStr);
+    if (lineStr.empty()) continue;
+
+    std::vector<std::string> v;
+    boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
+
+    std::string tname;
+    if (isStr(v[2], "ARS")) tname = v[2];
+    else tname = "ARS_" + v[2];
+    std::string chr(changeIntToGreek(rmchr(v[4])));
+    
+    mp[chr][tname].chr     = v[4];
+    mp[chr][tname].gname   = tname;
+    mp[chr][tname].strand  = "";
+    mp[chr][tname].txStart = stoi(v[5]);
+    mp[chr][tname].txEnd   = stoi(v[6]);
+    mp[chr][tname].gtype   = "ARS";
+  }
+  return;
+}
+
+void parseTER(const std::string& fileName, HashOfGeneDataMap &mp)
+{
+  std::ifstream in(fileName);
+  if(!in) PRINTERR("ARS file does not exist.");
+
+  std::string lineStr;
+  
+  while (!in.eof()) {
+    getline(in, lineStr);
+    if (lineStr.empty()) continue;
+
+    std::vector<std::string> v;
+    boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
+
+    std::string tname(v[0]);
+    std::string chr(changeIntToGreek(rmchr(v[1])));
+    
+    mp[chr][tname].chr     = v[4];
+    mp[chr][tname].gname   = tname;
+    mp[chr][tname].strand  = "";
+    mp[chr][tname].txStart = stoi(v[2]);
+    mp[chr][tname].txEnd   = stoi(v[3]);
+    mp[chr][tname].gtype   = "TER";
+  }
+  return;
+}
+
 HashOfGeneDataMap parseSGD(const std::string& fileName)
 {
   if(isStr(fileName, ".gtf")) {
