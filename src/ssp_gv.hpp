@@ -26,7 +26,9 @@ namespace SSP {
     SSPstats sspst;
     FCSstats fcsst;
   
-  Global(): Greekchr(false), lackOfRead4FragmentVar(false), complexity() {}
+    Global(): Greekchr(false), lackOfRead4FragmentVar(false), complexity(),
+	      sspst(5*NUM_100K, NUM_1M, 5000)
+    {}
     
     void setOpts(MyOpt::Opts &allopts) {
       genome.setOpts(allopts);

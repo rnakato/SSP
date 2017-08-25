@@ -27,7 +27,7 @@ class SSPstats {
   double backgroundUniformity;
 
  public:
- SSPstats():
+  SSPstats(const int32_t ng_from_default, const int32_t ng_to_default, const int32_t ng_step_default):
   opt("Strand shift profile",100),
   nsc(0), rlsc(0), rsc(0), backgroundUniformity(0) {
     using namespace boost::program_options;
@@ -36,13 +36,13 @@ class SSPstats {
        value<int32_t>()->default_value(NUM_10M)->notifier(boost::bind(&MyOpt::over<int32_t>, _1, 1, "--num4ssp")),
        "Read number for calculating backgroud uniformity (per 100 Mbp)")
       ("ng_from",
-       value<int32_t>()->default_value(5*NUM_100K)->notifier(boost::bind(&MyOpt::over<int32_t>, _1, 1, "--ng_from")),
+       value<int32_t>()->default_value(ng_from_default)->notifier(boost::bind(&MyOpt::over<int32_t>, _1, 1, "--ng_from")),
        "start shift of background")
       ("ng_to",
-       value<int32_t>()->default_value(NUM_1M)->notifier(boost::bind(&MyOpt::over<int32_t>, _1, 1, "--ng_to")),
+       value<int32_t>()->default_value(ng_to_default)->notifier(boost::bind(&MyOpt::over<int32_t>, _1, 1, "--ng_to")),
        "end shift of background")
       ("ng_step",
-       value<int32_t>()->default_value(5000)->notifier(boost::bind(&MyOpt::over<int32_t>, _1, 1, "--ng_step")),
+       value<int32_t>()->default_value(ng_step_default)->notifier(boost::bind(&MyOpt::over<int32_t>, _1, 1, "--ng_step")),
        "step shift on of background")
       ("ssp_cc",    "make ssp based on cross correlation")
       ("ssp_hd",    "make ssp based on hamming distance")
