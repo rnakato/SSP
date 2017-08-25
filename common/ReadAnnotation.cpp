@@ -255,35 +255,37 @@ HashOfGeneDataMap parseGtf(const std::string& fileName)
     std::vector<std::string> v;
     
     boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
-    std::string feat = v[2];
+    std::string feat(v[2]);
     if(feat == "gene" || feat == "transcript" || feat == "three_prime_utr" || feat == "five_prime_utr") continue;
     
-    std::string chr = rmchr(v[0]);
-    int32_t start = stoi(v[3]);
-    int32_t end   = stoi(v[4]);
-    std::string strand = v[6];
-    std::string annotation = v[8];
+    std::string chr(rmchr(v[0]));
+    int32_t start(stoi(v[3]));
+    int32_t end(stoi(v[4]));
+    std::string strand(v[6]);
+    std::string annotation(v[8]);
 
     std::string gname, tname, gid, tid, gsrc, gtype, tsrc, ttype, ttag="";
     std::vector<std::string> idtab, vc;
     boost::split(idtab, annotation, boost::algorithm::is_any_of(";"));
-    for (auto term: idtab) {
+    for (auto &term: idtab) {
       boost::split(vc, term, boost::algorithm::is_any_of("\""));
-      if(isStr(term, "gene_source"))             gsrc  = vc[1];
-      else if(isStr(term, "gene_biotype"))       gtype = vc[1];
-      else if(isStr(term, "transcript_source"))  tsrc  = vc[1];
-      else if(isStr(term, "transcript_biotype")) ttype = vc[1];
-      else if(isStr(term, "tag")) {
+      if(isStr(vc[0], "gene_source"))             gsrc  = vc[1];
+      else if(isStr(vc[0], "gene_biotype"))       gtype = vc[1];
+      else if(isStr(vc[0], "transcript_source"))  tsrc  = vc[1];
+      else if(isStr(vc[0], "transcript_biotype")) ttype = vc[1];
+      else if(isStr(vc[0], "transcript_name")) tname = vc[1];
+      else if(isStr(vc[0], "gene_name"))       gname = vc[1];
+      else if(isStr(vc[0], "transcript_id"))   tid = vc[1];
+      else if(isStr(vc[0], "gene_id"))         gid = vc[1];
+      else if(isStr(vc[0], "tag")) {
 	if(ttag=="" || vc[1]=="CCDS")           ttag = vc[1];
-	else if(vc[1]=="basic" && ttag!="CCDS") ttag = vc[1];
-	else if( ttag!="basic" && ttag!="CCDS") ttag = vc[1];
+	else if(vc[1] == "basic" && ttag != "CCDS") ttag = vc[1];
+	else if(ttag  != "basic" && ttag != "CCDS") ttag = vc[1];
       }
-      else if(isStr(term, "transcript_name")) tname = vc[1];
-      else if(isStr(term, "gene_name"))       gname = vc[1];
-      else if(isStr(term, "transcript_id"))   tid = vc[1];
-      else if(isStr(term, "gene_id"))         gid = vc[1];
     }
 
+    if(tname =="") continue;
+    
     tmp[chr][tname].tname  = tname;
     tmp[chr][tname].gname  = gname;
     tmp[chr][tname].tid  = tid;

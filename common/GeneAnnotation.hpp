@@ -52,10 +52,10 @@ class genedata {
 
   int32_t length() const { return (txEnd - txStart); }
   void printall() const {
-    if(this){
+    // if(this){
       std::cout << tname << "\t" << gname << "\t" << tid << "\t" << gid << "\t" << chr << "\t" << strand << "\t" << txStart << "\t" << txEnd << "\t" << cdsStart << "\t" << cdsEnd << "\t" << exonCount << "\tgene source: " << gsrc << "\ttranscript source: "<< tsrc << "\tgene biotype: "<< gtype << "\ttranscript biotype: "<< ttype  << "\ttranscript tag: "<< ttag << "\t";
       for (auto &x: exon) std::cout << x.start << "-" << x.end << ", ";
-    }
+      //    }
   }
   void print() const {
     if(this) std::cout << tname << "\t" << gname << "\t" << tid << "\t" << gid << "\t" << strand << "\t" << txStart << "\t" << txEnd << "\t";
