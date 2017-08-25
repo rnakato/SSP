@@ -82,6 +82,7 @@ class range {
   int32_t end;
  range(): start(0), end(0) {}
  range(int32_t s, int32_t e): start(s), end(e) {}
+  int32_t getlen() const { return end-start; }
 };
 
 template <class T>

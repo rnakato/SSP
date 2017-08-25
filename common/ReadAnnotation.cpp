@@ -84,7 +84,7 @@ void parseARSOriDB(const std::string& fileName, HashOfGeneDataMap &mp)
   
   while (!in.eof()) {
     getline(in, lineStr);
-    if (lineStr.empty()) continue;
+    if (lineStr.empty() || isStr(lineStr, "Status")) continue;
 
     std::vector<std::string> v;
     boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
@@ -94,7 +94,7 @@ void parseARSOriDB(const std::string& fileName, HashOfGeneDataMap &mp)
     else tname = "ARS_" + v[2];
     std::string chr(changeIntToGreek(rmchr(v[4])));
     
-    mp[chr][tname].chr     = v[4];
+    mp[chr][tname].chr     = chr;
     mp[chr][tname].gname   = tname;
     mp[chr][tname].strand  = "";
     mp[chr][tname].txStart = stoi(v[5]);
@@ -113,7 +113,7 @@ void parseTER(const std::string& fileName, HashOfGeneDataMap &mp)
   
   while (!in.eof()) {
     getline(in, lineStr);
-    if (lineStr.empty()) continue;
+    if (lineStr.empty() || isStr(lineStr, "#") || isStr(lineStr, "Name")) continue;
 
     std::vector<std::string> v;
     boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
@@ -121,7 +121,7 @@ void parseTER(const std::string& fileName, HashOfGeneDataMap &mp)
     std::string tname(v[0]);
     std::string chr(changeIntToGreek(rmchr(v[1])));
     
-    mp[chr][tname].chr     = v[4];
+    mp[chr][tname].chr     = chr;
     mp[chr][tname].gname   = tname;
     mp[chr][tname].strand  = "";
     mp[chr][tname].txStart = stoi(v[2]);
