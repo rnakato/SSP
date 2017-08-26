@@ -221,7 +221,8 @@ HashOfGeneDataMap parseRefFlat(const std::string& fileName)
     tmp[chr][tname].cdsStart = stoi(v[6]);
     tmp[chr][tname].cdsEnd   = stoi(v[7]);
     tmp[chr][tname].exonCount = stoi(v[8]);
-    if(v.size() >= 12) tmp[chr][tname].gtype = v[11];
+    if(v.size() >= 13) tmp[chr][tname].gtype = v[12];
+    else if(v.size() >= 12) tmp[chr][tname].gtype = v[11];
     else if(UCSC) {
       if(isStr(tname, "NM")) tmp[chr][tname].gtype = "protein_coding";
       else tmp[chr][tname].gtype = "noncoding RNA";
