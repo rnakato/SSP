@@ -371,6 +371,7 @@ void printRefFlat(const HashOfGeneDataMap &mp, const int32_t nameflag)
       std::cout << "\t";
       for (auto &ex: x.second.exon) std::cout << ex.end   << ",";
       std::cout << "\t" << x.second.gtype;
+      std::cout << "\t" << x.second.ttype;
       std::cout << std::endl;
     }
   }
