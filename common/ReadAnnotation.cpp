@@ -287,30 +287,30 @@ HashOfGeneDataMap parseGtf(const std::string& fileName)
 
     if(tname =="") continue;
     
-    tmp[chr][tname].tname  = tname;
-    tmp[chr][tname].gname  = gname;
-    tmp[chr][tname].tid  = tid;
-    tmp[chr][tname].gid  = gid;
-    tmp[chr][tname].chr  = chr;
-    tmp[chr][tname].strand = strand;
+    tmp[chr][tid].tname  = tname;
+    tmp[chr][tid].gname  = gname;
+    tmp[chr][tid].tid  = tid;
+    tmp[chr][tid].gid  = gid;
+    tmp[chr][tid].chr  = chr;
+    tmp[chr][tid].strand = strand;
     if(feat == "start_codon") {
-      if(strand == "+") tmp[chr][tname].cdsStart = start;
-      else tmp[chr][tname].cdsEnd = end;
+      if(strand == "+") tmp[chr][tid].cdsStart = start;
+      else tmp[chr][tid].cdsEnd = end;
     } else if(feat == "stop_codon") {
-      if(strand == "+") tmp[chr][tname].cdsEnd = end;
-      else tmp[chr][tname].cdsStart = start;
+      if(strand == "+") tmp[chr][tid].cdsEnd = end;
+      else tmp[chr][tid].cdsStart = start;
     } else if(feat == "exon") {
-      tmp[chr][tname].exonCount++;
-      if(!tmp[chr][tname].txStart || start < tmp[chr][tname].txStart) tmp[chr][tname].txStart = start;
-      if(end > tmp[chr][tname].txEnd) tmp[chr][tname].txEnd = end;
-      tmp[chr][tname].exon.emplace_back(start, end);
+      tmp[chr][tid].exonCount++;
+      if(!tmp[chr][tid].txStart || start < tmp[chr][tid].txStart) tmp[chr][tid].txStart = start;
+      if(end > tmp[chr][tid].txEnd) tmp[chr][tid].txEnd = end;
+      tmp[chr][tid].exon.emplace_back(start, end);
     }
 
-    tmp[chr][tname].gsrc = gsrc;
-    tmp[chr][tname].tsrc = tsrc;
-    tmp[chr][tname].gtype = gtype;
-    tmp[chr][tname].ttype = ttype;
-    tmp[chr][tname].ttag = ttag;
+    tmp[chr][tid].gsrc = gsrc;
+    tmp[chr][tid].tsrc = tsrc;
+    tmp[chr][tid].gtype = gtype;
+    tmp[chr][tid].ttype = ttype;
+    tmp[chr][tid].ttag = ttag;
   }
 
   return tmp;
@@ -323,7 +323,7 @@ HashOfGeneDataMap construct_gmp(const HashOfGeneDataMap &tmp)
   for(auto pair: tmp) {
     std::string chr(pair.first);
     for(auto x: pair.second) {
-      std::string gname(x.second.gname);
+      std::string gname(x.second.gid);
       if(gmp.find(chr) == gmp.end() || gmp[chr].find(gname) == gmp[chr].end()) gmp[chr][gname] = x.second;
       else if(x.second.ttag == "CCDS") {
 	if(gmp[chr][gname].ttag != "CCDS" || gmp[chr][gname].length() < x.second.length()) gmp[chr][gname] = x.second;
