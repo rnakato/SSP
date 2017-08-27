@@ -6,24 +6,6 @@
 
 #include "seq.hpp"
 
-/*enum class GeneAnnoType: uint8_t {
-  CODING,
-  NONCODING,
-  MIRNA,
-  PSEUDO,
-  PROCESS,
-  OTHERS,
-  ARS,
-  TER,
-  CENTROMERE,
-  TEROMERE,
-  rRNA,
-  snoRNA,
-  LTR,
-  REPEAT,
-  RETROPOSON
-  };*/
-
 enum status {INTERGENIC, GENIC, INTRON, EXON, DOWNSTREAM, UPSTREAM, TSS, PARALLEL, DIVERGENT, CONVERGENT};
 
 class genedata {

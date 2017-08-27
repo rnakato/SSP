@@ -5,6 +5,7 @@
 #define _BEDFORMAT_HPP_
 
 #include <fstream>
+#include <unordered_map>
 #include <boost/algorithm/string.hpp>
 
 std::string rmchr(const std::string &chr);
@@ -21,7 +22,7 @@ class bed {
     chr(rmchr(c)), start(s), end(e) {}
   bed(const std::vector<std::string> &s):
     chr(rmchr(s[0])), start(stoi(s[1])), end(stoi(s[2])), summit((start + end)/2) {}
-  void print()     const { std::cout << "chr" << chr << "\t" << start  << "\t" << end ; }
+  void print() const { std::cout << "chr" << chr << "\t" << start  << "\t" << end ; }
   void printHead() const { std::cout << "chromosome\tstart\tend"; }
   int32_t length() const { return abs(end - start); }
 };
@@ -153,5 +154,37 @@ void printBed(const std::vector<T> &vbed)
   std::cout << "bed num: " << vbed.size() << std::endl;
   return;
 }
+
+template <class T>
+std::unordered_map<std::string, std::vector<T>> parseBed_Hash(const std::string &fileName)
+{
+  std::unordered_map<std::string, std::vector<T>> bedmap;
+  std::ifstream in(fileName);
+  if(!in) {
+    std::cerr << "Error: BED file does not exist." << std::endl;
+    std::exit(1);
+  }
+
+  std::string lineStr;
+  std::vector<std::string> v;
+  while (!in.eof()) {
+    getline(in, lineStr);
+
+    if(lineStr.empty() || lineStr[0] == '#') continue;
+    boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
+    if(v[1] == "start") continue;
+    bedmap[rmchr(v[0])].emplace_back(bed(v));
+  }
+
+  return bedmap;
+}
+
+template <class T>
+void printBed_Hash(const std::unordered_map<std::string, std::vector<T>> &mp)
+{
+  for(auto vbed: mp) printBed(vbed.second);
+  return;
+}
+
 
 #endif  // _BEDFORMAT_HPP_
