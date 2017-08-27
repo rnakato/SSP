@@ -18,6 +18,12 @@ std::string rmchr(const std::string &chr)
   return s;
 }
 
+bool checkFile(const std::string &str)
+{
+  boost::filesystem::path const file(str);
+  return boost::filesystem::exists(file);
+}
+
 void isFile(const std::string &str)
 {
   boost::filesystem::path const file(str);

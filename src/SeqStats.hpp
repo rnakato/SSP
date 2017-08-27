@@ -146,7 +146,6 @@ class SeqStats {
 	if(x.duplicate) continue;
 	int32_t s(std::min(x.F3, x.F5));
 	int32_t e(std::max(x.F3, x.F5));
-	//	std::cout << x.F3 << "\t" << x.F5 <<"\t" << s << "\t" << e << "\n";
 	for(int32_t i=s; i<=e; ++i) {
 	  if(array[i] == BpStatus::INBED) {
 	    x.inpeak = 1;
