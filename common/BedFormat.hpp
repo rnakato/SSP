@@ -4,7 +4,10 @@
 #ifndef _BEDFORMAT_HPP_
 #define _BEDFORMAT_HPP_
 
+#include <iostream>
 #include <fstream>
+#include <vector>
+#include <string>
 #include <unordered_map>
 #include <boost/algorithm/string.hpp>
 
