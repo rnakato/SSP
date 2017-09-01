@@ -11,7 +11,6 @@ The outputs of SSP are displayed in PDF format and also written to text files.
 # 2. Install
 SSP is written in C++ and requires the following programs and libraries:
 * [Boost C++ library](http://www.boost.org/)
-* [GTK library](http://www.gtk.org/)
 * [GNU Scientific Library](http://www.gnu.org/software/gsl/)
 * [zlib](http://www.zlib.net/)
 * [SAMtools](http://samtools.sourceforge.net/) (for BAM formatted input)
