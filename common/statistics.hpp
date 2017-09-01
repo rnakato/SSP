@@ -8,6 +8,7 @@
 #include <cmath>
 #include <cstdint>
 
+double getBinomial(int32_t k, double p, int32_t n);
 double _getNegativeBinomial(int32_t k, double p, double n);
 double _getZIP(int32_t k, double p, double p0);
 double _getZINB(int32_t k, double p, double n, double p0);

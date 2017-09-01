@@ -20,6 +20,12 @@ double _getNegativeBinomial(int32_t k, double p, double n)
   return gsl_ran_negative_binomial_pdf(k, p, n);
 }
 
+
+double getBinomial(int32_t k, double p, int32_t n)
+{
+  return gsl_ran_binomial_pdf(k, p, n);
+}
+
 double _getZIP(int32_t k, double p, double p0)
 {
   double r(0);
