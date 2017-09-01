@@ -8,6 +8,7 @@
 #include <vector>
 #include <boost/format.hpp>
 #include <boost/program_options.hpp>
+#include "inline.hpp"
 
 std::string rmchr(const std::string &chr);
 void isFile(const std::string &);
@@ -68,25 +69,27 @@ int32_t getmaxi(std::vector<T> v)
 };
 
 template <class T>
-void GaussianSmoothing(std::vector<T> &v)
+void GaussianSmoothing(std::vector<T> &v, const int32_t nsmooth)
 {
-  int32_t size = v.size();
+  std::vector<double> w(nsmooth+1,0);
+  double var(1);
 
-  std::vector<double> w(4,0);
-  double var=1;
-  for(int32_t j=0; j<4; ++j) w[j] = exp(static_cast<double>(-j*j)/2*var*var);
-  double r = 1/(w[0] + (w[1]+w[2]+w[3]) *2);
+  double sum(0);
+  for (int32_t i=0; i<=nsmooth; ++i) {
+    w[i] = exp(static_cast<double>(-i*i)/2*var*var);
+    sum += w[i];
+  }
+  double r(1/(sum*2 - w[0]));
 
-  double m0;
-  double m1(v[0]);
-  double m2(v[1]);
-  double m3(v[2]);
-  for(int32_t i=3; i<size-3; ++i) {
-    m0 = v[i];
-    v[i] = (w[0]*m0 + w[1]*(m1 + v[i+1]) + w[2]*(m2 + v[i+2]) + w[3]*(m3 + v[i+3]))*r;
-    m3 = m2;
-    m2 = m1;
-    m1 = m0;
+  std::vector<double> m(nsmooth+1,0);
+  for (int32_t i=0; i<=nsmooth; ++i) m[i] = v[nsmooth-i];
+
+  for (size_t i=nsmooth; i<v.size()-nsmooth; ++i) {
+    m[0] = v[i];
+    double val(w[0]*m[0]);
+    for (int32_t j=1; j<=nsmooth; ++j) val += w[j] * (m[j] + v[i+j]);
+    v[i] = val*r;
+    for (int32_t i=1; i<nsmooth; ++i) m[i+1] == m[i];
   }
   return;
 }
