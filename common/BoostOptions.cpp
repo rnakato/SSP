@@ -74,8 +74,8 @@ namespace MyOpt {
   {
     if (!values.count("pair")) {
       std::cout << "Single-end mode: ";
-      std::cout << "fragment length will be estimated by strand-shift profile" << std::endl;
-      if (values.count("nomodel")) std::cout << boost::format("Predefined fragment length: %1%\n") % values["flen"].as<int32_t>();
+      if (!values.count("nomodel")) std::cout << "fragment length will be estimated by strand-shift profile" << std::endl;
+      else std::cout << boost::format("Predefined fragment length: %1%\n") % values["flen"].as<int32_t>();
     }
   }
 
