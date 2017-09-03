@@ -102,9 +102,11 @@ class Peak : public bed {
   double enrich;
   double p_inter, p_enr;
   double q;
- Peak(const std::string &c, const int32_t s, const int32_t e, const double val, const double p):
-   bed(c,s,e), summit(s), pileup(val), enrich(0), p_inter(p), p_enr(0), q(0) {}
-  void renew(int32_t i, double val, double p) {
+
+  Peak(){}
+  Peak(const std::string &c, const int32_t s, const int32_t e, const double val, const double p):
+    bed(c,s,e), summit(s), pileup(val), enrich(0), p_inter(p), p_enr(0), q(0) {}
+  void renew(const int32_t i, const double val, const double p) {
     end = i;
     pileup += val;
     if(p_inter > p) {
@@ -112,7 +114,7 @@ class Peak : public bed {
       summit = i;
     }
   }
-  void print(std::ofstream &out, int32_t id, int32_t binsize) const {
+  void print(std::ofstream &out, const int32_t id, const int32_t binsize) const {
     out << chr << "\t" << start*binsize << "\t" << end*binsize << "\t"
 	<< ((end - start +1)*binsize-1) << "\t"
 	<< (summit*binsize -binsize/2) << "\t" << pileup << "\t"
