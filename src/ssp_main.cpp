@@ -113,7 +113,7 @@ Usage: ssp [option] -i <inputfile> -o <output> --gt <genome_table>)";
       boost::program_options::parsed_options parsed = parse_command_line(argc, argv, allopts);
       store(parsed, values);
     }
-    catch(const boost::program_options::error_with_option_name& e) {
+    catch (const boost::program_options::error_with_option_name& e) {
       std::cout << e.what() << std::endl;
       exit(0);
     }
@@ -141,7 +141,7 @@ Usage: ssp [option] -i <inputfile> -o <output> --gt <genome_table>)";
       boost::filesystem::create_directory(dir);
     
       init_dump(values, ssp);
-    } catch(const boost::bad_any_cast& e) {
+    } catch (const boost::bad_any_cast& e) {
       std::cout << e.what() << std::endl;
       exit(0);
     }
