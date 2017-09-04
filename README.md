@@ -11,13 +11,15 @@ SSP provides metrics to:
 The outputs of SSP are displayed in PDF format and also written to text files.
 
 # 2. Install
-SSP is written in C++ and requires the following programs and libraries:
-* [Boost C++ library](http://www.boost.org/)
-* [GNU Scientific Library](http://www.gnu.org/software/gsl/)
-* [zlib](http://www.zlib.net/)
-* [SAMtools](http://samtools.sourceforge.net/) (for BAM formatted input)
+### 2.1 Dependencies
+SSP is written in C++11 and requires the following programs and libraries.
+The version numbers listed have been tested successfully. 
+* [Boost C++ library (1.58.0)](http://www.boost.org/)
+* [GNU Scientific Library (2.1)](http://www.gnu.org/software/gsl/)
+* [zlib (1.2.8)](http://www.zlib.net/)
+* [SAMtools (1.5)](http://samtools.sourceforge.net/) (for BAM formatted input)
 
-### 2.1. Install required libraries
+### 2.2. Install required libraries
 #### Ubuntu and Debian:
 
     sudo apt-get install git build-essential libboost-all-dev libgsl-dev libz-dev samtools
