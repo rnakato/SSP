@@ -5,26 +5,28 @@ SSP (strand-shift profile) is a tool for quality assessment of ChIP-seq data wit
 
 SSP provides metrics to:
 - quantify the S/N for both point- and broad-source factors (NSC), 
-- estimate peak reliability based on the mapped-read distribution throughout a genome (Bu).
+- estimate peak reliability based on the mapped-read distribution throughout a genome (Bu),
 - and estimate peak intensity and peak mode (point- or broad-source, FCS).
 
 The outputs of SSP are displayed in PDF format and also written to text files.
 
 # 2. Install
-SSP is written in C++ and requires the following programs and libraries:
-* [Boost C++ library](http://www.boost.org/)
-* [GNU Scientific Library](http://www.gnu.org/software/gsl/)
-* [zlib](http://www.zlib.net/)
-* [SAMtools](http://samtools.sourceforge.net/) (for BAM formatted input)
+### 2.1 Dependencies
+SSP is written in C++11 and requires the following programs and libraries.
+The version numbers listed have been tested successfully. 
+* [Boost C++ library (1.53.0, 1.58.0)](http://www.boost.org/)
+* [GNU Scientific Library (1.15, 2.1)](http://www.gnu.org/software/gsl/)
+* [zlib (1.2.7, 1.2.8)](http://www.zlib.net/)
+* [SAMtools (1.5)](http://samtools.sourceforge.net/) (for BAM formatted input)
 
-### 2.1. Install required libraries
+### 2.2. Install required libraries
 #### Ubuntu and Debian:
 
     sudo apt-get install git build-essential libboost-all-dev libgsl-dev libz-dev samtools
  
 #### CentOS and Red Hat:
 
-    sudo yum -y install git gcc-c++ boost-devel zlib-devel gsl-devel
+    sudo yum -y install git gcc-c++ boost-devel gsl-devel zlib-devel
 and install samtools from [the website](http://samtools.sourceforge.net/).
 
 ### 2.3. Install SSP
