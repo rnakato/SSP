@@ -18,6 +18,7 @@ class SSPstats {
   int32_t num4ssp;
   int32_t isExjac, isHd, isCc;
   int32_t eachchr;
+  int32_t mp_from, mp_to;
   int32_t ng_from, ng_to, ng_step;
   int32_t numthreads;
   
@@ -27,9 +28,12 @@ class SSPstats {
   double backgroundUniformity;
 
  public:
-  SSPstats(const int32_t ng_from_default, const int32_t ng_to_default, const int32_t ng_step_default):
+  SSPstats(const int32_t ng_from_default, const int32_t ng_to_default, const int32_t ng_step_default,
+	   const int32_t mp_from_default, const int32_t mp_to_default):
   opt("Strand shift profile",100),
-  nsc(0), rlsc(0), rsc(0), backgroundUniformity(0) {
+  mp_from(mp_from_default), mp_to(mp_to_default),
+  nsc(0), rlsc(0), rsc(0), backgroundUniformity(0)
+  {
     using namespace boost::program_options;
     opt.add_options()
       ("num4ssp",
@@ -81,6 +85,8 @@ class SSPstats {
   int32_t DoCc()       const { return isCc; }
   int32_t isEachchr()  const { return eachchr; }
   int32_t getnum4ssp() const { return num4ssp; }
+  int32_t getMpFrom()  const { return mp_from; }
+  int32_t getMpTo()    const { return mp_to; }
   int32_t getNgFrom()  const { return ng_from; }
   int32_t getNgTo()    const { return ng_to; }
   int32_t getNgStep()  const { return ng_step; }

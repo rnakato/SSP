@@ -15,25 +15,21 @@ void addmp(std::map<int32_t, double> &mpto, const std::map<int32_t, double> &mpf
   }
 }
 
-//double getJaccard(int32_t step, int32_t to, int64_t xysum, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev)
-double getJaccard(int32_t step, int32_t to, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev)
+double getJaccard(int32_t step, int32_t to, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev,
+		  const int32_t mp_from)
 {
-  int64_t xy(0); //, bothsum(0)
+  int64_t xy(0);
   for (int32_t j=mp_from; j<to; ++j) {
-    //    bothsum += std::max(fwd[j], rev[j+step]);
     if (std::min(fwd[j], rev[j+step])) xy += std::max(fwd[j], rev[j+step]);
   }
   return xy;
-  //  return getratio(xy, xysum-xy);
-  //  return getratio(xy, bothsum-xy);
 }
 
-//void genThreadJacVec(ReadShiftProfile &chr, int32_t ng_to, int64_t xysum, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev, int32_t s, int32_t e, boost::mutex &mtx)
-void genThreadJacVec(ReadShiftProfile &chr, int32_t ng_to, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev, int32_t s, int32_t e, boost::mutex &mtx)
+void genThreadJacVec(ReadShiftProfile &chr, int32_t ng_to, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev,
+		     const int32_t mp_from, int32_t s, int32_t e, boost::mutex &mtx)
 {
   for (int32_t step=s; step<e; ++step) {
-    chr.setmp(step, getJaccard(step, chr.width-ng_to, fwd, rev), mtx);
-    //    chr.setmp(step, getJaccard(step, chr.width-ng_to, xysum, fwd, rev), mtx);
+    chr.setmp(step, getJaccard(step, chr.width-ng_to, fwd, rev, mp_from), mtx);
   }
 }
 
@@ -46,18 +42,17 @@ void shiftJacVec::setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd,
   boost::thread_group agroup;
   boost::mutex mtx;
   for (uint32_t i=0; i<seprange.size(); i++) {
-    agroup.create_thread(bind(&genThreadJacVec, boost::ref(chr), ng_to, boost::cref(fwd), boost::cref(rev), seprange[i].start, seprange[i].end, boost::ref(mtx)));
-    //    agroup.create_thread(bind(&genThreadJacVec, boost::ref(chr), ng_to, bothsum, boost::cref(fwd), boost::cref(rev), seprange[i].start, seprange[i].end, boost::ref(mtx)));
+    agroup.create_thread(bind(&genThreadJacVec, boost::ref(chr), ng_to, boost::cref(fwd), boost::cref(rev), mp_from, seprange[i].start, seprange[i].end, boost::ref(mtx)));
   }
   agroup.join_all();
 
   for (int32_t step=ng_from; step<ng_to; step+=ng_step) {
-    chr.nc[step] = getJaccard(step, chr.width-ng_to, fwd, rev);
-    //    chr.nc[step] = getJaccard(step, chr.width-ng_to, bothsum, fwd, rev);
+    chr.nc[step] = getJaccard(step, chr.width-ng_to, fwd, rev, mp_from);
   }
 }
 
-void genThreadCcp(ReadShiftProfile &chr, int32_t ng_to, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev, double mx, double my, const int32_t s, const int32_t e, boost::mutex &mtx)
+void genThreadCcp(ReadShiftProfile &chr, int32_t ng_to, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev,
+		  double mx, double my, const int32_t mp_from, const int32_t s, const int32_t e, boost::mutex &mtx)
 {
   for (int32_t step=s; step<e; ++step) {
     double xy(0);
@@ -76,7 +71,7 @@ void shiftCcp::setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, co
   boost::thread_group agroup;
   boost::mutex mtx;
   for (uint32_t i=0; i<seprange.size(); i++) {
-    agroup.create_thread(bind(genThreadCcp, boost::ref(chr), ng_to, boost::cref(fwd), boost::cref(rev), x.getmean(), y.getmean(), seprange[i].start, seprange[i].end, boost::ref(mtx)));
+    agroup.create_thread(bind(genThreadCcp, boost::ref(chr), ng_to, boost::cref(fwd), boost::cref(rev), x.getmean(), y.getmean(), mp_from, seprange[i].start, seprange[i].end, boost::ref(mtx)));
   }
   agroup.join_all();
 

@@ -27,7 +27,7 @@ namespace SSP {
     FCSstats fcsst;
   
     Global(): Greekchr(false), lackOfRead4FragmentVar(false), complexity(),
-	      sspst(5*NUM_100K, NUM_1M, 5000)
+	      sspst(5*NUM_100K, NUM_1M, 5000, 500, 1500)
     {}
     
     void setOpts(MyOpt::Opts &allopts) {

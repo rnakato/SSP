@@ -21,23 +21,25 @@ double getlogpZINB(double k, double p, double n);
 namespace MyStatistics {
 
   template <class T>
-    class moment {
+  class moment {
     double mean;
     double var;
     double sd;
     
   public:
-  moment(const std::vector<T> v, int32_t from, int32_t to=0): mean(0), var(0), sd(0) {
-      if(!to) to = v.size();
+    moment(const std::vector<T> v, const int32_t from, int32_t to=0):
+      mean(0), var(0), sd(0)
+    {
+      if (!to) to = v.size();
       int32_t size(to - from);
-      if(size) {
-	for(int32_t i=from; i<to; ++i) mean += v[i];
+      if (size > 1) {
+	for (int32_t i=from; i<to; ++i) mean += v[i];
 	mean /= static_cast<double>(size);
-	for(int32_t i=from; i<to; ++i) var += (v[i] - mean)*(v[i] - mean);
+	for (int32_t i=from; i<to; ++i) var += (v[i] - mean)*(v[i] - mean);
 	var /= static_cast<double>(size -1);
 	sd = sqrt(var);
       }
-      //    std::cout << mean << "\t" << var << "\t" << sd << std::endl;
+      //      std::cout << size << "\t"<< v.size() << "\t"<< mean << "\t" << var << "\t" << sd << std::endl;
     }
     double getmean() const { return mean; }
     double getvar()  const { return var; }
@@ -45,20 +47,20 @@ namespace MyStatistics {
   };
   
   template <class T>
-    T getPercentile(const std::vector<T> &array, const double per, int32_t binnum=0)
-    {
-      if(!binnum) binnum = array.size();
-      std::vector<T> sortarray;
+  T getPercentile(const std::vector<T> &array, const double per, int32_t binnum=0)
+  {
+    if (!binnum) binnum = array.size();
+    std::vector<T> sortarray;
       
-      for(int32_t i=0; i<binnum; ++i) {
-	if(array[i]) sortarray.push_back(array[i]);
-      }
-      if(!sortarray.size()) return 0;
+    for (int32_t i=0; i<binnum; ++i) {
+      if(array[i]) sortarray.push_back(array[i]);
+    }
+    if (!sortarray.size()) return 0;
       
-      sort(sortarray.begin(), sortarray.end());
+    sort(sortarray.begin(), sortarray.end());
       
-      return sortarray[(int32_t)(sortarray.size()*per)];
-    };
+    return sortarray[(int32_t)(sortarray.size()*per)];
+  };
 }
 
 #endif /* _STATISTICS_HPP_ */

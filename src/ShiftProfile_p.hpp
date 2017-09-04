@@ -7,11 +7,6 @@
 #include <boost/dynamic_bitset.hpp>
 #include "ssp_gv.hpp"
 
-namespace {
-  const int32_t mp_from(500);
-  const int32_t mp_to(1500);
-}
-
 std::vector<int8_t> genVector(const std::vector<Read> &vReadref, const int32_t start, const int32_t end);
 boost::dynamic_bitset<> genBitset(const std::vector<Read> &vReadref, const int32_t, const int32_t);
 void addmp(std::map<int32_t, double> &, const std::map<int32_t, double> &, double w);
@@ -45,6 +40,8 @@ class ReadShiftProfile {
   uint64_t nread;
   uint32_t num4ssp;
   double backgroundUniformity;
+  int32_t mp_from;
+  int32_t mp_to;
   
  public:
   std::map<int32_t, double> mp;
@@ -55,8 +52,12 @@ class ReadShiftProfile {
 
   double rchr;
 
- ReadShiftProfile(const int32_t lenf3, const int32_t b, const int32_t n4s, int32_t s=0, int32_t e=0, int64_t n=0, int64_t l=0):
-  lenF3(lenf3), r(0), bk(0), bk_from(b), nsc(0), rsc(0), rlsc(0), nsci(0), len(l), nread(n), num4ssp(n4s), backgroundUniformity(0), start(s), end(e), width(e-s), rchr(1) {}
+  ReadShiftProfile(const int32_t lenf3, const int32_t _mp_from, const int32_t _mp_to, const int32_t b, const int32_t n4s, int32_t s=0, int32_t e=0, int64_t n=0, int64_t l=0):
+  lenF3(lenf3), r(0), bk(0), bk_from(b),
+  nsc(0), rsc(0), rlsc(0), nsci(0), len(l), nread(n), num4ssp(n4s), backgroundUniformity(0),
+  mp_from(_mp_from), mp_to(_mp_to),
+  start(s), end(e), width(e-s), rchr(1)
+  {}
   virtual ~ReadShiftProfile() {}
 
   void setmp(const int32_t i, const double val, boost::mutex &mtx) {
@@ -173,7 +174,7 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
   std::vector<ReadShiftProfile> chr;
   
  ReadShiftProfileGenome(const std::string n, const SSPstats &sspst, const SeqStatsGenome &genome):
-  ReadShiftProfile(genome.dflen.getlenF3(), sspst.getNgFrom(), sspst.getnum4ssp()),
+   ReadShiftProfile(genome.dflen.getlenF3(), sspst.getMpFrom(), sspst.getMpTo(), sspst.getNgFrom(), sspst.getnum4ssp()),
     ng_from(5000),
     ng_to(sspst.getNgTo()),
     ng_step(sspst.getNgStep()),
