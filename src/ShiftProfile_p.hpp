@@ -6,7 +6,6 @@
 
 #include <boost/dynamic_bitset.hpp>
 #include "ssp_gv.hpp"
-#include "../common/alglib/alglib.h"
 
 namespace {
   const int32_t mp_from(500);

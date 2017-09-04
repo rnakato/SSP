@@ -8,9 +8,10 @@
 #include <cmath>
 #include <cstdint>
 
+double getNormDist(const double x, double m, double myu);
 double getBinomial(int32_t k, double p, int32_t n);
 double _getNegativeBinomial(int32_t k, double p, double n);
-double _getZIP(int32_t k, double p, double p0);
+//double _getZIP(int32_t k, double p, double p0);
 double _getZINB(int32_t k, double p, double n, double p0);
 void iterateZINB(void *, double, double, double &, double &, double &);
 double _getPoisson(int32_t i, double m);

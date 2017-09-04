@@ -10,52 +10,66 @@
 #include <gsl/gsl_multimin.h>
 #include <gsl/gsl_sf.h>
 
-double _getPoisson(int32_t i, double m)
+double getStdNormDistP(const double x)
+{
+  return gsl_cdf_ugaussian_P(x);
+}
+
+double getStdNormDistQ(const double x)
+{
+  return gsl_cdf_ugaussian_Q(x);
+}
+
+double getNormDist(const double x, double m, double myu)
+{
+  double z((x - m)/myu);
+  double d(getStdNormDistP(z));
+  double p(std::min(d,1-d) *2);  // two-sided test
+  return p;
+}
+
+double _getPoisson(const int32_t i, const double m)
 {
   return gsl_ran_poisson_pdf(i, m);
 }
 
-double _getNegativeBinomial(int32_t k, double p, double n)
+double _getNegativeBinomial(const int32_t k, const double p, const double n)
 {
   return gsl_ran_negative_binomial_pdf(k, p, n);
 }
 
 
-double getBinomial(int32_t k, double p, int32_t n)
+double getBinomial(const int32_t k, const double p, const int32_t n)
 {
   return gsl_ran_binomial_pdf(k, p, n);
 }
 
-double _getZIP(int32_t k, double p, double p0)
+/*double _getZIP(const int32_t k, const double p, const double p0)
 {
   double r(0);
-  if(!k) {
-    r = p0 + (1 - p0) * gsl_ran_poisson_pdf(k, p);
-  }else {
-    r = (1 - p0) * gsl_ran_poisson_pdf(k, p);
-  }
+  if (!k) r = p0 + (1 - p0) * gsl_ran_poisson_pdf(k, p);
+  else    r =      (1 - p0) * gsl_ran_poisson_pdf(k, p);
+  
+  return r;
+  }*/
+
+double _getZINB(const int32_t k, const double p, const double n, const double p0)
+{
+  double r(0);
+  if (!k) r = p0 + (1 - p0) * gsl_ran_negative_binomial_pdf(0, p, n);
+  else    r =      (1 - p0) * gsl_ran_negative_binomial_pdf(k, p, n);
+  
   return r;
 }
 
-double _getZINB(int32_t k, double p, double n, double p0)
-{
-  double r(0);
-  if(!k) {
-    r = p0 + (1 - p0) * gsl_ran_negative_binomial_pdf(0, p, n);
-  }else {
-    r = (1 - p0) * gsl_ran_negative_binomial_pdf(k, p, n);
-  }
-  return r;
-}
-
-gsl_multimin_fminimizer *gsl_multimin_fminimizer_new(size_t ndim)
+gsl_multimin_fminimizer *gsl_multimin_fminimizer_new(const size_t ndim)
 {
   const gsl_multimin_fminimizer_type *T = gsl_multimin_fminimizer_nmsimplex;  /* ネルダーとミードのシンプレックス法 */
   gsl_multimin_fminimizer            *s = gsl_multimin_fminimizer_alloc(T, ndim); 
   return s;
 }
 
-gsl_vector *gsl_vector_new(int32_t ndim, double init)
+gsl_vector *gsl_vector_new(const int32_t ndim, const double init)
 {
   gsl_vector *p = gsl_vector_alloc(ndim);
   gsl_vector_set_all(p, init);
