@@ -25,33 +25,6 @@ void printList(Thead head, Tbody... body)
   printList(body...);
 }
 
-
-template <class T>
-void chkminus(const boost::program_options::variables_map &values, std::string x, int32_t lim)
-{
-  if (values.count(x)) {
-    T val = values[x].as<T>();
-    if(val <= lim) {
-      std::cerr << "Error: invalid " << x << ": " << val << std::endl;
-      exit(1);
-    }
-  }
-  return;
-}
-
-template <class T>
-void chkrange(const boost::program_options::variables_map &values, std::string x, T s, T e)
-{
-  if (values.count(x)) {
-    T val = values[x].as<T>();
-    if(!my_range(val, s, e)) {
-      std::cerr << "Error: invalid " << x << ": " << val << std::endl;
-      exit(1);
-    }
-  }
-  return;
-  }
-
 template <class T>
 int32_t getmaxi(std::vector<T> v)
 {
