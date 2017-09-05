@@ -161,11 +161,15 @@ void genThread(T &dist, const SeqStatsGenome &genome, uint32_t chr_s, uint32_t c
     }
     std::cout << genome.chr[i].getname() << ".." << std::flush;
 
+    printf("t11111est\n");
     dist.execchr(genome, i);
+    printf("test2\n");
     dist.chr[i].setflen(dist.name);
+    printf("test23\n");
     
     std::string filename = prefix + "." + genome.chr[i].getname() + ".csv";
     if (output_eachchr) dist.outputmpChr(filename, i);
+    printf("test43\n");
   }
 }
 
@@ -175,13 +179,13 @@ void makeProfile(SSPstats &sspst, SeqStatsGenome &genome, const std::string &hea
   DEBUGprint("makeProfile: " + typestr);
   T dist(sspst, genome);
   dist.printStartMessage();
-  
+
   boost::thread_group agroup;
   boost::mutex mtx;
 
   std::string prefix(head + "." + typestr);
   if (typestr == "hdp" || typestr == "jaccard") {
-    for (size_t i=0; i<genome.vsepchr.size(); i++) {
+    for (size_t i=0; i<genome.vsepchr.size(); ++i) {
       agroup.create_thread(bind(genThread<T>, boost::ref(dist), boost::cref(genome), genome.vsepchr[i].s, genome.vsepchr[i].e, boost::cref(prefix), sspst.isEachchr(), sspst.getNgTo()));
     }
     agroup.join_all();

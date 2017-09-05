@@ -14,11 +14,11 @@ void addmp(std::map<int32_t, double> &, const std::map<int32_t, double> &, doubl
 double getmpmean(const std::map<int32_t, double> mp, int32_t s, int32_t e) {
   double m(0);
   int32_t n(0);
-  if(s > e) {
+  if (s > e) {
     std::cerr << "Error: s " << s << "> e " << e <<"for getmpmean" << std::endl;
     return -1;
   }
-  for(int32_t i=s; i <= e; ++i) {
+  for (int32_t i=s; i <= e; ++i) {
     m += mp.at(i);
     ++n;
   }
@@ -57,7 +57,9 @@ class ReadShiftProfile {
   nsc(0), rsc(0), rlsc(0), nsci(0), len(l), nread(n), num4ssp(n4s), backgroundUniformity(0),
   mp_from(_mp_from), mp_to(_mp_to),
   start(s), end(e), width(e-s), rchr(1)
-  {}
+  {
+    std::cout << "2 mp_to " << mp_to << std::endl;
+  }
   virtual ~ReadShiftProfile() {}
 
   void setmp(const int32_t i, const double val, boost::mutex &mtx) {
@@ -94,21 +96,27 @@ class ReadShiftProfile {
   void setflen(const std::string &name) {
     int32_t threwidth(5);
     int32_t leftend(lenF3*1.2);
-    if(leftend>150) leftend=150;
+    if (leftend>150) leftend=150;
 
+    printf("1test43\n");
     setControlRatio();
-    if(name == "Hamming distance") nsc = mp[mp_to-1];
-    else nsc = mp[mp_to-1]*r;
+    printf("21test43\n");
+    std::cout << "mp_to " << mp_to << std::endl;
+    if (name == "Hamming distance") nsc = mp.at(mp_to-1);
+    else nsc = mp.at(mp_to-1)*r;
 
+    printf("13test43\n");
     std::map<int32_t, double> mpsmooth;
-    for(int32_t i=mp_to-1-2; i > leftend-threwidth; --i) {
+    for (int32_t i=mp_to-1-2; i > leftend-threwidth; --i) {
       mpsmooth[i] = getmpmean(mp, i-2, i+2);
     }
+    printf("14test43\n");
 
-    for(int32_t i=mp_to-1-threwidth-2; i > leftend; --i) {
-      if(name == "Hamming distance") {
-	if(mpsmooth.at(i) > mpsmooth.at(i+threwidth) || mpsmooth.at(i) > mpsmooth.at(i-threwidth)) continue;
-	if(nsc > mp.at(i)) {
+    for (int32_t i=mp_to-1-threwidth-2; i > leftend; --i) {
+    printf("41test43\n");
+      if (name == "Hamming distance") {
+	if (mpsmooth.at(i) > mpsmooth.at(i+threwidth) || mpsmooth.at(i) > mpsmooth.at(i-threwidth)) continue;
+	if (nsc > mp.at(i)) {
 	  nsc  = mp.at(i);
 	  nsci = i;
 	}
@@ -125,9 +133,8 @@ class ReadShiftProfile {
   }
 
   void print2file(const std::string &filename, const std::string &name) {
-    if(!nread) {
-      std::cerr << filename << ": no read" << std::endl;
-    }
+    if (!nread) std::cerr << filename << ": no read" << std::endl;
+    
     double sum(getmpsum());
     double rRPKM = getratio(num4ssp, nread) / getratio(NUM_100M, len);
 
@@ -188,7 +195,7 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
 	}
       }
       for(auto &x: genome.chr) {
-	ReadShiftProfile v(genome.dflen.getlenF3(), sspst.getNgFrom(), sspst.getnum4ssp(), 0, x.getlen(), x.getnread_nonred(Strand::BOTH), x.getlenmpbl());
+	ReadShiftProfile v(genome.dflen.getlenF3(), sspst.getNgFrom(), sspst.getMpTo(), sspst.getNgFrom(), sspst.getnum4ssp(), 0, x.getlen(), x.getnread_nonred(Strand::BOTH), x.getlenmpbl());
 	v.setrchr(nread);
 	chr.push_back(v);
       }

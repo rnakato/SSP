@@ -99,7 +99,11 @@ double f_zinb_const(const gsl_vector *v, void *params)
   return fxy;
 }
 
+#ifdef DEBUG
 void func_iteration(gsl_multimin_fminimizer *s, size_t ndim)
+#else
+void func_iteration(gsl_multimin_fminimizer *s)
+#endif
 {
   size_t iter(0);
   int32_t status;
@@ -137,7 +141,11 @@ void iterateZINB(void *par, double nb_p_pre, double nb_n_pre, double &nb_p, doub
   minex_func.params = par;
   gsl_multimin_fminimizer_set(s, &minex_func, x, ss);
 
+#ifdef DEBUG
   func_iteration(s, ndim);
+#else
+  func_iteration(s);
+#endif
 
   nb_p  = gsl_vector_get(s->x, 0);
   if(nb_p <= 0) nb_p = 0.01;
@@ -188,7 +196,11 @@ void iteratePoisson(void *par, double ave_pre, double &ave, double &p0)
   minex_func.params = par;
   gsl_multimin_fminimizer_set(s, &minex_func, x, ss);
 
+#ifdef DEBUG
   func_iteration(s, ndim);
+#else
+  func_iteration(s);
+#endif
 
   ave = gsl_vector_get(s->x, 0);
   if(ave <= 0) ave = 0.01;
