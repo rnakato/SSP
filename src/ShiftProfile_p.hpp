@@ -57,9 +57,7 @@ class ReadShiftProfile {
   nsc(0), rsc(0), rlsc(0), nsci(0), len(l), nread(n), num4ssp(n4s), backgroundUniformity(0),
   mp_from(_mp_from), mp_to(_mp_to),
   start(s), end(e), width(e-s), rchr(1)
-  {
-    std::cout << "2 mp_to " << mp_to << std::endl;
-  }
+  {}
   virtual ~ReadShiftProfile() {}
 
   void setmp(const int32_t i, const double val, boost::mutex &mtx) {
