@@ -161,15 +161,11 @@ void genThread(T &dist, const SeqStatsGenome &genome, uint32_t chr_s, uint32_t c
     }
     std::cout << genome.chr[i].getname() << ".." << std::flush;
 
-    printf("t11111est\n");
     dist.execchr(genome, i);
-    printf("test2\n");
     dist.chr[i].setflen(dist.name);
-    printf("test23\n");
     
     std::string filename = prefix + "." + genome.chr[i].getname() + ".csv";
     if (output_eachchr) dist.outputmpChr(filename, i);
-    printf("test43\n");
   }
 }
 
