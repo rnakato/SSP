@@ -28,6 +28,7 @@ class SSPstats {
   double backgroundUniformity;
 
  public:
+  SSPstats() {}
   SSPstats(const int32_t ng_from_default, const int32_t ng_to_default, const int32_t ng_step_default,
 	   const int32_t mp_from_default, const int32_t mp_to_default):
   opt("Strand shift profile",100),
