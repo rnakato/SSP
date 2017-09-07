@@ -33,10 +33,10 @@ void isFile(const std::string &str)
   }
 }
 
-int32_t isStr(std::string str, std::string query)
+bool isStr(std::string str, std::string query)
 {
   std::transform(str.begin(), str.end(), str.begin(), ::tolower);
   std::transform(query.begin(), query.end(), query.begin(), ::tolower);
-  if(str.find(query) != std::string::npos) return 1;
-  else return 0;
+  if(str.find(query) != std::string::npos) return true;
+  else return false;
 }

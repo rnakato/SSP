@@ -13,7 +13,7 @@
 std::string rmchr(const std::string &chr);
 void isFile(const std::string &);
 bool checkFile(const std::string &str);
-int32_t isStr(std::string, std::string);
+bool isStr(std::string, std::string);
 
 void printList();
 

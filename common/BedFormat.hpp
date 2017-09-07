@@ -12,6 +12,7 @@
 #include <boost/algorithm/string.hpp>
 
 std::string rmchr(const std::string &chr);
+bool isStr(std::string, std::string);
 
 class bed {
  public:
@@ -21,10 +22,15 @@ class bed {
   int32_t summit;
  bed(): start(0), end(0), summit(0) {}
   virtual ~bed(){}
-  bed(const std::string &c, const int32_t s, const int32_t e):
-    chr(rmchr(c)), start(s), end(e) {}
+  bed(const std::string &c, const int32_t s, const int32_t e, const int32_t _summit=0):
+    chr(rmchr(c)), start(s), end(e)
+  {
+    if (_summit) summit = _summit;
+    else summit = (start + end)/2;
+  }
   bed(const std::vector<std::string> &s):
-    chr(rmchr(s[0])), start(stoi(s[1])), end(stoi(s[2])), summit((start + end)/2) {}
+    chr(rmchr(s[0])), start(stoi(s[1])), end(stoi(s[2])), summit((start + end)/2)
+  {}
   void print() const { std::cout << "chr" << chr << "\t" << start  << "\t" << end ; }
   void printHead() const { std::cout << "chromosome\tstart\tend"; }
   int32_t length() const { return abs(end - start); }
@@ -131,16 +137,16 @@ std::vector<T> parseBed(const std::string &fileName)
   std::vector<T> vbed;
   std::ifstream in(fileName);
   if(!in) {
-    std::cerr << "Error: BED file does not exist." << std::endl;
+    std::cerr << "Error: BED file " << fileName << " does not exist." << std::endl;
     std::exit(1);
   }
 
-  std::string lineStr;
-  std::vector<std::string> v;
   while (!in.eof()) {
+    std::string lineStr;
     getline(in, lineStr);
 
     if(lineStr.empty() || lineStr[0] == '#') continue;
+    std::vector<std::string> v;
     boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
     if(v[1] == "start") continue;
     vbed.emplace_back(v);
@@ -156,9 +162,110 @@ void printBed(const std::vector<T> &vbed)
     x.print();
     std::cout << std::endl;
   }
-  std::cout << "bed num: " << vbed.size() << std::endl;
+  std::cout << "Total number: " << vbed.size() << std::endl;
   return;
 }
+
+class Interaction {
+  double val;
+ public:
+  bed first;
+  bed second;
+  Interaction(): val(0) {}
+  Interaction(const std::string &c1, const int32_t s1, const int32_t e1,
+	      const std::string &c2, const int32_t s2, const int32_t e2,
+	      const double v=0):
+    val(v), first(c1, s1, e1), second(c2, s2, e2)
+  {}
+  Interaction(const bed &b1, const bed &b2, const double _val):
+    val(_val), first(b1), second(b2)
+  {}
+  
+  double getval() const { return val; }
+  void print() const {
+    first.print();
+    std::cout << "\t";
+    second.print();
+    std::cout << "\t" << val << std::endl;
+  }
+};
+
+class InteractionSet {
+  std::vector<Interaction> vinter;
+  double maxval;
+  std::string label;
+
+  void setAsMango(const std::string &lineStr) {
+    std::vector<std::string> v;
+    boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
+    if(v.size() < 8) {
+      std::cerr << "Warning: " << lineStr << " does not contain 8 columns." << std::endl;
+      return;
+    }
+    try {
+      double p(1e-12);
+      if(stod(v[7])) p = stod(v[7]);
+      double val(-log10(p));
+      vinter.emplace_back(bed({v[0], v[1], v[2]}),
+			  bed({v[3], v[4], v[5]}),
+			  val);
+      maxval = std::max(val, maxval);
+    } catch (std::exception &e) {
+      std::cout << e.what() << std::endl;
+      exit(0);
+    }
+  }
+  void setAsHICCUPS(const std::string &lineStr) {
+    if(isStr(lineStr, "color")) return;
+    std::vector<std::string> v;
+    boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
+    if(v.size() < 19) {
+      std::cerr << "Warning: " << lineStr << " does not contain 8 columns." << std::endl;
+      return;
+    }
+
+    try {
+      double val(-log10(stod(v[13])));
+      //      std::cout << val << "\t" << stod(v[13]) << "\t" << v[13]  << std::endl;
+      vinter.emplace_back(bed(v[0], stoi(v[1]), stoi(v[2]), stoi(v[17])),
+			  bed(v[3], stoi(v[4]), stoi(v[5]), stoi(v[18])),
+			  val);
+      maxval = std::max(val, maxval);
+    } catch (std::exception &e) {
+      std::cout << e.what() << std::endl;
+      exit(0);
+    }
+  }
+  
+public:
+  InteractionSet(const std::string &fileName, const std::string &l, const std::string &tool):
+    maxval(0), label(l)
+  {
+    std::ifstream in(fileName);
+    if(!in) {
+      std::cerr << "Error: Interaction file " << fileName << " does not exist." << std::endl;
+      std::exit(1);
+    }
+
+    while (!in.eof()) {
+      std::string lineStr;
+      getline(in, lineStr);
+      if(lineStr.empty() || lineStr[0] == '#') continue;
+      if (tool == "mango") setAsMango(lineStr);
+      else setAsHICCUPS(lineStr);
+    }
+
+    print();
+  }
+  const std::vector<Interaction> & getvinter() const { return vinter; }
+  const std::string & getlabel() const { return label; }
+  double getmaxval() const { return maxval; }
+  size_t getnum() const { return vinter.size(); }
+  void print() const {
+    printBed(vinter);
+    std::cout << "maxval: " << maxval << std::endl;
+  }
+};
 
 template <class T>
 std::unordered_map<std::string, std::vector<T>> parseBed_Hash(const std::string &fileName)
