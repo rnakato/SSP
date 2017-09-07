@@ -245,7 +245,7 @@ class InteractionSet {
   
 public:
   InteractionSet(const std::string &fileName, const std::string &l, const std::string &tool):
-    maxval(0), label(l)
+    maxval(1e-10), label(l)
   {
     std::ifstream in(fileName);
     if(!in) {
