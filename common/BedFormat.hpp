@@ -8,6 +8,7 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#include <cmath>
 #include <unordered_map>
 #include <boost/algorithm/string.hpp>
 
@@ -302,6 +303,5 @@ void printBed_Hash(const std::unordered_map<std::string, std::vector<T>> &mp)
   for(auto vbed: mp) printBed(vbed.second);
   return;
 }
-
 
 #endif  // _BEDFORMAT_HPP_

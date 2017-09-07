@@ -189,7 +189,7 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
       for(auto &x: genome.chr) {
 	ReadShiftProfile v(genome.dflen.getlenF3(), sspst.getNgFrom(), sspst.getMpTo(), sspst.getNgFrom(), sspst.getnum4ssp(), 0, x.getlen(), x.getnread_nonred(Strand::BOTH), x.getlenmpbl());
 	v.setrchr(nread);
-	chr.push_back(v);
+	chr.emplace_back(v);
       }
       // seprange
       defSepRange(sspst.getnumthreads());
@@ -203,7 +203,7 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
       int32_t s = i*sepsize;
       int32_t e = (i+1)*sepsize;
       if(i==numthreads-1) e = length;
-      seprange.push_back(range(s - mp_from, e - mp_from));
+      seprange.emplace_back(range(s - mp_from, e - mp_from));
     }
   }
   void addmp2genome(const int32_t i) {
@@ -250,7 +250,12 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
   }
 };
 
+
 class shiftJacVec : public ReadShiftProfileGenome {
+  double getJaccard(const int32_t step, const int32_t to, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev);
+  void genThreadJacVec(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev,
+		       const int32_t s, const int32_t e, boost::mutex &mtx);
+  
  public:
  shiftJacVec(const SSPstats &sspst, const SeqStatsGenome &genome):
    ReadShiftProfileGenome("Jaccard index", sspst, genome) {}
@@ -279,7 +284,9 @@ class shiftJacBit : public ReadShiftProfileGenome {
 };
 
 class shiftCcp : public ReadShiftProfileGenome {
- public:
+  void genThread(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev,
+		 const double mx, const double my, const int32_t s, const int32_t e, boost::mutex &mtx);
+public:
  shiftCcp(const SSPstats &sspst, const SeqStatsGenome &genome):
   ReadShiftProfileGenome("Cross correlation", sspst, genome) {}
 
