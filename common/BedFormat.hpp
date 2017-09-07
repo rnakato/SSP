@@ -196,6 +196,10 @@ class InteractionSet {
   std::string label;
 
   void setAsMango(const std::string &lineStr) {
+    if (isStr(lineStr, "color")) {
+      std::cerr << "Warning: Interaction does not look mango format." << std::endl;
+      return;
+    }
     std::vector<std::string> v;
     boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
     if(v.size() < 8) {
@@ -216,7 +220,7 @@ class InteractionSet {
     }
   }
   void setAsHICCUPS(const std::string &lineStr) {
-    if(isStr(lineStr, "color")) return;
+    if (isStr(lineStr, "color")) return;
     std::vector<std::string> v;
     boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
     if(v.size() < 19) {
@@ -225,8 +229,9 @@ class InteractionSet {
     }
 
     try {
+      //      std::cout << v[13]  << std::endl;
       double val(-log10(stod(v[13])));
-      //      std::cout << val << "\t" << stod(v[13]) << "\t" << v[13]  << std::endl;
+      //std::cout << val << "\t" << stod(v[13]) << "\t" << v[13]  << std::endl;
       vinter.emplace_back(bed(v[0], stoi(v[1]), stoi(v[2]), stoi(v[17])),
 			  bed(v[3], stoi(v[4]), stoi(v[5]), stoi(v[18])),
 			  val);
