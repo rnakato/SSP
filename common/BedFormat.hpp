@@ -260,7 +260,7 @@ public:
       else setAsHICCUPS(lineStr);
     }
 
-    print();
+    //    print();
   }
   const std::vector<Interaction> & getvinter() const { return vinter; }
   const std::string & getlabel() const { return label; }
