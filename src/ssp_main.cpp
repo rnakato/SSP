@@ -6,9 +6,6 @@
 #include <string>
 #include <vector>
 #include <fstream>
-#include <algorithm>
-#include <time.h>
-#include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
 #include "ssp_gv.hpp"
 #include "ParseMapfile.hpp"
@@ -145,7 +142,7 @@ Usage: ssp [option] -i <inputfile> -o <output> --gt <genome_table>)";
       std::cout << e.what() << std::endl;
       exit(0);
     }
-    
+
     DEBUGprint("getOpts done.");
     return;
   }
