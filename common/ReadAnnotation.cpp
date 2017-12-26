@@ -313,6 +313,14 @@ HashOfGeneDataMap parseGtf(const std::string& fileName)
     tmp[chr][tid].ttag = ttag;
   }
 
+  // "start_codon", "stop_codon"がないとcdsStart, cdsEndが0になる
+  for(auto pair: tmp) {
+    for(auto x: pair.second) {
+      if(!x.second.cdsStart) x.second.cdsStart = x.second.txStart;
+      if(!x.second.cdsEnd)   x.second.cdsEnd =   x.second.txEnd;
+    }
+  }
+
   return tmp;
 }
 
@@ -362,10 +370,10 @@ void printRefFlat(const HashOfGeneDataMap &mp, const int32_t nameflag)
 	   << x.second.txEnd << "\t";
       if(x.second.cdsStart) {
 	std::cout << x.second.cdsStart << "\t"
-	     << x.second.cdsEnd   << "\t";
+		  << x.second.cdsEnd   << "\t";
       } else {
-	std::cout << x.second.txEnd << "\t"
-	     << x.second.txEnd << "\t";
+	std::cout << x.second.txStart << "\t"
+		  << x.second.txEnd   << "\t";
       }
       std::cout << x.second.exonCount << "\t";
       for (auto &ex: x.second.exon) std::cout << ex.start << ",";
