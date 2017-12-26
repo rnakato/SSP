@@ -364,7 +364,7 @@ void printRefFlat(const HashOfGeneDataMap &mp, const int32_t nameflag)
     for(auto x: pair.second) {
       if(nameflag) std::cout << x.second.gname << "\t" << x.second.tname << "\t";
       else std::cout << x.second.gid << "\t" << x.second.tid << "\t";
-      std::cout << pair.first << "\t"
+      std::cout << "chr"<< pair.first << "\t"
 	   << x.second.strand << "\t"
 	   << x.second.txStart << "\t"
 	   << x.second.txEnd << "\t";
