@@ -314,8 +314,8 @@ HashOfGeneDataMap parseGtf(const std::string& fileName)
   }
 
   // "start_codon", "stop_codon"がないとcdsStart, cdsEndが0になる
-  for(auto pair: tmp) {
-    for(auto x: pair.second) {
+  for(auto &pair: tmp) {
+    for(auto &x: pair.second) {
       if(!x.second.cdsStart) x.second.cdsStart = x.second.txStart;
       if(!x.second.cdsEnd)   x.second.cdsEnd =   x.second.txEnd;
     }
