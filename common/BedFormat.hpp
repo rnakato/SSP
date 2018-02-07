@@ -11,6 +11,7 @@
 #include <cmath>
 #include <unordered_map>
 #include <boost/algorithm/string.hpp>
+#include "inline.hpp"
 
 std::string rmchr(const std::string &chr);
 bool isStr(std::string, std::string);
@@ -167,11 +168,20 @@ void printBed(const std::vector<T> &vbed)
   return;
 }
 
+class peakoverlapped {
+public:
+  bool peakovrlpd1;
+  bool peakovrlpd2;
+  peakoverlapped(): peakovrlpd1(false), peakovrlpd2(false){}
+};
+
 class Interaction {
   double val;
  public:
   bed first;
   bed second;
+  peakoverlapped ofirst;
+  peakoverlapped osecond;
   Interaction(): val(0) {}
   Interaction(const std::string &c1, const int32_t s1, const int32_t e1,
 	      const std::string &c2, const int32_t s2, const int32_t e2,
@@ -271,6 +281,56 @@ public:
     printBed(vinter);
     std::cout << "maxval: " << maxval << std::endl;
   }
+
+  bool checkoverlap(const bed &loop, const std::vector<bed> &bed) {
+    for (auto &b: bed) {
+      if (loop.chr == b.chr && my_overlap(loop.start, loop.end, b.start, b.end)) return true;
+    }
+    return false;
+  }
+
+  
+  void compare_bed_loop(const std::vector<bed> &bed1, const std::vector<bed> &bed2, const bool nobs) {
+    int32_t aa(0), bb(0), ab(0), an(0), bn(0), nn(0);
+    for (auto &x: vinter) {
+      int32_t on(0);
+      x.ofirst.peakovrlpd1  = checkoverlap(x.first, bed1);
+      x.ofirst.peakovrlpd2  = checkoverlap(x.first, bed2);
+      x.osecond.peakovrlpd1 = checkoverlap(x.second, bed1);
+      x.osecond.peakovrlpd2 = checkoverlap(x.second, bed2);
+      if((x.ofirst.peakovrlpd1 && x.osecond.peakovrlpd2) || (x.ofirst.peakovrlpd2 && x.osecond.peakovrlpd1)) {
+	++ab;
+	++on;
+      }
+      if(x.ofirst.peakovrlpd1 && x.osecond.peakovrlpd1) {
+	++aa;
+	++on;
+      }
+      if(x.ofirst.peakovrlpd2 && x.osecond.peakovrlpd2) {
+	++bb;
+	++on;
+      }
+      if(on) continue;
+      if(x.ofirst.peakovrlpd1 || x.osecond.peakovrlpd1) ++an;
+      else if (x.ofirst.peakovrlpd2 || x.osecond.peakovrlpd2) ++bn;
+      else ++nn;
+      
+    }
+    std::cout << "# Number: " << vinter.size() << std::endl;
+    printf("# bed1-bed2: %d (%.1f%)\n", ab, 100*getratio(ab, vinter.size()));
+    printf("# bed1-bed1: %d (%.1f%)\n", aa, 100*getratio(aa, vinter.size()));
+    printf("# bed2-bed2: %d (%.1f%)\n", bb, 100*getratio(bb, vinter.size()));
+    printf("# bed1-none: %d (%.1f%)\n", an, 100*getratio(an, vinter.size()));
+    printf("# bed2-none: %d (%.1f%)\n", bn, 100*getratio(bn, vinter.size()));
+    printf("# none: %d (%.1f%)\n",      nn, 100*getratio(nn, vinter.size()));
+
+    if(!nobs) {
+      for (auto &x: vinter) {
+	if((x.ofirst.peakovrlpd1 && x.osecond.peakovrlpd2) || (x.ofirst.peakovrlpd2 && x.osecond.peakovrlpd1)) x.print();
+      }
+    }
+  }
+  
 };
 
 template <class T>
