@@ -38,7 +38,7 @@ Usage: ssp [option] -i <inputfile> -o <output> --gt <genome_table>)";
     std::string head(p.getprefix());
     
     clock_t t1,t2;
-    /*    t1 = clock();
+    t1 = clock();
     strShiftProfile(p.sspst, p.genome, head, "jaccard"); 
     t2 = clock();
     std::cout << "Jaccard Bit: " << static_cast<double>(t2 - t1) / CLOCKS_PER_SEC << "sec.\n";
@@ -46,7 +46,7 @@ Usage: ssp [option] -i <inputfile> -o <output> --gt <genome_table>)";
     p.outputSSPstats();
     
     clock_t t3 = clock();
-    std::cout << "Fragment variability: " << static_cast<double>(t3 - t2) / CLOCKS_PER_SEC << "sec.\n";*/
+    std::cout << "Fragment variability: " << static_cast<double>(t3 - t2) / CLOCKS_PER_SEC << "sec.\n";
     
     if (p.sspst.DoExjac()) {
       t1 = clock();
