@@ -317,12 +317,12 @@ public:
       
     }
     std::cout << "# Number: " << vinter.size() << std::endl;
-    printf("# bed1-bed2: %d (%.1f%)\n", ab, 100*getratio(ab, vinter.size()));
-    printf("# bed1-bed1: %d (%.1f%)\n", aa, 100*getratio(aa, vinter.size()));
-    printf("# bed2-bed2: %d (%.1f%)\n", bb, 100*getratio(bb, vinter.size()));
-    printf("# bed1-none: %d (%.1f%)\n", an, 100*getratio(an, vinter.size()));
-    printf("# bed2-none: %d (%.1f%)\n", bn, 100*getratio(bn, vinter.size()));
-    printf("# none: %d (%.1f%)\n",      nn, 100*getratio(nn, vinter.size()));
+    printf("# bed1-bed2: %d (%.1f%%)\n", ab, getpercent(ab, vinter.size()));
+    printf("# bed1-bed1: %d (%.1f%%)\n", aa, getpercent(aa, vinter.size()));
+    printf("# bed2-bed2: %d (%.1f%%)\n", bb, getpercent(bb, vinter.size()));
+    printf("# bed1-none: %d (%.1f%%)\n", an, getpercent(an, vinter.size()));
+    printf("# bed2-none: %d (%.1f%%)\n", bn, getpercent(bn, vinter.size()));
+    printf("# none: %d (%.1f%%)\n",      nn, getpercent(nn, vinter.size()));
 
     if(!nobs) {
       for (auto &x: vinter) {

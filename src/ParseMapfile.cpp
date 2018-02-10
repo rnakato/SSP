@@ -270,17 +270,17 @@ void read_mapfile(SeqStatsGenome &genome)
 {
   std::vector<std::string> v;
   boost::split(v, genome.getInputfile(), boost::algorithm::is_any_of(","));
-  for(auto inputfile: v) {
+  for (auto inputfile: v) {
     isFile(inputfile);
     std::cout << boost::format("Parsing %1%...\n") % inputfile;
-    if(genome.onFtype()) {
-      if(genome.getftype() == "SAM" || genome.getftype() == "BAM") parseSam(inputfile, genome);
-      else if(genome.getftype() == "BOWTIE")                       parseBowtie(inputfile, genome);
-      else if(genome.getftype() == "TAGALIGN")                     parseTagAlign(inputfile, genome);
+    if (genome.onFtype()) {
+      if (genome.getftype() == "SAM" || genome.getftype() == "BAM") parseSam(inputfile, genome);
+      else if (genome.getftype() == "BOWTIE")                       parseBowtie(inputfile, genome);
+      else if (genome.getftype() == "TAGALIGN")                     parseTagAlign(inputfile, genome);
     } else {
-      if(isStr(inputfile, ".sam") || isStr(inputfile, ".bam")) parseSam(inputfile, genome);
-      else if(isStr(inputfile, ".bowtie"))                     parseBowtie(inputfile, genome);
-      else if(isStr(inputfile, ".tagalign"))                   parseTagAlign(inputfile, genome);
+      if (isStr(inputfile, ".sam") || isStr(inputfile, ".bam")) parseSam(inputfile, genome);
+      else if (isStr(inputfile, ".bowtie"))                     parseBowtie(inputfile, genome);
+      else if (isStr(inputfile, ".tagalign"))                   parseTagAlign(inputfile, genome);
     }
   }
 

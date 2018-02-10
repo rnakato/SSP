@@ -10,9 +10,9 @@ namespace {
   
   void hashFilterAllSingle(mapIntInt &mp, SeqStats &chr, const Strand::Strand strand, const int32_t thre)
   {
-    for(auto &x: chr.getvReadref_notconst(strand)) {
-      if(mp.find(x.F3) != mp.end()) {
-	if(mp[x.F3] < thre) {
+    for (auto &x: chr.getvReadref_notconst(strand)) {
+      if (mp.find(x.F3) != mp.end()) {
+	if (mp[x.F3] < thre) {
 	  ++mp[x.F3];
 	  chr.incNReadNonred(strand);
 	} else {
@@ -29,12 +29,12 @@ namespace {
   
   void hashFilterAllPair(mapStrInt &mp, SeqStats &chr, const Strand::Strand strand, const int32_t thre)
   {
-    for(auto &x: chr.getvReadref_notconst(strand)) {
+    for (auto &x: chr.getvReadref_notconst(strand)) {
       int32_t Fmin(std::min(x.F3, x.F5));
       int32_t Fmax(std::max(x.F3, x.F5));
       std::string str(std::to_string(Fmin) + "-" + std::to_string(Fmax));
-      if(mp.find(str) != mp.end()) {
-	if(mp[str] < thre) {
+      if (mp.find(str) != mp.end()) {
+	if (mp[str] < thre) {
 	  ++mp[str];
 	  chr.incNReadNonred(strand);
 	} else {
@@ -52,11 +52,11 @@ namespace {
 
 void LibComp::hashFilterCmpSingle(mapIntInt &mp, const SeqStats &chr, const Strand::Strand strand)
 {
-  for(auto &x: chr.getvReadref(strand)) {
-    if(rand() >= r4cmp) continue;
+  for (auto &x: chr.getvReadref(strand)) {
+    if (rand() >= r4cmp) continue;
     ++nt_all;
-    if(mp.find(x.F3) != mp.end()) {
-      if(mp[x.F3] < getThreshold()) {
+    if (mp.find(x.F3) != mp.end()) {
+      if (mp[x.F3] < getThreshold()) {
 	++mp[x.F3];
 	++nt_nonred;
       } else {
@@ -72,14 +72,14 @@ void LibComp::hashFilterCmpSingle(mapIntInt &mp, const SeqStats &chr, const Stra
 
 void LibComp::hashFilterCmpPair(mapStrInt &mp, const SeqStats &chr, const Strand::Strand strand)
 {
-  for(auto &x: chr.getvReadref(strand)) {
-    if(rand() >= r4cmp) continue;
+  for (auto &x: chr.getvReadref(strand)) {
+    if (rand() >= r4cmp) continue;
     int32_t Fmin(std::min(x.F3, x.F5));
     int32_t Fmax(std::max(x.F3, x.F5));
     std::string str(std::to_string(Fmin) + "-" + std::to_string(Fmax));
     ++nt_all;
-    if(mp.find(str) != mp.end()) {
-      if(mp[str] < getThreshold()) {
+    if (mp.find(str) != mp.end()) {
+      if (mp[str] < getThreshold()) {
 	++mp[str];
 	++nt_nonred;
       } else {
@@ -117,7 +117,7 @@ void LibComp::filtering_eachchr_pair(SeqStats &chr)
 
 void LibComp::checkRedundantReads(SeqStatsGenome &genome)
 {
-  if(nofilter) {
+  if (nofilter) {
     for (auto &x: genome.chr) x.setnread_nonread_nofilter();
     return;
   }
@@ -125,7 +125,7 @@ void LibComp::checkRedundantReads(SeqStatsGenome &genome)
   uint64_t nread(genome.getnread(Strand::BOTH));
   setThreshold(nread, genome.getlenmpbl());
   r4cmp = getratio(ncmp, nread) * RAND_MAX;
-  if(ncmp > nread) {
+  if (ncmp > nread) {
     std::cerr << "Warning: number of reads (" << nread << ") is < "<< static_cast<int32_t>(ncmp/NUM_1M) << " million.\n";
     lackOfRead = true;
   }

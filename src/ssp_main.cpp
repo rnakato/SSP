@@ -10,7 +10,7 @@
 #include "ssp_gv.hpp"
 #include "ParseMapfile.hpp"
 
-#define VERSION "1.0.2"
+#define VERSION "1.1.0"
 
 namespace {
   void printVersion()
@@ -33,12 +33,12 @@ Usage: ssp [option] -i <inputfile> -o <output> --gt <genome_table>)";
   void estimateFragLength(SSP::Global &p)
   {
     DEBUGprint("estimateFragLength...");
-    if(p.genome.dflen.isnomodel()) return; // p.genome.isPaired()
+    if (p.genome.dflen.isnomodel()) return; // p.genome.isPaired()
     
     std::string head(p.getprefix());
     
     clock_t t1,t2;
-    t1 = clock();
+    /*    t1 = clock();
     strShiftProfile(p.sspst, p.genome, head, "jaccard"); 
     t2 = clock();
     std::cout << "Jaccard Bit: " << static_cast<double>(t2 - t1) / CLOCKS_PER_SEC << "sec.\n";
@@ -46,23 +46,23 @@ Usage: ssp [option] -i <inputfile> -o <output> --gt <genome_table>)";
     p.outputSSPstats();
     
     clock_t t3 = clock();
-    std::cout << "Fragment variability: " << static_cast<double>(t3 - t2) / CLOCKS_PER_SEC << "sec.\n";
+    std::cout << "Fragment variability: " << static_cast<double>(t3 - t2) / CLOCKS_PER_SEC << "sec.\n";*/
     
-    if(p.sspst.DoExjac()) {
+    if (p.sspst.DoExjac()) {
       t1 = clock();
       strShiftProfile(p.sspst, p.genome, head, "exjaccard");
       t2 = clock();
       std::cout << "Jaccard Vec: " << static_cast<double>(t2 - t1) / CLOCKS_PER_SEC << "sec.\n";
     }
 
-    if(p.sspst.DoHd()) {
+    if (p.sspst.DoHd()) {
       t1 = clock();
       strShiftProfile(p.sspst, p.genome, head, "hdp");
       t2 = clock();
       std::cout << "Hamming: " << static_cast<double>(t2 - t1) / CLOCKS_PER_SEC << "sec.\n";
     }
   
-    if(p.sspst.DoCc()) {
+    if (p.sspst.DoCc()) {
       t1 = clock();
       strShiftProfile(p.sspst, p.genome, head, "ccp");
       t2 = clock();    

@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.0 (2018-02-10)
+- Bug fix in --ssp_cc option
+
 ## 1.0.2 (2017-09-04)
 - Add LICENSE
 - Add ChangeLog

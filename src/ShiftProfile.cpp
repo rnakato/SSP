@@ -79,12 +79,13 @@ void shiftCcp::setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, co
   for (int32_t step=ng_from; step<ng_to; step+=ng_step) {
     double xy(0);
     for (int32_t j=mp_from; j<chr.width-ng_to; ++j) xy += (fwd[j] - x.getmean()) * (rev[j+step] - y.getmean());
+    //    printf("step %d, xy %f\n", step, xy);
     chr.nc[step] = xy;
   }
 
   double val = 1/(x.getsd() * y.getsd() * (chr.width - ng_to - mp_from - 1));
-  for (auto &x: mp) x.second *= val;
-  for (auto &x: nc) x.second *= val;
+  for (auto &x: chr.mp) x.second *= val;
+  for (auto &x: chr.nc) x.second = std::abs(x.second * val); //*= val; 
 }
 
 void shiftJacBit::setDist(ReadShiftProfile &chr, boost::dynamic_bitset<> &fwd, boost::dynamic_bitset<> &rev)
@@ -156,7 +157,8 @@ void genThread(T &dist, const SeqStatsGenome &genome, uint32_t chr_s, uint32_t c
 {
   for (uint32_t i=chr_s; i<=chr_e; ++i) {
     if (static_cast<int32_t>(genome.chr[i].getlen()) < ng_to) {
-      std::cerr << "\nWarning: length of chromosome " << genome.chr[i].getname() << ": " << genome.chr[i].getlen() << " is shorter than background distance " << ng_to << ". Skipped." << std::endl;
+      std::cerr << "\nWarning: length of chromosome " << genome.chr[i].getname() << ": " << genome.chr[i].getlen()
+		<< " is shorter than background distance " << ng_to << ". Skipped." << std::endl;
       //      std::cerr << "please specify shorter length with --ng_from and --ng_to options." << std::endl;
       continue;
     }
