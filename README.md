@@ -3,6 +3,7 @@
 # 1. Overview
 SSP (strand-shift profile) is a tool for quality assessment of ChIP-seq data without peak calling. 
 
+
 SSP provides metrics to:
 - quantify the S/N for both point- and broad-source factors (NSC), 
 - estimate peak reliability based on the mapped-read distribution throughout a genome (Bu),
@@ -151,4 +152,5 @@ The mappability tables generated for several species (36 mer and 50 mer) are pro
 # 5. Reference
 
 Nakato R., Shirahige K. Sensitive and robust assessment of ChIP-seq read distribution using a strand-shift profile, Bioinformatics, bty137, https://doi.org/10.1093/bioinformatics/bty137
-(Free preprint) bioRxiv, doi: [10.1101/165050](https://www.biorxiv.org/content/early/2017/09/22/165050)
+
+(Open access preprint) bioRxiv, doi: [10.1101/165050](https://www.biorxiv.org/content/early/2017/09/22/165050)
