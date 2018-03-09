@@ -151,6 +151,6 @@ The mappability tables generated for several species (36 mer and 50 mer) are pro
 
 # 5. Reference
 
-Nakato R., Shirahige K. Sensitive and robust assessment of ChIP-seq read distribution using a strand-shift profile, Bioinformatics, bty137, https://doi.org/10.1093/bioinformatics/bty137
+Nakato R., Shirahige K. Sensitive and robust assessment of ChIP-seq read distribution using a strand-shift profile, Bioinformatics, 2018, https://doi.org/10.1093/bioinformatics/bty137
 
 (Open access preprint) bioRxiv, doi: [10.1101/165050](https://www.biorxiv.org/content/early/2017/09/22/165050)
