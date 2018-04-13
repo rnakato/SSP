@@ -12,6 +12,14 @@ SSP provides metrics to:
 The outputs of SSP are displayed in PDF format and also written to text files.
 
 # 2. Install
+### 2.0 Docker image
+
+We have probatively made a docker image for SSP and DROMPA on Docker hub.
+
+To obtain the docker image, type:
+
+    docker pull rnakato/ssp_drompa
+
 ### 2.1 Dependencies
 SSP is written in C++11 and requires the following programs and libraries.
 The version numbers listed have been tested successfully. 
