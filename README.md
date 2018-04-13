@@ -12,13 +12,6 @@ SSP provides metrics to:
 The outputs of SSP are displayed in PDF format and also written to text files.
 
 # 2. Install
-### 2.0 Docker image
-
-We have probatively uploaded a docker image for SSP and DROMPA on Docker Hub.
-
-To obtain the docker image, type:
-
-    docker pull rnakato/ssp_drompa
 
 ### 2.1 Dependencies
 SSP is written in C++11 and requires the following programs and libraries.
@@ -47,6 +40,14 @@ and install samtools from [the website](http://samtools.sourceforge.net/).
 For example, if you downloaded SSP into the $HOME/my_chipseq_exp directory, type:
 
     export PATH = $PATH:$HOME/my_chipseq_exp/SSP/bin
+
+### 2.5 Docker image
+
+SSP and DROMPA are also probatively available on Docker Hub.
+
+To obtain a docker image for SSP and DROMPA, type:
+
+    docker pull rnakato/ssp_drompa
 
 # 3. Usage
 ### 3.1. Options
