@@ -14,7 +14,7 @@ The outputs of SSP are displayed in PDF format and also written to text files.
 # 2. Install
 ### 2.0 Docker image
 
-We have probatively uploaded a docker image for SSP and DROMPA on Docker hub.
+We have probatively uploaded a docker image for SSP and DROMPA on Docker Hub.
 
 To obtain the docker image, type:
 
