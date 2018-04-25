@@ -10,7 +10,7 @@
 #include "ssp_gv.hpp"
 #include "ParseMapfile.hpp"
 
-#define VERSION "1.1.0"
+#define VERSION "1.1.1"
 
 namespace {
   void printVersion()

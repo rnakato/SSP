@@ -8,6 +8,7 @@
 #include <boost/thread.hpp>
 #include <boost/algorithm/string.hpp>
 #include "../common/seq.hpp"
+#include "../common/util.hpp"
 #include "../common/inline.hpp"
 #include "ReadBpStatus.hpp"
 
@@ -202,13 +203,14 @@ class SeqStats {
   void getMptable(const std::string &mptable)
   {
     std::string lineStr;
-    std::vector<std::string> v;
     std::ifstream in(mptable);
     if(!in) PRINTERR("Could nome open " << mptable << ".");
     while (!in.eof()) {
+      std::vector<std::string> v;
       getline(in, lineStr);
       if(lineStr.empty() || lineStr[0] == '#') continue;
-      boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
+      ParseLine(v, lineStr, '\t');
+      //      boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
       if(name == rmchr(v[0])) len_mpbl = stoi(v[1]);
     }
     return;

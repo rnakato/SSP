@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.1 (2018-04-25)
+- Improve to read BAM file faster
+
 ## 1.1.0 (2018-02-10)
 - Bug fix in --ssp_cc option
 - Add genometable files in data directory
@@ -10,7 +13,7 @@
 - Remove alglib library from source
 
 ## 1.0.1 (2017-07-19)
-- Bug fix in --pair optio n
+- Bug fix in --pair option
 
 ## 1.0.0
 - First commit

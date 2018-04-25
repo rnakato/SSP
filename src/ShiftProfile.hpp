@@ -41,13 +41,13 @@ class SSPstats {
        value<int32_t>()->default_value(NUM_10M)->notifier(boost::bind(&MyOpt::over<int32_t>, _1, 1, "--num4ssp")),
        "Read number for calculating backgroud uniformity (per 100 Mbp)")
       ("ng_from",
-       value<int32_t>()->default_value(ng_from_default)->notifier(boost::bind(&MyOpt::over<int32_t>, _1, 1, "--ng_from")),
+       value<int32_t>()->default_value(ng_from_default)->notifier(boost::bind(&MyOpt::over<int32_t>, _1, -1, "--ng_from")),
        "start shift of background")
       ("ng_to",
-       value<int32_t>()->default_value(ng_to_default)->notifier(boost::bind(&MyOpt::over<int32_t>, _1, 1, "--ng_to")),
+       value<int32_t>()->default_value(ng_to_default)->notifier(boost::bind(&MyOpt::over<int32_t>, _1, -1, "--ng_to")),
        "end shift of background")
       ("ng_step",
-       value<int32_t>()->default_value(ng_step_default)->notifier(boost::bind(&MyOpt::over<int32_t>, _1, 1, "--ng_step")),
+       value<int32_t>()->default_value(ng_step_default)->notifier(boost::bind(&MyOpt::over<int32_t>, _1, -1, "--ng_step")),
        "step shift on of background")
       ("ssp_cc",    "make ssp based on cross correlation")
       ("ssp_hd",    "make ssp based on hamming distance")

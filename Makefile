@@ -13,6 +13,9 @@ PROGRAMS = ssp
 TARGET = $(addprefix $(BINDIR)/,$(PROGRAMS))
 #$(warning $(TARGET))
 
+ifdef CLOCK
+CFLAGS += -DCLOCK
+endif
 ifdef DEBUG
 CFLAGS += -DDEBUG
 endif

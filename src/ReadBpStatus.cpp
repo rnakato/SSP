@@ -24,7 +24,8 @@ std::vector<int32_t> readMpbl(const std::string &mpfile, const std::string &chrn
     getline(in, lineStr);
     if(lineStr.empty()) continue;
     std::vector<std::string> v;
-    boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
+    ParseLine(v, lineStr, '\t');
+    //    boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
 
     int32_t n(stoi(v[0])/binsize);
     double val(stod(v[1])*binsize);

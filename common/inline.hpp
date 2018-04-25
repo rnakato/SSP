@@ -69,6 +69,19 @@ inline void DEBUGprint(const std::string &str)
 
 }
 
+inline void PrintTime(const clock_t t1, const clock_t t2, const std::string &str)
+{
+#ifdef CLOCK
+  std::cout << str << ": "
+	    << static_cast<double>(t2 - t1) / CLOCKS_PER_SEC
+	    << "sec.\n";
+#else
+  if(str==""){}
+  if(t1==0){}
+  if(t2==0){}
+#endif
+}
+
 template<class A, size_t N, class T>
 void Fill(A (&array)[N], const T &val) {
   std::fill( (T*)array, (T*)(array+N), val );

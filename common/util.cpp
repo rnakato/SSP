@@ -5,6 +5,17 @@
 #include <algorithm>
 #include <boost/filesystem.hpp>
 
+void ParseLine(std::vector<std::string> &v, const std::string &str, char delim)
+{
+  size_t current(0), found;
+  while((found = str.find_first_of(delim, current)) != std::string::npos) {
+    v.emplace_back(std::string(str, current, found - current));
+    current = found + 1;
+  }
+  v.emplace_back(std::string(str, current, str.size() - current));
+  return;
+}
+  
 void printList()
 {
   std::cout << std::endl;

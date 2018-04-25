@@ -36,7 +36,8 @@ namespace {
       if(lineStr.empty() || lineStr[0]=='@') continue;
       
       std::vector<std::string> v;
-      boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
+      ParseLine(v, lineStr, '\t');
+      //      boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
       int32_t sv(stoi(v[1]));   // bitwise FLAG
       if(sv&4 || sv&512 || sv&1024) continue;
       if(!(sv&2)) continue;
@@ -54,16 +55,17 @@ namespace {
     
     return;
   }
-  
+
   template <class T>
-  void do_bamse(SeqStatsGenome &genome, T & in)
+  void do_bamse(SeqStatsGenome &genome, T &in)
   {
-    std::string lineStr; 
+    std::string lineStr;
     while (!in.eof()) {
       getline(in, lineStr);
       if(lineStr.empty() || lineStr[0]=='@') continue;
       std::vector<std::string> v;
-      boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
+      ParseLine(v, lineStr, '\t');
+      //      boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
       int32_t sv(stoi(v[1])); // bitwise FLAG
       // unmapped reads, low quality reads
       if(sv&4 || sv&512 || sv&1024) continue;
@@ -73,7 +75,6 @@ namespace {
       frag.print();
       addFragToChr(genome, frag);
     }
-    
     return;
   }
   
@@ -115,11 +116,13 @@ namespace {
       if(lineStr.empty()) continue;
       
       std::vector<std::string> v;
-      boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
+      ParseLine(v, lineStr, '\t');
+      //      boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
       
       if(genome.isPaired()) {
 	std::vector<std::string> read;
-	boost::split(read, v[0], boost::algorithm::is_any_of("/"));
+	ParseLine(read, v[0], '/');
+	//boost::split(read, v[0], boost::algorithm::is_any_of("/"));
 	if(nametemp != "" && nametemp != read[0]) PRINTERR("Invalid read pair." << nametemp <<"-" << read[0]);
 	if(read[1] == "1") {  // F3 read
 	  chr_F3 = rmchr(v[2]);
@@ -178,7 +181,8 @@ namespace {
       if(lineStr.empty()) continue;
       
       std::vector<std::string> v;
-      boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
+      ParseLine(v, lineStr, '\t');
+      //      boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
       if(v.size() < 6) PRINTERR("Use tagAlign (BED3+3) file");
       
       if(genome.isPaired()) PRINTERR("tagAlign format does not support paired-end file.\n");
@@ -269,7 +273,8 @@ namespace {
 void read_mapfile(SeqStatsGenome &genome)
 {
   std::vector<std::string> v;
-  boost::split(v, genome.getInputfile(), boost::algorithm::is_any_of(","));
+  ParseLine(v, genome.getInputfile(), ',');
+  //  boost::split(v, genome.getInputfile(), boost::algorithm::is_any_of(","));
   for (auto inputfile: v) {
     isFile(inputfile);
     std::cout << boost::format("Parsing %1%...\n") % inputfile;

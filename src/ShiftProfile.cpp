@@ -92,12 +92,20 @@ void shiftJacBit::setDist(ReadShiftProfile &chr, boost::dynamic_bitset<> &fwd, b
 {
   double xysum(fwd.count() + rev.count());
   
+  clock_t t1,t2;
+  t1 = clock();
+  
   rev <<= mp_from;
   for (int32_t step=-mp_from; step<mp_to; ++step) {
+    printf("step %d\n", step);
     rev >>= 1;
     int32_t xy((fwd & rev).count());
     chr.mp[step] = xy/(xysum-xy);
   }
+
+  t2 = clock();
+  PrintTime(t1, t2, "shiftJacBit::setDist");
+  if(ng_to < 0) return;
   
   rev >>= (ng_from - mp_to);
 
@@ -167,8 +175,10 @@ void genThread(T &dist, const SeqStatsGenome &genome, uint32_t chr_s, uint32_t c
     dist.execchr(genome, i);
     dist.chr[i].setflen(dist.name);
     
-    std::string filename = prefix + "." + genome.chr[i].getname() + ".csv";
-    if (output_eachchr) dist.outputmpChr(filename, i);
+    if (output_eachchr) {
+      std::string filename = prefix + "." + genome.chr[i].getname() + ".csv";
+      dist.outputmpChr(filename, i);
+    }
   }
 }
 
@@ -199,6 +209,8 @@ void makeProfile(SSPstats &sspst, SeqStatsGenome &genome, const std::string &hea
   dist.setflen(dist.name);
   genome.dflen.setflen_ssp(dist.getnsci());
 
+  if(sspst.getNgTo() < 0) return;
+  
   std::string prefix2 = head + "." + typestr;
   dist.outputmpGenome(prefix2);
 

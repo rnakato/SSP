@@ -61,18 +61,19 @@ void SeqStatsGenome::setValues(const MyOpt::Variables &values) {
 #endif
 }
 
-
 void SeqStatsGenome::readGenomeTable(const std::string &gt)
 {
-  std::vector<std::string> v;
   std::string lineStr;
   std::ifstream in(gt);
   if(!in) PRINTERR("Could nome open " << gt << ".");
   
   while (!in.eof()) {
+    std::vector<std::string> v;
     getline(in, lineStr);
     if(lineStr.empty() || lineStr[0] == '#') continue;
-    boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
+    ParseLine(v, lineStr, '\t');
+    //    boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
+    //    std::cout << v[0] << "\t" << v[1] << std::endl;
     chr.emplace_back(v[0], stoi(v[1]));
   }
   return;
