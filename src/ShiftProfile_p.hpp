@@ -87,7 +87,7 @@ class ReadShiftProfile {
 	++n;
       }
     }
-    bk /= n;
+    if(n) bk /= n; else bk = 1;
     r = 1/bk;
   }
 
@@ -115,6 +115,7 @@ class ReadShiftProfile {
       } else {
 	if(mpsmooth.at(i) < mpsmooth.at(i+threwidth) || mpsmooth.at(i) < mpsmooth.at(i-threwidth)) continue;
 	double s(mp.at(i)*r);
+	//	printf("%d %f %f\n",i, s, r);
 	if(nsc < s) {
 	  nsc  = s;
 	  rsc  = (mp.at(i) - bk)/(mp.at(lenF3) - bk);

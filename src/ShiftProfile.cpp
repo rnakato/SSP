@@ -97,12 +97,11 @@ void shiftJacBit::setDist(ReadShiftProfile &chr, boost::dynamic_bitset<> &fwd, b
   
   rev <<= mp_from;
   for (int32_t step=-mp_from; step<mp_to; ++step) {
-    printf("step %d\n", step);
     rev >>= 1;
     int32_t xy((fwd & rev).count());
     chr.mp[step] = xy/(xysum-xy);
+    //    printf("step %d %f %d %f\n", step, chr.mp[step], xy, xysum);
   }
-
   t2 = clock();
   PrintTime(t1, t2, "shiftJacBit::setDist");
   if(ng_to < 0) return;
