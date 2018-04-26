@@ -37,6 +37,7 @@ namespace {
       
       std::vector<std::string> v;
       ParseLine(v, lineStr, '\t');
+      //      ParseLine(v, lineStr, "\t");
       //      boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
       int32_t sv(stoi(v[1]));   // bitwise FLAG
       if(sv&4 || sv&512 || sv&1024) continue;
@@ -65,6 +66,7 @@ namespace {
       if(lineStr.empty() || lineStr[0]=='@') continue;
       std::vector<std::string> v;
       ParseLine(v, lineStr, '\t');
+      //            ParseLine(v, lineStr, "\t");
       //      boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
       int32_t sv(stoi(v[1])); // bitwise FLAG
       // unmapped reads, low quality reads
@@ -117,11 +119,13 @@ namespace {
       
       std::vector<std::string> v;
       ParseLine(v, lineStr, '\t');
+      //      ParseLine(v, lineStr, "\t");
       //      boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
       
       if(genome.isPaired()) {
 	std::vector<std::string> read;
 	ParseLine(read, v[0], '/');
+	//	ParseLine(read, v[0], "/");
 	//boost::split(read, v[0], boost::algorithm::is_any_of("/"));
 	if(nametemp != "" && nametemp != read[0]) PRINTERR("Invalid read pair." << nametemp <<"-" << read[0]);
 	if(read[1] == "1") {  // F3 read
@@ -182,6 +186,7 @@ namespace {
       
       std::vector<std::string> v;
       ParseLine(v, lineStr, '\t');
+      //      ParseLine(v, lineStr, "\t");
       //      boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
       if(v.size() < 6) PRINTERR("Use tagAlign (BED3+3) file");
       
@@ -274,6 +279,7 @@ void read_mapfile(SeqStatsGenome &genome)
 {
   std::vector<std::string> v;
   ParseLine(v, genome.getInputfile(), ',');
+  //  ParseLine(v, genome.getInputfile(), ",");
   //  boost::split(v, genome.getInputfile(), boost::algorithm::is_any_of(","));
   for (auto inputfile: v) {
     isFile(inputfile);

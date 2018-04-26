@@ -210,6 +210,7 @@ class SeqStats {
       getline(in, lineStr);
       if(lineStr.empty() || lineStr[0] == '#') continue;
       ParseLine(v, lineStr, '\t');
+      //      ParseLine(v, lineStr, "\t");
       //      boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
       if(name == rmchr(v[0])) len_mpbl = stoi(v[1]);
     }
