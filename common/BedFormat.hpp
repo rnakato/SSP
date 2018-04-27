@@ -12,6 +12,7 @@
 #include <unordered_map>
 #include <boost/algorithm/string.hpp>
 #include "inline.hpp"
+#include "util.hpp"
 
 std::string rmchr(const std::string &chr);
 bool isStr(std::string, std::string);
@@ -149,7 +150,8 @@ std::vector<T> parseBed(const std::string &fileName)
 
     if(lineStr.empty() || lineStr[0] == '#') continue;
     std::vector<std::string> v;
-    boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
+    ParseLine(v, lineStr, '\t');
+      //    boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
     if(v[1] == "start") continue;
     vbed.emplace_back(v);
   }
@@ -212,7 +214,8 @@ class InteractionSet {
       return;
     }
     std::vector<std::string> v;
-    boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
+    ParseLine(v, lineStr, '\t');
+    //    boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
     if(v.size() < 8) {
       std::cerr << "Warning: " << lineStr << " does not contain 8 columns." << std::endl;
       return;
@@ -233,20 +236,19 @@ class InteractionSet {
   void setAsHICCUPS(const std::string &lineStr) {
     if (isStr(lineStr, "color")) return;
     std::vector<std::string> v;
-    boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
+    ParseLine(v, lineStr, '\t');
+      //    boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
     if(v.size() < 19) {
       std::cerr << "Warning: " << lineStr << " does not contain 8 columns." << std::endl;
       return;
     }
 
     try {
-      //      std::cout << v[13]  << std::endl;
-      double val(-log10(stod(v[13])));
-      //std::cout << val << "\t" << stod(v[13]) << "\t" << v[13]  << std::endl;
-      vinter.emplace_back(bed(v[0], stoi(v[1]), stoi(v[2]), stoi(v[17])),
-			  bed(v[3], stoi(v[4]), stoi(v[5]), stoi(v[18])),
+      double val(-log10(stod(v[17]))); // fdrDonut
+      vinter.emplace_back(bed({v[0], v[1], v[2]}),
+			  bed({v[3], v[4], v[5]}),
 			  val);
-      maxval = std::max(val, maxval);
+      if(std::isfinite(val)) maxval = std::max(val, maxval);
     } catch (std::exception &e) {
       std::cout << e.what() << std::endl;
       exit(0);
@@ -270,7 +272,6 @@ public:
       if (tool == "mango") setAsMango(lineStr);
       else setAsHICCUPS(lineStr);
     }
-
     //    print();
   }
   const std::vector<Interaction> & getvinter() const { return vinter; }
@@ -349,7 +350,8 @@ std::unordered_map<std::string, std::vector<T>> parseBed_Hash(const std::string 
     getline(in, lineStr);
 
     if(lineStr.empty() || lineStr[0] == '#') continue;
-    boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
+    ParseLine(v, lineStr, '\t');
+      //    boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
     if(v[1] == "start") continue;
     bedmap[rmchr(v[0])].emplace_back(bed(v));
   }
