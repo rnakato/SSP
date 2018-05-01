@@ -46,31 +46,40 @@ class bed12 : public bed {
   std::string strand;
   int32_t thickStart;
   int32_t thickEnd;
-  std::string itemRgb;
+  int32_t rgb_r, rgb_g, rgb_b;
   int32_t blockCount;
   int32_t blockSizes;
   int32_t blockStarts;
  bed12(): bed() {}
- bed12(std::vector<std::string> s): bed(s) {
+ bed12(std::vector<std::string> s):
+   bed(s), rgb_r(-1), rgb_g(-1), rgb_b(-1)
+  {
    int32_t num = s.size();
    if(num > 3)  name        = s[3];
    if(num > 4)  score       = stoi(s[4]);
    if(num > 5)  strand      = s[5];
    if(num > 6)  thickStart  = stoi(s[6]);
    if(num > 7)  thickEnd    = stoi(s[7]);
-   if(num > 8)  itemRgb     = s[8];
+   if(num > 8) {
+     std::vector<std::string> v;
+     ParseLine(v, s[8], ',');
+     rgb_r = stoi(v[0]);
+     rgb_g = stoi(v[1]);
+     rgb_b = stoi(v[2]);
+   }
    if(num > 9)  blockCount  = stoi(s[9]);
    if(num > 10) blockSizes  = stoi(s[10]);
    if(num > 11) blockStarts = stoi(s[11]);
  }
  void print() const {
    std::cout << chr << "\t" << start << "\t" << end << "\t"
-	<< name << "\t" << score << "\t" << strand << "\t"
-	<< thickStart << "\t" << thickEnd << "\t" << itemRgb << "\t"
-	<< blockCount << "\t" << blockSizes << "\t" << blockStarts;
+	     << name << "\t" << score << "\t" << strand << "\t"
+	     << thickStart << "\t" << thickEnd << "\t"
+	     << rgb_r << "\t" << rgb_g << "\t" << rgb_b << "\t"
+	     << blockCount << "\t" << blockSizes << "\t" << blockStarts;
  }
  void printHead() const {
-   std::cout << "chromosome\tstart\tend\tname\tscore\tstrand\tthickStart\tthickEnd\titemRgb\tblockCount\tblockSizes\tblockStarts";
+   std::cout << "chromosome\tstart\tend\tname\tscore\tstrand\tthickStart\tthickEnd\tRgb_r\tRgb_g\tRgb_b\tblockCount\tblockSizes\tblockStarts";
  }
 };
 
@@ -133,6 +142,21 @@ class Peak : public bed {
     out << "chromosome\tstart\tend\tlength\tabs_summit\tpileup\t-log10(pvalue)\tfold_enrichment\t-log10(qvalue)\tname" << std::endl;
   }
 };
+
+template <class T=bed>
+class vbed {
+  std::vector<T> bed;
+  std::string label;
+  
+public:
+  vbed(){}
+  vbed(const std::vector<T> &v, const std::string &l):
+    bed(v), label(l)
+  {}
+  const std::string & getlabel() const { return label; }
+  std::vector<T> getvBed() const { return bed; }
+};
+
 
 template <class T>
 std::vector<T> parseBed(const std::string &fileName)
