@@ -37,6 +37,9 @@ class bed {
   void print() const { std::cout << "chr" << chr << "\t" << start  << "\t" << end ; }
   void printHead() const { std::cout << "chromosome\tstart\tend"; }
   int32_t length() const { return abs(end - start); }
+  std::string getSiteStr() const {
+    return "chr" + chr + "-" + std::to_string(start) + "-" + std::to_string(end);
+  }
 };
 
 class bed12 : public bed {
