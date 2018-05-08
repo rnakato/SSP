@@ -31,9 +31,16 @@ class bed {
     if (_summit) summit = _summit;
     else summit = (start + end)/2;
   }
-  bed(const std::vector<std::string> &s):
-    chr(rmchr(s[0])), start(stoi(s[1])), end(stoi(s[2])), summit((start + end)/2)
-  {}
+  bed(const std::vector<std::string> &s) {
+    if(s.size() < 3) {
+      std::cerr << "\nWarning: Bed site size < 3." << std::endl;
+      return;
+    }
+    chr = rmchr(s[0]);
+    start = stoi(s[1]);
+    end = stoi(s[2]);
+    summit = (start + end)/2;
+  }
   void print() const { std::cout << "chr" << chr << "\t" << start  << "\t" << end ; }
   void printHead() const { std::cout << "chromosome\tstart\tend"; }
   int32_t length() const { return abs(end - start); }
@@ -66,9 +73,11 @@ class bed12 : public bed {
    if(num > 8) {
      std::vector<std::string> v;
      ParseLine(v, s[8], ',');
-     rgb_r = stoi(v[0]);
-     rgb_g = stoi(v[1]);
-     rgb_b = stoi(v[2]);
+     if(v.size() >= 3) {
+       rgb_r = stoi(v[0]);
+       rgb_g = stoi(v[1]);
+       rgb_b = stoi(v[2]);
+     }
    }
    if(num > 9)  blockCount  = stoi(s[9]);
    if(num > 10) blockSizes  = stoi(s[10]);
@@ -164,6 +173,8 @@ public:
 template <class T>
 std::vector<T> parseBed(const std::string &fileName)
 {
+  DEBUGprint("parseBed");
+
   std::vector<T> vbed;
   std::ifstream in(fileName);
   if(!in) {
@@ -178,11 +189,12 @@ std::vector<T> parseBed(const std::string &fileName)
     if(lineStr.empty() || lineStr[0] == '#') continue;
     std::vector<std::string> v;
     ParseLine(v, lineStr, '\t');
-      //    boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
+
     if(v[1] == "start") continue;
     vbed.emplace_back(v);
   }
-
+  
+  DEBUGprint("parseBed done.");
   return vbed;
 }
 
