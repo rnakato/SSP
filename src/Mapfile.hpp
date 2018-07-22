@@ -39,7 +39,9 @@ class FragmentLengthDist {
    flen_ssp(0),
    vlenF3(ReadLenMax,0),
    vlenF5(ReadLenMax,0),
-   vflen(FragLenMax,0)
+   vflen(FragLenMax,0),
+   nomodel(0),
+   allchr(0)
   {
     opt.add_options()
       ("nomodel", "omit fraglent length estimation (default: estimated by strand-shift profile)")
@@ -59,6 +61,7 @@ class FragmentLengthDist {
     
     flen_def  = MyOpt::getVal<int32_t>(values, "flen");
     nomodel   = values.count("nomodel");
+    allchr    = values.count("allchr");
     pairedend = values.count("pair");
     
     DEBUGprint("FragmentLengthDist setValues done.");
