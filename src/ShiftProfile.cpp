@@ -189,7 +189,6 @@ void makeProfile(SSPstats &sspst, SeqStatsGenome &genome, const std::string &hea
   dist.printStartMessage();
 
   boost::thread_group agroup;
-  boost::mutex mtx;
 
   std::string prefix(head + "." + typestr);
   if (typestr == "hdp" || typestr == "jaccard") {
@@ -219,6 +218,36 @@ void makeProfile(SSPstats &sspst, SeqStatsGenome &genome, const std::string &hea
   return;
 }
 
+template <class T>
+void makeProfile_forDROMPA(SSPstats &sspst, SeqStatsGenome &genome, const std::string &head, const std::string &typestr)
+{
+  DEBUGprint("makeProfile: " + typestr);
+  T dist(sspst, genome);
+  dist.printStartMessage();
+
+  int32_t id_longestChr = setIdLongestChr(genome);
+  
+  std::string prefix(head + "." + typestr);
+  genThread(dist, genome, id_longestChr, id_longestChr, prefix, sspst.isEachchr(), sspst.getNgTo());
+
+  for (size_t i=0; i<genome.chr.size(); ++i) {
+    if (genome.chr[i].isautosome()) dist.addmp2genome(i);
+  }
+
+  dist.setflen(dist.name);
+  genome.dflen.setflen_ssp(dist.getnsci());
+
+  if(sspst.getNgTo() < 0) return;
+  
+  std::string prefix2 = head + "." + typestr;
+  dist.outputmpGenome(prefix2);
+
+  if (typestr == "jaccard") setSSPstats(sspst, dist.getbackgroundUniformity(), dist.getnsc(), dist.getrlsc(), dist.getrsc());
+
+  DEBUGprint("makeProfile: " + typestr + " done.");
+  return;
+}
+
 void strShiftProfile(SSPstats &sspst, SeqStatsGenome &genome, const std::string &head, const std::string &typestr)
 {
   DEBUGprint("strShiftProfile...");
@@ -227,6 +256,10 @@ void strShiftProfile(SSPstats &sspst, SeqStatsGenome &genome, const std::string 
   else if (typestr=="jaccard") makeProfile<shiftJacBit>(sspst, genome, head, typestr);
   else if (typestr=="ccp")     makeProfile<shiftCcp>(sspst, genome, head, typestr);
   else if (typestr=="hdp")     makeProfile<shiftHamming>(sspst, genome, head, typestr);
+  else if (typestr=="drompa") {
+    if (genome.dflen.isallchr()) makeProfile<shiftJacBit>(sspst, genome, head, "jaccard");
+    else makeProfile_forDROMPA<shiftJacBit>(sspst, genome, head, "jaccard");
+  }
 
   DEBUGprint("strShiftProfile done.");
   return;

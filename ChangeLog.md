@@ -2,8 +2,9 @@
 
 ## 1.1.2 (2018-07-22)
 - Chenge the prefix of ReadLengthDist.csv and FragmentLengthDist.csv to *.tsv
+- Add --allchr options (for DROMPAplus)
 
-	
+
 ## 1.1.1 (2018-04-25)
 - Improve to read BAM file faster
 
