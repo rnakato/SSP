@@ -51,8 +51,6 @@ namespace {
     // FCS
     out << "data <- read.csv('" << prefix << ".fcs.csv', header=TRUE, skip=4, sep='\t', quote='')" << std::endl;
     out << "plot(data[,1],data[,2], log='x', type='l', ylim = c(0,max(c(data[,2],0.2))), xlab = 'Read-pair distance (bp)', ylab = 'Fragment cluster score')" << std::endl;
-    ///    out << "data <- read.csv('" << prefix << ".KLD.csv', header=TRUE, skip=4, sep='\t', quote='')" << std::endl;
-    //    out << "plot(data[,1],data[,2], log='x', type='l', ylim = c(0,max(c(data[,2],0.2))), xlab = 'Read-pair distance (bp)', ylab = 'Kullback-Leibler divergence')" << std::endl;
     out << "dev.off()" << std::endl;
 
     std::string command = "R --vanilla < " + Rscript + " > " + Rscript + ".log 2>&1";
@@ -83,8 +81,6 @@ void makeFCSProfile(FCSstats &fcsst, const SeqStatsGenome &genome, const std::st
   dist.outputPnf(filename1);
   std::string filename2 = head + "." + typestr + ".csv";
   dist.outputFCS(filename2);
-  //  filename2 = head + ".KLD.csv";
-  // dist.outputKLD(filename2);
 
   makeRscript(head);
   

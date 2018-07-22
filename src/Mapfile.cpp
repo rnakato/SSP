@@ -4,7 +4,7 @@
 #include "Mapfile.hpp"
 
 void FragmentLengthDist::outputDistFile(const std::string &prefix, const uint64_t nread) {
-  std::string outputfile = prefix + ".ReadLengthDist.csv";
+  std::string outputfile = prefix + ".ReadLengthDist.tsv";
   std::ofstream out(outputfile);
   printVector(out, vlenF3, "F3", nread);
   if(pairedend) {
@@ -14,7 +14,7 @@ void FragmentLengthDist::outputDistFile(const std::string &prefix, const uint64_
   out.close();
   
   if(pairedend) {
-    outputfile = prefix + ".FragmentLengthDist.csv";
+    outputfile = prefix + ".FragmentLengthDist.tsv";
     std::ofstream out(outputfile);
     printVector(out, vflen, "Fragmemt", nread);
   }
