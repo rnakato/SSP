@@ -17,6 +17,8 @@
 std::string rmchr(const std::string &chr);
 bool isStr(std::string, std::string);
 
+class Interaction;
+
 class bed {
  public:
   std::string chr;
@@ -47,6 +49,7 @@ class bed {
   std::string getSiteStr() const {
     return "chr" + chr + "-" + std::to_string(start) + "-" + std::to_string(end);
   }
+
 };
 
 class bed12 : public bed {
@@ -322,40 +325,57 @@ public:
     std::cout << "maxval: " << maxval << std::endl;
   }
 
-  bool checkoverlap(const bed &loop, const std::vector<bed> &bed) {
+  bool isoverlap_asloop(const bed &loop, const std::vector<bed> &bed) const {
     for (auto &b: bed) {
       if (loop.chr == b.chr && my_overlap(loop.start, loop.end, b.start, b.end)) return true;
     }
     return false;
   }
 
-  
+  bool isoverlap_asBed(const bed &bed, const std::vector<Interaction> &vinter) const {
+    for (auto &x: vinter) {
+      if ((x.first.chr  == bed.chr && my_overlap(x.first.start,  x.first.end,  bed.start, bed.end)) ||
+	  (x.second.chr == bed.chr && my_overlap(x.second.start, x.second.end, bed.start, bed.end)))
+	return true;
+    }
+    return false;
+  }
+
   void compare_bed_loop(const std::vector<bed> &bed1, const std::vector<bed> &bed2, const bool nobs) {
-    int32_t aa(0), bb(0), ab(0), an(0), bn(0), nn(0);
+    int32_t aa(0), bb(0), ab(0), an(0), bn(0), nn(0), hit_bed1(0), hit_bed2(0);
+
+    for (auto &x: bed1) {
+      if (isoverlap_asBed(x, vinter)) ++hit_bed1;
+    }
+    for (auto &x: bed2) {
+      if (isoverlap_asBed(x, vinter)) ++hit_bed2;
+    }
     for (auto &x: vinter) {
       int32_t on(0);
-      x.ofirst.peakovrlpd1  = checkoverlap(x.first, bed1);
-      x.ofirst.peakovrlpd2  = checkoverlap(x.first, bed2);
-      x.osecond.peakovrlpd1 = checkoverlap(x.second, bed1);
-      x.osecond.peakovrlpd2 = checkoverlap(x.second, bed2);
-      if((x.ofirst.peakovrlpd1 && x.osecond.peakovrlpd2) || (x.ofirst.peakovrlpd2 && x.osecond.peakovrlpd1)) {
+      x.ofirst.peakovrlpd1  = isoverlap_asloop(x.first, bed1);
+      x.ofirst.peakovrlpd2  = isoverlap_asloop(x.first, bed2);
+      x.osecond.peakovrlpd1 = isoverlap_asloop(x.second, bed1);
+      x.osecond.peakovrlpd2 = isoverlap_asloop(x.second, bed2);
+      
+      if ((x.ofirst.peakovrlpd1 && x.osecond.peakovrlpd2) || (x.ofirst.peakovrlpd2 && x.osecond.peakovrlpd1)) {
 	++ab;
 	++on;
       }
-      if(x.ofirst.peakovrlpd1 && x.osecond.peakovrlpd1) {
+      if (x.ofirst.peakovrlpd1 && x.osecond.peakovrlpd1) {
 	++aa;
 	++on;
       }
-      if(x.ofirst.peakovrlpd2 && x.osecond.peakovrlpd2) {
+      if (x.ofirst.peakovrlpd2 && x.osecond.peakovrlpd2) {
 	++bb;
 	++on;
       }
-      if(on) continue;
-      if(x.ofirst.peakovrlpd1 || x.osecond.peakovrlpd1) ++an;
+      if (on) continue;
+      if (x.ofirst.peakovrlpd1 || x.osecond.peakovrlpd1) ++an;
       else if (x.ofirst.peakovrlpd2 || x.osecond.peakovrlpd2) ++bn;
       else ++nn;
       
     }
+    
     std::cout << "# Number: " << vinter.size() << std::endl;
     printf("# bed1-bed2: %d (%.1f%%)\n", ab, getpercent(ab, vinter.size()));
     printf("# bed1-bed1: %d (%.1f%%)\n", aa, getpercent(aa, vinter.size()));
@@ -363,6 +383,8 @@ public:
     printf("# bed1-none: %d (%.1f%%)\n", an, getpercent(an, vinter.size()));
     printf("# bed2-none: %d (%.1f%%)\n", bn, getpercent(bn, vinter.size()));
     printf("# none: %d (%.1f%%)\n",      nn, getpercent(nn, vinter.size()));
+    printf("# bed1: %d (%.1f%%)\n", hit_bed1, getpercent(hit_bed1, bed1.size()));
+    printf("# bed2: %d (%.1f%%)\n", hit_bed2, getpercent(hit_bed2, bed2.size()));
 
     if(!nobs) {
       for (auto &x: vinter) {
