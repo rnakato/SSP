@@ -1,26 +1,25 @@
-#!/usr/bin/env perl -w
+#!/usr/bin/perl -w
 
 $filename = $ARGV[0];
 $len=0;
-$lenall=0;
 
-open(InputFile,$filename) ||die "error: can't open file.\n";
-while($line = <InputFile>){
-    next if($line eq "\n");
-    chomp $line;
-    if($line =~ ">"){
-	print "$len\n" if($len);
-	$lenall += $len;
+open(InputFile, $filename) ||die "error: can't open $filename.\n";
+while(<InputFile>) {
+    next if ($_ eq "\n");
+    chomp;
+    if ($_ =~ ">"){
+	print "$len\n" if ($len);
 	$len=0;
-	if($' =~ /([A-Za-z0-9_]+)\s(.+)/){ $name = $1;}
-	else{ $name = $';}
+	if ($' =~ /([\S]+)\s(.+)/){ $name = $1; }
+	else { $name = $'; }
 	print "$name\t";
 	next;
-    }else{
-	chomp($line);
-	$len += length($line);
+    } else {
+	chomp;
+	$len += length($_);
     }
-} 
+}
+
 close (InputFile);
 
 print "$len\n";
