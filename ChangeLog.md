@@ -2,6 +2,7 @@
 
 ## 1.1.3 (2019-04-15)
 - Accept CRAM format for the input file
+- script/makegenometable.pl: accept scaffold in Ensembl genome
 
 ## 1.1.2 (2018-07-22)
 - Chenge the prefix of ReadLengthDist.csv and FragmentLengthDist.csv to *.tsv
