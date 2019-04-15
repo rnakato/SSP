@@ -17,7 +17,7 @@ namespace MyOpt {
       ("odir",    boost::program_options::value<std::string>()->default_value(odir_default),
        "output directory name")
       ("ftype,f", boost::program_options::value<std::string>(),
-       "{SAM|BAM|BOWTIE|TAGALIGN}: format of input file\nTAGALIGN could be gzip'ed (extension: tagAlign.gz)")
+       "{SAM|BAM|CRAM|BOWTIE|TAGALIGN}: format of input file\nTAGALIGN can be gzip'ed (extension: tagAlign.gz)")
       ;
     allopts.add(opt);
   }

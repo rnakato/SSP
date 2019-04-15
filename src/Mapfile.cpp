@@ -29,7 +29,7 @@ void SeqStatsGenome::setValues(const MyOpt::Variables &values) {
   specifyFtype  = values.count("ftype");
   if(onFtype()) {
     ftype = MyOpt::getVal<std::string>(values, "ftype");
-    if(ftype != "SAM" && ftype != "BAM" && ftype != "BOWTIE" && ftype != "TAGALIGN") PRINTERR("invalid --ftype.\n");
+    if(ftype != "SAM" && ftype != "BAM" && ftype != "CRAM" && ftype != "BOWTIE" && ftype != "TAGALIGN") PRINTERR("invalid --ftype.\n");
   }
   
   dflen.setValues(values);

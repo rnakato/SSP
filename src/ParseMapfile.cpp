@@ -89,7 +89,7 @@ namespace {
       if(genome.isPaired()) do_bampe(genome, in);
       else do_bamse( genome, in);
     }
-    else {  // BAM
+    else if((genome.onFtype() && genome.getftype() == "BAM") || isStr(inputfile, ".bam")) {  // BAM
       std::cout << "Input format: BAM" << std::endl;
       std::string command = "samtools view -h " + inputfile;
       FILE *fp = popen(command.c_str(), "r");
@@ -97,6 +97,19 @@ namespace {
       std::istream in(static_cast<std::streambuf *>(p_fb));
       if(genome.isPaired()) do_bampe(genome, in);
       else do_bamse(genome, in);
+    }
+    else if((genome.onFtype() && genome.getftype() == "CRAM") || isStr(inputfile, ".cram")) {  // CRAM
+      std::cout << "Input format: CRAM" << std::endl;
+      std::string command = "samtools view -h " + inputfile;
+      FILE *fp = popen(command.c_str(), "r");
+      __gnu_cxx::stdio_filebuf<char> *p_fb = new __gnu_cxx::stdio_filebuf<char>(fp, std::ios_base::in);
+      std::istream in(static_cast<std::streambuf *>(p_fb));
+      if(genome.isPaired()) do_bampe(genome, in);
+      else do_bamse(genome, in);
+    }
+    else {
+      std::cerr << "error: invalid input file type." << std::endl;
+      exit(0);
     }
     
     return;
@@ -285,11 +298,15 @@ void read_mapfile(SeqStatsGenome &genome)
     isFile(inputfile);
     std::cout << boost::format("Parsing %1%...\n") % inputfile;
     if (genome.onFtype()) {
-      if (genome.getftype() == "SAM" || genome.getftype() == "BAM") parseSam(inputfile, genome);
+      if (genome.getftype() == "SAM"
+	  || genome.getftype() == "BAM"
+	  || genome.getftype() == "CRAM") parseSam(inputfile, genome);
       else if (genome.getftype() == "BOWTIE")                       parseBowtie(inputfile, genome);
       else if (genome.getftype() == "TAGALIGN")                     parseTagAlign(inputfile, genome);
     } else {
-      if (isStr(inputfile, ".sam") || isStr(inputfile, ".bam")) parseSam(inputfile, genome);
+      if (isStr(inputfile, ".sam")
+	  || isStr(inputfile, ".bam")
+	  || isStr(inputfile, ".cram")) parseSam(inputfile, genome);
       else if (isStr(inputfile, ".bowtie"))                     parseBowtie(inputfile, genome);
       else if (isStr(inputfile, ".tagalign"))                   parseTagAlign(inputfile, genome);
     }
