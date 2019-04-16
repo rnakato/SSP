@@ -59,8 +59,8 @@ To obtain a docker image for SSP and DROMPA, type:
       -i [ --input ] arg           Mapping file. Multiple files are allowed (separated by ',')
       -o [ --output ] arg          Prefix of output files
       --odir arg (=sspout)         output directory name
-      -f [ --ftype ] arg           {SAM|BAM|BOWTIE|TAGALIGN}: format of input file
-                                   TAGALIGN could be gzip'ed (extension: tagAlign.gz)
+      -f [ --ftype ] arg           {SAM|BAM|CRAM|BOWTIE|TAGALIGN}: format of input file
+                                    TAGALIGN can be gzip'ed (extension: tagAlign.gz)
     
     For paired-end:
       --pair                       add when the input file is paired-end
@@ -108,7 +108,7 @@ The simplest command is:
 
     ssp -i ChIP.sam -o ChIP --gt genometable.txt
 then the output files (prefix: "ChIP") are generated in the directory "sspout (default)".
-The format of input file is automatically detected by postfix(.sam/.bam/.bowtie/.tagalign(.gz)). If the detection does not work well, supply -f option (e.g., "-f BAM").
+The format of input file is automatically detected by postfix(.sam/.bam/.cram/.bowtie/.tagalign(.gz)). If the detection does not work well, supply -f option (e.g., "-f BAM").
 
 The genome table file (genometable.txt) is a tab-delimited file describing the name and length of each chromosome (see 4.1.)
 The chromosome names in the map file and the genome table file must be same.
