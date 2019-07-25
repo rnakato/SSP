@@ -15,11 +15,11 @@ void ParseLine(std::vector<std::string> &v, const std::string &str, char delim)
     current = found + 1;
   }
   v.emplace_back(std::string(str, current, str.size() - current));
-  
+
   DEBUGprint("ParseLine done.");
   return;
 }
-  
+
 void printList()
 {
   std::cout << std::endl;
@@ -54,4 +54,31 @@ bool isStr(std::string str, std::string query)
   std::transform(query.begin(), query.end(), query.begin(), ::tolower);
   if(str.find(query) != std::string::npos) return true;
   else return false;
+}
+
+int32_t compare_chr(const std::string &chr1, const std::string &chr2) {
+  int32_t c1, c2;
+  try {
+    c1 = stoi(chr1);
+    c2 = stoi(chr2);
+    return c1 - c2;
+  } catch (const std::invalid_argument& e) {
+    try {
+      c1 = stoi(chr1);
+      return -1; // c2の方が大きい
+    } catch (const std::invalid_argument& e) {
+      try {
+	c2 = stoi(chr2);
+	return 1; // c1の方が大きい
+      } catch (const std::invalid_argument& e) {
+	if (chr1 == chr2) return 0;
+	else if (chr1 == "X") return -1;
+	else if (chr1 == "Y") {
+	  if (chr2 == "X") return 1; else return -1;
+	}
+	else return 1;
+      }
+    }
+  }
+  return 0;
 }
