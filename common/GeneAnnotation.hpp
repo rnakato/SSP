@@ -44,7 +44,7 @@ class genedata {
   }
 };
 
-  
+
 class hitGene {
  public:
   status st;
@@ -73,7 +73,11 @@ class bed_gene {
 	else if(x.st == CONVERGENT) std::cout << "\tconvergent\t";
 	else if(x.st == DIVERGENT)  std::cout << "\tdivergent\t";
 	else if(x.st == PARALLEL)   std::cout << "\tparallel\t";
-	x.gene->print();
+	else {
+	  std::cout << "\nError: invalid status: " << gene.st << std::endl;
+	  exit(0);
+	}
+	if(gene.st != INTERGENIC) x.gene->print();
 	std::cout << std::endl;
       }
     } else {
@@ -85,7 +89,11 @@ class bed_gene {
       else if(gene.st == CONVERGENT) std::cout << "\tconvergent\t";
       else if(gene.st == DIVERGENT)  std::cout << "\tdivergent\t";
       else if(gene.st == PARALLEL)   std::cout << "\tparallel\t";
-      gene.gene->print();
+      else {
+	std::cout << "\nError: invalid status: " << gene.st << std::endl;
+	exit(0);
+      }
+      if(gene.st != INTERGENIC) gene.gene->print();
       std::cout << std::endl;
     }
   }
@@ -93,20 +101,20 @@ class bed_gene {
     if(redundant) {
       for(auto &x: genelist) {
 	print();
-	std::cout << "\t" << x.d << "\t"; 	
+	std::cout << "\t" << x.d << "\t";
 	x.gene->print();
 	std::cout << std::endl;
       }
     } else {
       print();
       if(gene.st == TSS) {
-	std::cout << "\t" << gene.d << "\t"; 	
+	std::cout << "\t" << gene.d << "\t";
 	gene.gene->print();
       }
       std::cout << std::endl;
     }
   }
-  
+
   void update(const status &pst, const genedata &pgene) {
     if(gene.st < pst){
       gene.st = pst;
