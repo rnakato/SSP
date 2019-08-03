@@ -19,7 +19,7 @@ namespace MyMthread {
   std::vector<chrrange> getVsepchr(const uint64_t genomelen, const std::vector<T> &chr, const int32_t numthreads)
   {
     std::vector<chrrange> vsep;
-    
+
     uint32_t sepsize = genomelen/numthreads;
     for(uint32_t i=0; i<chr.size(); ++i) {
       uint32_t s = i;

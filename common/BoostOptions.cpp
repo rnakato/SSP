@@ -89,6 +89,6 @@ namespace MyOpt {
 
   void dumpOther(const Variables &values)
   {
-    std::cout << boost::format("\nNumber of threads: %1%\n") % values["threads"].as<int32_t>();
+    std::cout << boost::format("Number of threads: %1%\n") % values["threads"].as<int32_t>();
   }
 }
