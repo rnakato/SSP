@@ -49,16 +49,16 @@ namespace MyOpt {
   {
     std::cout << boost::format("Input file: %1%\n") % values["input"].as<std::string>();
     if(values.count("ftype")) std::cout << boost::format("\tFormat: %1%\n") % values["ftype"].as<std::string>();
-    std::cout << boost::format("Output file: %1%/%2%\n") % values["odir"].as<std::string>() % values["output"].as<std::string>();
+    std::cout << boost::format("Output prefix: %1%/%2%\n") % values["odir"].as<std::string>() % values["output"].as<std::string>();
   }
-  
+
   void dumpGenomeTable(const Variables &values)
   {
     std::cout << boost::format("Genome-table file: %1%\n") % values["gt"].as<std::string>();
     if(values.count("mptable"))
       std::cout << boost::format("genome-table file for mappable bases: %1%\n") % values["mptable"].as<std::string>();
   }
- 
+
   void dumpLibComp(const Variables &values)
   {
     if (!values.count("nofilter")) {
