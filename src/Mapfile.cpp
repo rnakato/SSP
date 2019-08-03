@@ -12,7 +12,7 @@ void FragmentLengthDist::outputDistFile(const std::string &prefix, const uint64_
     printVector(out, vlenF5, "F5", nread);
   }
   out.close();
-  
+
   if(pairedend) {
     outputfile = prefix + ".FragmentLengthDist.tsv";
     std::ofstream out(outputfile);
@@ -22,7 +22,7 @@ void FragmentLengthDist::outputDistFile(const std::string &prefix, const uint64_
 
 void SeqStatsGenome::setValues(const MyOpt::Variables &values) {
   DEBUGprint("SeqStatsGenome setValues...");
-  
+
   inputfilename = MyOpt::getVal<std::string>(values, "input");
   pairedend     = values.count("pair");
   maxins        = MyOpt::getVal<int32_t>(values, "maxins");
@@ -31,15 +31,15 @@ void SeqStatsGenome::setValues(const MyOpt::Variables &values) {
     ftype = MyOpt::getVal<std::string>(values, "ftype");
     if(ftype != "SAM" && ftype != "BAM" && ftype != "CRAM" && ftype != "BOWTIE" && ftype != "TAGALIGN") PRINTERR("invalid --ftype.\n");
   }
-  
+
   dflen.setValues(values);
   genometable = MyOpt::getVal<std::string>(values, "gt");
   readGenomeTable(genometable);
-  
+
   if(values.count("mptable")) {
     for(auto &x: chr) x.getMptable(MyOpt::getVal<std::string>(values, "mptable"));
   }
-  
+
   // Greekchr
   for(auto &x: chr) {
     if(x.getname() == "I") {
@@ -47,10 +47,10 @@ void SeqStatsGenome::setValues(const MyOpt::Variables &values) {
       break;
     }
   }
-  
+
   // sepchr
   vsepchr = MyMthread::getVsepchr(getlen(), chr, MyOpt::getVal<int32_t>(values, "threads"));
-  
+
   DEBUGprint("SeqStatsGenome setValues done.");
 #ifdef DEBUG
   std::cout << "chr\tautosome" << std::endl;
@@ -66,7 +66,7 @@ void SeqStatsGenome::readGenomeTable(const std::string &gt)
   std::string lineStr;
   std::ifstream in(gt);
   if(!in) PRINTERR("Could nome open " << gt << ".");
-  
+
   while (!in.eof()) {
     std::vector<std::string> v;
     getline(in, lineStr);
