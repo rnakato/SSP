@@ -79,7 +79,6 @@ namespace MyOpt {
     }
   }
 
-
   void dumpPair(const Variables &values)
   {
     if (values.count("pair")) {
