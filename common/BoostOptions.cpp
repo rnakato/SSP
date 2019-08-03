@@ -90,7 +90,7 @@ namespace MyOpt {
 
   void dumpOther(const Variables &values)
   {
-    if (values.count("verbose")) std::cout << "verbose mode.\n";
     std::cout << boost::format("Number of threads: %1%\n") % values["threads"].as<int32_t>();
+    if (values.count("verbose")) std::cout << "verbose mode.\n";
   }
 }
