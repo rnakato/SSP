@@ -39,6 +39,7 @@ namespace MyOpt {
       ("threads,p",
        boost::program_options::value<int32_t>()->default_value(1)->notifier(boost::bind(&over<int32_t>, _1, 1, "--thread")),
        "number of threads to launch")
+      ("verbose", "verbose mode")
       ("version,v", "print version")
       ("help,h", "show help message")
       ;
@@ -89,6 +90,7 @@ namespace MyOpt {
 
   void dumpOther(const Variables &values)
   {
+    if (values.count("verbose")) std::cout << "verbose mode.\n";
     std::cout << boost::format("Number of threads: %1%\n") % values["threads"].as<int32_t>();
   }
 }
