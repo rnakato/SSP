@@ -44,7 +44,6 @@ class genedata {
   }
 };
 
-
 class hitGene {
  public:
   status st;
@@ -137,6 +136,5 @@ class bed_gene {
   }
   void printHead () const { bed.printHead(); }
 };
-
 
 #endif  // _GENEANNOTATION_HPP_

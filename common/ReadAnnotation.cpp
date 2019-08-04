@@ -45,7 +45,7 @@ std::vector<std::string> readGeneList(const std::string& fileName)
 
   std::vector<std::string> glist;
   std::string lineStr;
-  
+
   while (!in.eof()) {
     getline(in, lineStr);
     if(!lineStr.empty()) glist.push_back(lineStr);
@@ -81,7 +81,7 @@ void parseARSOriDB(const std::string& fileName, HashOfGeneDataMap &mp)
   if(!in) PRINTERR("ARS file does not exist.");
 
   std::string lineStr;
-  
+
   while (!in.eof()) {
     getline(in, lineStr);
     if (lineStr.empty() || isStr(lineStr, "Status")) continue;
@@ -93,7 +93,7 @@ void parseARSOriDB(const std::string& fileName, HashOfGeneDataMap &mp)
     if (isStr(v[2], "ARS")) tname = v[2];
     else tname = "ARS_" + v[2];
     std::string chr(changeIntToGreek(rmchr(v[4])));
-    
+
     mp[chr][tname].chr     = chr;
     mp[chr][tname].gname   = tname;
     mp[chr][tname].strand  = "";
@@ -110,7 +110,7 @@ void parseTER(const std::string& fileName, HashOfGeneDataMap &mp)
   if(!in) PRINTERR("ARS file does not exist.");
 
   std::string lineStr;
-  
+
   while (!in.eof()) {
     getline(in, lineStr);
     if (lineStr.empty() || isStr(lineStr, "#") || isStr(lineStr, "Name")) continue;
@@ -120,7 +120,7 @@ void parseTER(const std::string& fileName, HashOfGeneDataMap &mp)
 
     std::string tname(v[0]);
     std::string chr(changeIntToGreek(rmchr(v[1])));
-    
+
     mp[chr][tname].chr     = chr;
     mp[chr][tname].gname   = tname;
     mp[chr][tname].strand  = "";
@@ -142,7 +142,7 @@ HashOfGeneDataMap parseSGD(const std::string& fileName)
 
   HashOfGeneDataMap tmp;
   std::string lineStr;
-  
+
   while (!in.eof()) {
     getline(in, lineStr);
     if(lineStr.empty()) continue;
@@ -171,7 +171,7 @@ HashOfGeneDataMap parseSGD(const std::string& fileName)
     else if (type == "repeat_region") tmp[chr][tname].gname = v[6];
     else if (type == "retrotransposon") tmp[chr][tname].gname = v[3];
     else continue;
-    
+
     tmp[chr][tname].chr = chr;
     tmp[chr][tname].gtype = type;
     if (v[11] == "C") {
@@ -200,7 +200,7 @@ HashOfGeneDataMap parseRefFlat(const std::string& fileName)
 
   HashOfGeneDataMap tmp;
   std::string lineStr;
-  
+
   while (!in.eof()) {
     getline(in, lineStr);
     if(lineStr.empty()) continue;
@@ -211,7 +211,7 @@ HashOfGeneDataMap parseRefFlat(const std::string& fileName)
     std::string tname(v[1]);
     std::string chr = rmchr(v[2]);
     if(isStr(tname, "NM") || isStr(tname, "NR")) UCSC = true;
-    
+
     tmp[chr][tname].tname   = tname;
     tmp[chr][tname].gname   = v[0];
     tmp[chr][tname].chr     = chr;
@@ -227,7 +227,7 @@ HashOfGeneDataMap parseRefFlat(const std::string& fileName)
       if(isStr(tname, "NM")) tmp[chr][tname].gtype = "protein_coding";
       else tmp[chr][tname].gtype = "noncoding RNA";
     }
-    
+
     boost::split(exonStarts, v[9], boost::algorithm::is_any_of(","));
     boost::split(exonEnds,  v[10], boost::algorithm::is_any_of(","));
 
@@ -249,16 +249,16 @@ HashOfGeneDataMap parseGtf(const std::string& fileName)
 
   HashOfGeneDataMap tmp;
   std::string lineStr;
-  
+
   while (!in.eof()) {
     getline(in, lineStr);
     if(lineStr.empty() || lineStr[0] == '#') continue;
     std::vector<std::string> v;
-    
+
     boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
     std::string feat(v[2]);
     if(feat == "gene" || feat == "transcript" || feat == "three_prime_utr" || feat == "five_prime_utr") continue;
-    
+
     std::string chr(rmchr(v[0]));
     int32_t start(stoi(v[3]));
     int32_t end(stoi(v[4]));
@@ -286,7 +286,7 @@ HashOfGeneDataMap parseGtf(const std::string& fileName)
     }
 
     if(tname =="") continue;
-    
+
     tmp[chr][tid].tname  = tname;
     tmp[chr][tid].gname  = gname;
     tmp[chr][tid].tid  = tid;
@@ -349,13 +349,23 @@ HashOfGeneDataMap construct_gmp(const HashOfGeneDataMap &tmp)
 
 void printMap(const HashOfGeneDataMap &mp)
 {
-  for(auto pair: mp) {
-    for(auto x: pair.second) {
+  for(auto &pair: mp) {
+    for(auto &x: pair.second) {
       x.second.printall();
       std::cout << std::endl;
     }
   }
   return;
+}
+
+bool isGeneUCSC(const HashOfGeneDataMap &mp)
+{
+  for(auto &pair: mp) {
+    for(auto &x: pair.second) {
+      if (isStr(x.second.gtype, "lincRNA")) return false;
+    }
+  }
+  return true;
 }
 
 void printRefFlat(const HashOfGeneDataMap &mp, const int32_t nameflag)
@@ -394,7 +404,7 @@ std::vector<chrsize> read_genometable(const std::string& fileName)
 
   std::vector<chrsize> gt;
   std::string lineStr;
-  
+
   while (!in.eof()) {
     getline(in, lineStr);
     if(lineStr.empty() || lineStr[0] == '#') continue;
@@ -411,5 +421,3 @@ std::vector<chrsize> read_genometable(const std::string& fileName)
     }*/
   return gt;
 }
-
-
