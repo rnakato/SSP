@@ -1,7 +1,7 @@
 CC = g++
 CFLAGS += -std=c++11 -O2 -Wall -W
 LDFLAGS = -lz -lgsl -lgslcblas -lboost_thread
-LIBS += -lboost_program_options -lboost_system -lboost_filesystem 
+LIBS += -lboost_program_options -lboost_system -lboost_filesystem
 
 SRCDIR = ./src
 CMNDIR = ./common
@@ -9,7 +9,7 @@ OBJDIR = ./obj
 CMNOBJDIR = ./cobj
 BINDIR = ./bin
 
-PROGRAMS = ssp 
+PROGRAMS = ssp
 TARGET = $(addprefix $(BINDIR)/,$(PROGRAMS))
 #$(warning $(TARGET))
 
