@@ -26,7 +26,7 @@ class chrsize {
   chrsize(const std::string &n, const int32_t l):
     refname(n), name(rmchr(n)), len(l) //, Greekchr(false)
   {}
-  
+
   const std::string & getrefname() const { return refname; }
   const std::string & getname() const { return name; }
   /*  const std::string & getrefname_GreekToInt() const {
@@ -94,8 +94,8 @@ class var {
   bool isupper;
  public:
  var(): name(""), val(0), limlow(0), limup(0){}
-  var(std::string str, T low):       name(str), val(0), limlow(low), limup(0), isupper(false) {}
-  var(std::string str, T low, T up): name(str), val(0), limlow(low), limup(up), isupper(true) {}
+  var(std::string &str, T low):       name(str), val(0), limlow(low), limup(0), isupper(false) {}
+  var(std::string &str, T low, T up): name(str), val(0), limlow(low), limup(up), isupper(true) {}
   void set(T n) {
     if(isupper && (n<limlow || n>limup)) {
       std::cout << "Error : variable " << name << " should be " << limlow << "<= and <=" << limup << "." << std::endl;
@@ -114,8 +114,8 @@ class fasta {
   int32_t nbin;
   double p_mpbl;  /* mappability */
   double gcov;    /* genome coverage for bin */
-  fasta (std::string str, int32_t l=0): name(str), len(l), len_mpbl(0), nbin(0), p_mpbl(0), gcov(0) {}
-  fasta (std::vector<std::string> &v): name(v[0]), len(stoi(v[1])), len_mpbl(0), p_mpbl(0), gcov(0) {}
+  fasta (std::string &str, int32_t l=0): name(str), len(l), len_mpbl(0), nbin(0), p_mpbl(0), gcov(0) {}
+  explicit fasta (std::vector<std::string> &v): name(v[0]), len(stoi(v[1])), len_mpbl(0), nbin(0), p_mpbl(0), gcov(0) {}
   void print() const {
     std::cout << name << "\t" << len << "\t" << nbin << "\t" << len_mpbl << "\t"<< p_mpbl << "\t" << gcov << std::endl;
   }
@@ -150,7 +150,7 @@ public:
 	     << "\tfraglen:" << fraglen
 	     <<"\treadlen:"  << readlen_F3
 	     << std::endl;
-#endif 
+#endif
  }
 };
 
@@ -162,7 +162,7 @@ class Read {
   int32_t F5;
   int32_t duplicate;
   int32_t inpeak;
-  
+
   Read(const Fragment &frag, const int32_t len):
     weight(WeightNum), F3(frag.F3), duplicate(0), inpeak(0)
   {
@@ -185,7 +185,7 @@ class Read {
 	      << "\tduplicate:" << duplicate
 	      << "\tinpeak:"    << inpeak
 	      << std::endl;
-#endif 
+#endif
   }
 };
 

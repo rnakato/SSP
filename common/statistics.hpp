@@ -25,9 +25,9 @@ namespace MyStatistics {
     double mean;
     double var;
     double sd;
-    
+
   public:
-    moment(const std::vector<T> v, const int32_t from, int32_t to=0):
+    moment(const std::vector<T> &v, const int32_t from, int32_t to=0):
       mean(0), var(0), sd(0)
     {
       if (!to) to = v.size();
@@ -45,20 +45,20 @@ namespace MyStatistics {
     double getvar()  const { return var; }
     double getsd()   const { return sd; }
   };
-  
+
   template <class T>
   T getPercentile(const std::vector<T> &array, const double per, int32_t binnum=0)
   {
     if (!binnum) binnum = array.size();
     std::vector<T> sortarray;
-      
+
     for (int32_t i=0; i<binnum; ++i) {
       if(array[i]) sortarray.push_back(array[i]);
     }
     if (!sortarray.size()) return 0;
-      
+
     sort(sortarray.begin(), sortarray.end());
-      
+
     return sortarray[(int32_t)(sortarray.size()*per)];
   };
 }

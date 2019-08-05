@@ -15,7 +15,6 @@
 template <class Thead, class... Tbody>
 void printList(Thead head, Tbody... body);
 
-  
 class strandData {
  public:
   std::vector<Read> vRead;
@@ -60,9 +59,9 @@ class SeqStats {
   double sizefactor;
 
  public:
-  
- SeqStats(std::string s, int32_t l):
-   refname(s), name(rmchr(s)), len(l), len_mpbl(l), 
+
+ SeqStats(std::string &s, int32_t l):
+   refname(s), name(rmchr(s)), len(l), len_mpbl(l),
    Greekchr(false), depth(0), nread_inbed(0),
    sizefactor(0) {}
 
@@ -96,7 +95,7 @@ class SeqStats {
   void setnread_nonread_nofilter() {
     for (auto strand: {Strand::FWD, Strand::REV}) seq[strand].setnread_nonread_nofilter();
   }
-  
+
   void incNReadNonred (const Strand::Strand strand) { ++seq[strand].nread_nonred; }
   void incNReadRed    (const Strand::Strand strand) { ++seq[strand].nread_red;    }
 
@@ -111,7 +110,7 @@ class SeqStats {
     boost::mutex::scoped_lock lock(mtx);
     seq[strand].nread_afterGC += w;
   }
-  
+
   uint64_t getlen()       const { return len; }
   uint64_t getlenmpbl()   const { return len_mpbl; }
   double   getpmpbl()     const { return getratio(getlenmpbl(), getlen()); }
@@ -125,7 +124,7 @@ class SeqStats {
       for(auto &x: seq[strand].vRead) x.F5 = x.F3 + d;
     }
   }
-  
+
   void printvRead() const {
 #ifdef PRINTREAD
     for (auto strand: {Strand::FWD, Strand::REV}) {
@@ -135,13 +134,13 @@ class SeqStats {
 	x.print();
       }
     }
-#endif 
+#endif
   }
 
   void setFRiP(const std::vector<bed> &vbed) {
     std::vector<BpStatus> array(getlen(), BpStatus::MAPPABLE);
     OverrideBedToArray(array, getname(), vbed);
-    
+
     for (auto strand: {Strand::FWD, Strand::REV}) {
       for (auto &x: seq[strand].vRead) {
 	if(x.duplicate) continue;
@@ -172,8 +171,8 @@ class SeqStats {
     int32_t chrnum(0);
     try {
       chrnum = stoi(name);
-    } catch (std::invalid_argument e) {  // 数値以外
-      if(Greekchr) { 
+    } catch (std::invalid_argument &e) {  // 数値以外
+      if(Greekchr) {
 	if(name=="I")         chrnum = 1;
 	else if(name=="II")   chrnum = 2;
 	else if(name=="III")  chrnum = 3;
