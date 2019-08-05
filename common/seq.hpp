@@ -93,7 +93,7 @@ class var {
   T limup;
   bool isupper;
  public:
- var(): name(""), val(0), limlow(0), limup(0){}
+ var(): name(""), val(0), limlow(0), limup(0), isupper(false){}
   var(std::string &str, T low):       name(str), val(0), limlow(low), limup(0), isupper(false) {}
   var(std::string &str, T low, T up): name(str), val(0), limlow(low), limup(up), isupper(true) {}
   void set(T n) {
@@ -129,7 +129,7 @@ public:
   int32_t fraglen;
   int32_t readlen_F3;
 
-  Fragment(): F3(0), fraglen(0), readlen_F3(0) {}
+  Fragment(): F3(0), strand(Strand::FWD), fraglen(0), readlen_F3(0) {}
   void addSAM(const std::vector<std::string> &v, const bool pair, const int32_t sv) {
    chr = rmchr(v[2]);
    readlen_F3 = v[9].length();

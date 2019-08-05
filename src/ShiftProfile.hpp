@@ -21,7 +21,7 @@ class SSPstats {
   int32_t mp_from, mp_to;
   int32_t ng_from, ng_to, ng_step;
   int32_t numthreads;
-  
+
   double nsc;
   double rlsc;
   double rsc;
@@ -29,10 +29,15 @@ class SSPstats {
 
  public:
   SSPstats() {}
-  SSPstats(const int32_t ng_from_default, const int32_t ng_to_default, const int32_t ng_step_default,
-	   const int32_t mp_from_default, const int32_t mp_to_default):
+  SSPstats(const int32_t ng_from_default,
+	   const int32_t ng_to_default,
+	   const int32_t ng_step_default,
+	   const int32_t mp_from_default,
+	   const int32_t mp_to_default):
   opt("Strand shift profile",100),
+  num4ssp(0), isExjac(0), isHd(0), isCc(0), eachchr(0),
   mp_from(mp_from_default), mp_to(mp_to_default),
+  ng_from(0), ng_to(0), ng_step(0), numthreads(0),
   nsc(0), rlsc(0), rsc(0), backgroundUniformity(0)
   {
     using namespace boost::program_options;
@@ -59,10 +64,10 @@ class SSPstats {
   void setOpts(MyOpt::Opts &allopts) {
     allopts.add(opt);
   }
-  
+
   void setValues(const MyOpt::Variables &values) {
     DEBUGprint("SSPstats setValues...");
-    
+
     isExjac = values.count("ssp_exjac");
     isHd    = values.count("ssp_hd");
     isCc    = values.count("ssp_cc");
@@ -72,7 +77,7 @@ class SSPstats {
     ng_to   = MyOpt::getVal<int32_t>(values, "ng_to");
     ng_step = MyOpt::getVal<int32_t>(values, "ng_step");
     numthreads = MyOpt::getVal<int32_t>(values, "threads");
-    
+
     DEBUGprint("SSPstats setValues done.");
   }
   void dump()
@@ -92,7 +97,7 @@ class SSPstats {
   int32_t getNgTo()    const { return ng_to; }
   int32_t getNgStep()  const { return ng_step; }
   int32_t getnumthreads() const { return numthreads; }
-  
+
   void setnsc(const double c) { nsc = c; }
   void setrlsc(const double c) { rlsc = c; }
   void setrsc(const double c) { rsc = c; }

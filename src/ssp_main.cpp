@@ -18,36 +18,36 @@ namespace {
     std::cerr << "SSP version " << VERSION << std::endl;
     exit(0);
   }
-  
+
   void help_global()
   {
     auto helpmsg = R"(
 ===============
 
 Usage: ssp [option] -i <inputfile> -o <output> --gt <genome_table>)";
-    
+
     std::cerr << "\nSSP v" << VERSION << helpmsg << std::endl;
     return;
   }
-  
+
   void estimateFragLength(SSP::Global &p)
   {
     DEBUGprint("estimateFragLength...");
     if (p.genome.dflen.isnomodel()) return; // p.genome.isPaired()
-    
+
     std::string head(p.getprefix());
-    
+
     clock_t t1,t2;
     t1 = clock();
-    strShiftProfile(p.sspst, p.genome, head, "jaccard"); 
+    strShiftProfile(p.sspst, p.genome, head, "jaccard");
     t2 = clock();
     std::cout << "Jaccard Bit: " << static_cast<double>(t2 - t1) / CLOCKS_PER_SEC << "sec.\n";
     makeFCSProfile(p.fcsst, p.genome, head, "fcs");
     p.outputSSPstats();
-    
+
     clock_t t3 = clock();
     std::cout << "Fragment variability: " << static_cast<double>(t3 - t2) / CLOCKS_PER_SEC << "sec.\n";
-    
+
     if (p.sspst.DoExjac()) {
       t1 = clock();
       strShiftProfile(p.sspst, p.genome, head, "exjaccard");
@@ -61,37 +61,36 @@ Usage: ssp [option] -i <inputfile> -o <output> --gt <genome_table>)";
       t2 = clock();
       std::cout << "Hamming: " << static_cast<double>(t2 - t1) / CLOCKS_PER_SEC << "sec.\n";
     }
-  
+
     if (p.sspst.DoCc()) {
       t1 = clock();
       strShiftProfile(p.sspst, p.genome, head, "ccp");
-      t2 = clock();    
+      t2 = clock();
       std::cout << "ccp: " << static_cast<double>(t2 - t1) / CLOCKS_PER_SEC << "sec.\n";
     }
-    
+
     DEBUGprint("estimateFragLength done.");
     return;
   }
 
-  void init_dump(const MyOpt::Variables &values, SSP::Global &ssp){
-    std::vector<std::string> str_wigfiletype = {"BINARY", "COMPRESSED WIG", "WIG", "BEDGRAPH", "BIGWIG"};
- 
+  void init_dump(const MyOpt::Variables &values, SSP::Global &ssp) {
+
     std::cout << boost::format("\n======================================\n");
     std::cout << boost::format("SSP version %1%\n\n") % VERSION;
 
     MyOpt::dumpIO(values);
     MyOpt::dumpGenomeTable(values);
-  
+
     MyOpt::dumpFragmentLengthDist(values);
     MyOpt::dumpPair(values);
     MyOpt::dumpLibComp(values);
     ssp.sspst.dump();
-    
+
     MyOpt::dumpOther(values);
     printf("======================================\n");
     return;
   }
-  
+
   void getOpts(SSP::Global &ssp, int argc, char* argv[])
   {
     DEBUGprint("setOpts...");
@@ -103,9 +102,9 @@ Usage: ssp [option] -i <inputfile> -o <output> --gt <genome_table>)";
     MyOpt::setOptOther(allopts);
 
     DEBUGprint("getOpts...");
-    
+
     MyOpt::Variables values;
-    
+
     try {
       boost::program_options::parsed_options parsed = parse_command_line(argc, argv, allopts);
       store(parsed, values);
@@ -129,14 +128,14 @@ Usage: ssp [option] -i <inputfile> -o <output> --gt <genome_table>)";
     for (auto x: opts) {
       if (!values.count(x)) PRINTERR("specify --" << x << " option.");
     }
-      
+
     try {
       notify(values);
       ssp.setValues(values);
-    
+
       boost::filesystem::path dir(MyOpt::getVal<std::string>(values, "odir"));
       boost::filesystem::create_directory(dir);
-    
+
       init_dump(values, ssp);
     } catch (const boost::bad_any_cast& e) {
       std::cout << e.what() << std::endl;
@@ -146,7 +145,7 @@ Usage: ssp [option] -i <inputfile> -o <output> --gt <genome_table>)";
     DEBUGprint("getOpts done.");
     return;
   }
-  
+
 }
 
 int main(int argc, char* argv[])

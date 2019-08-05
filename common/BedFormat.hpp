@@ -33,7 +33,7 @@ class bed {
     if (_summit) summit = _summit;
     else summit = (start + end)/2;
   }
-  bed(const std::vector<std::string> &s) {
+  explicit bed(const std::vector<std::string> &s) {
     if(s.size() < 3) {
       std::cerr << "\nWarning: Bed site size < 3." << std::endl;
       return;
@@ -63,8 +63,11 @@ class bed12 : public bed {
   int32_t blockCount;
   int32_t blockSizes;
   int32_t blockStarts;
- bed12(): bed() {}
- bed12(std::vector<std::string> s):
+ bed12(): bed(), score(0), thickStart(0), thickEnd(0),
+	  rgb_r(0), rgb_g(0), rgb_b(0),
+	  blockCount(0), blockSizes(0), blockStarts(0)
+  {}
+  explicit bed12(std::vector<std::string> &s):
    bed(s), rgb_r(-1), rgb_g(-1), rgb_b(-1)
   {
    int32_t num = s.size();
@@ -101,15 +104,14 @@ class bed12 : public bed {
 class macsxls : public bed {
  public:
   int32_t len;
-  int32_t summit;
   double pileup;
   double p;
   double enrich;
   double q;
   std::string name;
 
- macsxls(): bed() {}
- macsxls(std::vector<std::string> s): bed(s) {
+ macsxls(): bed(), len(0), pileup(0), p(0), enrich(0), q(0) {}
+ explicit macsxls(std::vector<std::string> &s): bed(s) {
    len    = stoi(s[3]);
    summit = stoi(s[4]);
    pileup = stod(s[5]);
@@ -130,7 +132,6 @@ class macsxls : public bed {
 
 class Peak : public bed {
  public:
-  int32_t summit;
   double pileup;
   double enrich;
   double p_inter, p_enr;
@@ -138,7 +139,7 @@ class Peak : public bed {
 
   Peak(){}
   Peak(const std::string &c, const int32_t s, const int32_t e, const double val, const double p):
-    bed(c,s,e), summit(s), pileup(val), enrich(0), p_inter(p), p_enr(0), q(0) {}
+    bed(c,s,e), pileup(val), enrich(0), p_inter(p), p_enr(0), q(0) {}
   void renew(const int32_t i, const double val, const double p) {
     end = i;
     pileup += val;
@@ -162,7 +163,7 @@ template <class T=bed>
 class vbed {
   std::vector<T> bed;
   std::string label;
-  
+
 public:
   vbed(){}
   vbed(const std::vector<T> &v, const std::string &l):
@@ -196,7 +197,7 @@ std::vector<T> parseBed(const std::string &fileName)
     if(v[1] == "start") continue;
     vbed.emplace_back(v);
   }
-  
+
   DEBUGprint("parseBed done.");
   return vbed;
 }
@@ -235,7 +236,7 @@ class Interaction {
   Interaction(const bed &b1, const bed &b2, const double _val):
     val(_val), first(b1), second(b2)
   {}
-  
+
   double getval() const { return val; }
   void print() const {
     first.print();
@@ -296,7 +297,7 @@ class InteractionSet {
       exit(0);
     }
   }
-  
+
 public:
   InteractionSet(const std::string &fileName, const std::string &l, const std::string &tool):
     maxval(1e-10), label(l)
@@ -356,7 +357,7 @@ public:
       x.ofirst.peakovrlpd2  = isoverlap_asloop(x.first, bed2);
       x.osecond.peakovrlpd1 = isoverlap_asloop(x.second, bed1);
       x.osecond.peakovrlpd2 = isoverlap_asloop(x.second, bed2);
-      
+
       if ((x.ofirst.peakovrlpd1 && x.osecond.peakovrlpd2) || (x.ofirst.peakovrlpd2 && x.osecond.peakovrlpd1)) {
 	++ab;
 	++on;
@@ -373,9 +374,9 @@ public:
       if (x.ofirst.peakovrlpd1 || x.osecond.peakovrlpd1) ++an;
       else if (x.ofirst.peakovrlpd2 || x.osecond.peakovrlpd2) ++bn;
       else ++nn;
-      
+
     }
-    
+
     std::cout << "# Number: " << vinter.size() << std::endl;
     printf("# bed1-bed2: %d (%.1f%%)\n", ab, getpercent(ab, vinter.size()));
     printf("# bed1-bed1: %d (%.1f%%)\n", aa, getpercent(aa, vinter.size()));
@@ -392,7 +393,7 @@ public:
       }
     }
   }
-  
+
 };
 
 template <class T>

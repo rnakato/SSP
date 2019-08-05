@@ -20,28 +20,29 @@ class FragmentLengthDist {
   std::vector<int32_t> vlenF3;
   std::vector<int32_t> vlenF5;
   std::vector<int32_t> vflen;
-  int32_t nomodel;
-  int32_t allchr;
-  int32_t pairedend;
+  bool nomodel;
+  bool allchr;
+  bool pairedend;
 
   template <class T>
-  void printVector(std::ofstream &out, const std::vector<T> v, const std::string &str, const uint64_t nread)
+  void printVector(std::ofstream &out, const std::vector<T> &v, const std::string &str, const uint64_t nread)
   {
     out << str << " length distribution" << std::endl;
     out << "length\tnumber\tproportion" << std::endl;
     for(size_t i=0; i<v.size(); ++i)
-      if(v[i]) out << boost::format("%1%\t%2%\t%3%\n") % i % v[i] % getratio(v[i], nread);
+      if (v[i]) out << boost::format("%1%\t%2%\t%3%\n") % i % v[i] % getratio(v[i], nread);
   }
- 
+
  public:
  FragmentLengthDist():
    opt("Fragment",100),
-   flen_ssp(0),
+   flen_ssp(0), flen_def(0),
    vlenF3(ReadLenMax,0),
    vlenF5(ReadLenMax,0),
    vflen(FragLenMax,0),
    nomodel(0),
-   allchr(0)
+   allchr(0),
+   pairedend(0)
   {
     opt.add_options()
       ("nomodel", "omit fraglent length estimation (default: estimated by strand-shift profile)")
@@ -55,34 +56,34 @@ class FragmentLengthDist {
   void setOpts(MyOpt::Opts &allopts) {
     allopts.add(opt);
   }
-  
+
   void setValues(const MyOpt::Variables &values) {
     DEBUGprint("FragmentLengthDist setValues...");
-    
+
     flen_def  = MyOpt::getVal<int32_t>(values, "flen");
     nomodel   = values.count("nomodel");
     allchr    = values.count("allchr");
     pairedend = values.count("pair");
-    
+
     DEBUGprint("FragmentLengthDist setValues done.");
   }
 
-  int32_t isnomodel() const { return nomodel; }
-  int32_t isallchr() const { return allchr; }
-  
+  bool isnomodel() const { return nomodel; }
+  bool isallchr() const { return allchr; }
+
   int32_t getlenF3 () const { return getmaxi(vlenF3); }
   int32_t getlenF5 () const { return getmaxi(vlenF5); }
   int32_t getflen4paired () const { return getmaxi(vflen); }
 
   void setflen_ssp(const int32_t len) { flen_ssp = len; }
   int32_t getflen() const {
-    if(pairedend)     return getflen4paired();
-    else if(!nomodel) return flen_ssp;
+    if (pairedend)     return getflen4paired();
+    else if (!nomodel) return flen_ssp;
     else              return flen_def;
   }
   void printFlen(std::ofstream &out) const {
-    if(pairedend)     out << "Most likely fragment length: " << getflen4paired() << std::endl;
-    else if(!nomodel) out << "Estimated fragment length: "   << flen_ssp << std::endl;
+    if (pairedend)     out << "Most likely fragment length: " << getflen4paired() << std::endl;
+    else if (!nomodel) out << "Estimated fragment length: "   << flen_ssp << std::endl;
     else              out << "Predefined fragment length: "  << flen_def << std::endl;
   }
   void addF3(const int32_t lenF3) { ++vlenF3[lenF3]; }
@@ -113,9 +114,11 @@ class SeqStatsGenome {
   std::vector<SeqStats> chr;
   std::vector<MyMthread::chrrange> vsepchr;
   FragmentLengthDist dflen;
-  
- SeqStatsGenome(): 
-   opt("Genome",100), ftype(""),
+
+ SeqStatsGenome():
+   opt("Genome",100),
+   pairedend(0), maxins(0), specifyFtype(0),
+   ftype(""),
    name("Genome"), depth(0), sizefactor(0) {
    using namespace boost::program_options;
    opt.add_options()

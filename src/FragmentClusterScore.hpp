@@ -33,6 +33,7 @@ class FCSstats {
 public:
   FCSstats():
     opt("Fragment cluster score",100),
+    num4fcs(0), ng_from_fcs(0), ng_to_fcs(0), ng_step_fcs(0),
     fcsread(0), fcsflen(0), fcs1k(0), fcs10k(0), fcs100k(0)
   {
     opt.add_options()
@@ -47,19 +48,19 @@ public:
        "fcs step on of background")
       ;
   }
-  
+
   void setOpts(MyOpt::Opts &allopts) {
     allopts.add(opt);
   }
-  
+
   void setValues(const MyOpt::Variables &values) {
     DEBUGprint("FCSstats setValues...");
-    
+
     num4fcs     = MyOpt::getVal<int32_t>(values, "num4ssp");
     ng_from_fcs = MyOpt::getVal<int32_t>(values, "ng_from_fcs");
     ng_to_fcs   = MyOpt::getVal<int32_t>(values, "ng_to_fcs");
     ng_step_fcs = MyOpt::getVal<int32_t>(values, "ng_step_fcs");
-    
+
     DEBUGprint("FCSstats setValues done.");
   }
   void dump() {

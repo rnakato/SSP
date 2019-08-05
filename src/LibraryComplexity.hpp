@@ -21,7 +21,7 @@ class LibComp {
   int32_t ispaired;
   int32_t thredef;
   uint64_t ncmp;
-  
+
   uint32_t nt_all, nt_nonred, nt_red;
   int32_t threshold;
   double r4cmp;
@@ -30,6 +30,7 @@ class LibComp {
  public:
   LibComp():
     opt("Library complexity",100),
+    nofilter(0), ispaired(0), thredef(0), ncmp(0),
     nt_all(0), nt_nonred(0), nt_red(0), threshold(0),
     r4cmp(0), lackOfRead(false)
   {
@@ -58,9 +59,9 @@ class LibComp {
   void setOpts(MyOpt::Opts &allopts) {
     allopts.add(opt);
   }
-  
+
   double getcomplexity() const { return getratio(nt_nonred, nt_all); }
-  
+
   void setThreshold(const uint64_t nread, const uint64_t lenmpbl) {
     if(thredef) threshold = thredef;
     else {
