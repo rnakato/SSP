@@ -59,7 +59,7 @@ class bed_gene {
   hitGene gene;
   std::vector<hitGene> genelist;
  bed_gene(): gene() {}
- bed_gene(std::vector<std::string> &s): bed(s), gene() {}
+ explicit bed_gene(std::vector<std::string> &s): bed(s), gene() {}
   void print() const { bed.print();}
   void printWithGene(bool redundant) const {
     if(redundant) {
