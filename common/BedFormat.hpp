@@ -19,16 +19,16 @@ bool isStr(std::string, std::string);
 
 class Interaction;
 
-class posi {
+class GenomePosition {
  public:
   std::string chr;
   int32_t start;
- posi(): start(0) {}
-  virtual ~posi(){}
-  posi(const std::string &c, const std::string &s):
+ GenomePosition(): start(0) {}
+  virtual ~GenomePosition(){}
+  GenomePosition(const std::string &c, const std::string &s):
     chr(rmchr(c)), start(stoi(s))
   {}
-  bool operator<(const posi &another) const
+  bool operator<(const GenomePosition &another) const
   {
     if (compare_chr(chr, another.chr) < 0) return 1;
     else if (compare_chr(chr, another.chr) == 0 && start < another.start) return 1;
