@@ -410,8 +410,31 @@ public:
       }
     }
   }
-
 };
+
+
+class cytoband {
+ public:
+  std::string chr;
+  int32_t start;
+  int32_t end;
+  std::string name;
+  std::string stain;
+  cytoband(): start(0), end(0) {}
+  virtual ~cytoband(){}
+  explicit cytoband(const std::vector<std::string> &s) {
+    if(s.size() < 5) {
+      std::cerr << "\nWarning: Cytoband size < 5." << std::endl;
+      return;
+    }
+    chr = rmchr(s[0]);
+    start = stoi(s[1]);
+    end = stoi(s[2]);
+    name = s[3];
+    stain = s[4];
+  }
+};
+
 
 template <class T>
 std::unordered_map<std::string, std::vector<T>> parseBed_Hash(const std::string &fileName)
