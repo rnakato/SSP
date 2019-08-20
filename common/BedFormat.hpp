@@ -19,6 +19,23 @@ bool isStr(std::string, std::string);
 
 class Interaction;
 
+class GenomePosition {
+ public:
+  std::string chr;
+  int32_t start;
+ GenomePosition(): start(0) {}
+  virtual ~GenomePosition(){}
+  GenomePosition(const std::string &c, const std::string &s):
+    chr(rmchr(c)), start(stoi(s))
+  {}
+  bool operator<(const GenomePosition &another) const
+  {
+    if (compare_chr(chr, another.chr) < 0) return 1;
+    else if (compare_chr(chr, another.chr) == 0 && start < another.start) return 1;
+    else return 0;
+  };
+};
+
 class bed {
  public:
   std::string chr;
@@ -393,8 +410,37 @@ public:
       }
     }
   }
-
 };
+
+
+class cytoband {
+ public:
+  std::string chr;
+  int32_t start;
+  int32_t end;
+  std::string name;
+  std::string stain;
+  cytoband(): start(0), end(0) {}
+  virtual ~cytoband(){}
+  explicit cytoband(const std::vector<std::string> &s) {
+    if(s.size() < 5) {
+      std::cerr << "\nWarning: Cytoband size < 5." << std::endl;
+      return;
+    }
+    chr = rmchr(s[0]);
+    start = stoi(s[1]);
+    end = stoi(s[2]);
+    name = s[3];
+    stain = s[4];
+//    std::cout << name << "," << stain << std::endl;
+  }
+
+  void print() const {
+    std::cout << "chr" << chr << "\t" << start  << "\t" << end
+	      << "\t" << name << "\t" << stain << std::endl;
+  }
+};
+
 
 template <class T>
 std::unordered_map<std::string, std::vector<T>> parseBed_Hash(const std::string &fileName)
