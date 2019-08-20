@@ -8,7 +8,7 @@
 void ParseLine(std::vector<std::string> &v, const std::string &str, char delim)
 {
   size_t current(0), found;
-  DEBUGprint("ParseLine...");
+//  DEBUGprint("ParseLine...");
 
   while((found = str.find_first_of(delim, current)) != std::string::npos) {
     v.emplace_back(std::string(str, current, found - current));
@@ -16,7 +16,7 @@ void ParseLine(std::vector<std::string> &v, const std::string &str, char delim)
   }
   v.emplace_back(std::string(str, current, str.size() - current));
 
-  DEBUGprint("ParseLine done.");
+//  DEBUGprint("ParseLine done.");
   return;
 }
 
