@@ -273,9 +273,12 @@ class InteractionSet {
       std::cerr << "Warning: Interaction does not look mango format." << std::endl;
       return;
     }
+    if (isStr(lineStr, "chrom1")) return;
+
     std::vector<std::string> v;
+//    std::cout << lineStr << std::endl;
     ParseLine(v, lineStr, '\t');
-    //    boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
+//    boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
     if(v.size() < 8) {
       std::cerr << "Warning: " << lineStr << " does not contain 8 columns." << std::endl;
       return;
