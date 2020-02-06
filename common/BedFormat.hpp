@@ -285,7 +285,7 @@ class InteractionSet {
     }
     try {
       double p(1e-12);
-      if(stod(v[7])) p = stod(v[7]);
+      if(stod(v[15])) p = stod(v[15]); // P
       double val(-log10(p));
       vinter.emplace_back(bed({v[0], v[1], v[2]}),
 			  bed({v[3], v[4], v[5]}),
