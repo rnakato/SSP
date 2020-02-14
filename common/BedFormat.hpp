@@ -434,7 +434,7 @@ class cytoband {
     end = stoi(s[2]);
     name = s[3];
     stain = s[4];
-    std::cout << name << "," << stain << "," << start << "," << end << std::endl;
+//    std::cout << name << "," << stain << "," << start << "," << end << std::endl;
   }
 
   void print() const {
