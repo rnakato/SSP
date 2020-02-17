@@ -276,17 +276,16 @@ class InteractionSet {
     if (isStr(lineStr, "chrom1")) return;
 
     std::vector<std::string> v;
-//    std::cout << lineStr << std::endl;
     ParseLine(v, lineStr, '\t');
-//    boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
     if(v.size() < 8) {
       std::cerr << "Warning: " << lineStr << " does not contain 8 columns." << std::endl;
       return;
     }
     try {
-      double p(1e-12);
-      if(stod(v[15])) p = stod(v[15]); // P
-      double val(-log10(p));
+      double val, val_tmp(0);
+      if(v.size() > 8) val_tmp = stod(v[15]); else val_tmp = stod(v[7]); // P
+      if(val) val = -log10(val_tmp); else val = -log10(1e-12);
+
       vinter.emplace_back(bed({v[0], v[1], v[2]}),
 			  bed({v[3], v[4], v[5]}),
 			  val);
@@ -327,10 +326,15 @@ public:
       std::cerr << "Error: Interaction file " << fileName << " does not exist." << std::endl;
       std::exit(1);
     }
+    DEBUGprint("Add InteractionSet.. (--inter)");
+    DEBUGprint(fileName);
+    DEBUGprint(label);
+    DEBUGprint(tool);
 
     while (!in.eof()) {
       std::string lineStr;
       getline(in, lineStr);
+//      std::cout << lineStr << std::endl;
       if(lineStr.empty() || lineStr[0] == '#') continue;
       if (tool == "mango") setAsMango(lineStr);
       else setAsHICCUPS(lineStr);
