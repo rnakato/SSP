@@ -89,6 +89,12 @@ void parseARSOriDB(const std::string& fileName, HashOfGeneDataMap &mp)
     std::vector<std::string> v;
     boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
 
+    if (v.size() < 7) {
+      std::cout << lineStr << std::endl;
+      std::cerr << "Error: the ARS file does not have 7 columns." << std::endl;
+      exit(0);
+    }
+
     std::string tname;
     if (isStr(v[2], "ARS")) tname = v[2];
     else tname = "ARS_" + v[2];
