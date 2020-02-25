@@ -18,11 +18,11 @@ namespace MyOpt {
     if (v<min || v>max)
       throw Err	(Err::invalid_option_value, optname, std::to_string(v));
   }
-  
+
   template<typename T>
   void over(const T& v, const T& min, const char * optname)
   {
-    if (v < min) 
+    if (v < min)
       throw Err	(Err::invalid_option_value, optname, std::to_string(v));
   }
 
@@ -50,7 +50,7 @@ namespace MyOpt {
   void printVOpt(const boost::program_options::variables_map &values,
 		 const std::string &opt, const std::string &str)
   {
-    if (values.count(opt)) { 
+    if (values.count(opt)) {
       auto v = values[opt].as<std::vector<T>>();
       for(uint32_t i=0; i<v.size(); ++i) {
 	std::cout << str << " " << (i+1) << ": " << v[i] << std::endl;

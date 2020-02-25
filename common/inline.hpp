@@ -9,7 +9,7 @@
 #include <boost/format.hpp>
 #include "statistics.hpp"
 
-#define PRINTERR(...) do{ std::cerr << "Error: " << __VA_ARGS__ << std::endl; std::exit(1); }while(0)
+#define PRINTERR_AND_EXIT(...) do{ std::cerr << "Error: " << __VA_ARGS__ << std::endl; std::exit(1); }while(0)
 
 enum {NUM_1K=1000,
       NUM_100K=100000,
@@ -66,7 +66,6 @@ inline void DEBUGprint(const std::string &str)
 #else
   if(str==""){}
 #endif
-
 }
 
 inline void PrintTime(const clock_t t1, const clock_t t2, const std::string &str)
