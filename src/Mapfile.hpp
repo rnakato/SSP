@@ -7,7 +7,6 @@
 #include <boost/format.hpp>
 #include "SeqStats.hpp"
 #include "MThread.hpp"
-#include "../common/BedFormat.hpp"
 #include "../common/util.hpp"
 #include "../common/BoostOptions.hpp"
 

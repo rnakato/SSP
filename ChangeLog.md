@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.4 (2020-02-25)
+- Remove unnecesary source files from common/ directory
+
 ## 1.1.3 (2019-04-15)
 - Accept CRAM format for the input file
 - script/makegenometable.pl: accept scaffold in Ensembl genome

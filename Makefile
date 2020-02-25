@@ -24,7 +24,7 @@ CFLAGS += -DPRINTREAD
 endif
 
 OBJS = $(OBJDIR)/ssp_main.o $(OBJDIR)/Mapfile.o $(OBJDIR)/ParseMapfile.o $(OBJDIR)/ReadBpStatus.o $(OBJDIR)/LibraryComplexity.o $(OBJDIR)/ShiftProfile.o $(OBJDIR)/FragmentClusterScore.o
-OBJS += $(CMNOBJDIR)/statistics.o $(CMNOBJDIR)/ReadAnnotation.o $(CMNOBJDIR)/util.o $(CMNOBJDIR)/BoostOptions.o
+OBJS += $(CMNOBJDIR)/statistics.o $(CMNOBJDIR)/util.o $(CMNOBJDIR)/BoostOptions.o
 
 .PHONY: all clean
 
