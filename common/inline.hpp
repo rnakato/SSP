@@ -12,8 +12,8 @@
 #define PRINTERR_AND_EXIT(...) do{ std::cerr << "Error: " << __VA_ARGS__ << std::endl; std::exit(1); } while(0)
 #ifdef DEBUG
 #define DEBUGprint(...) do{ std::cout << __VA_ARGS__ << std::endl; } while(0)
-#define DEBUGprint_FUNCStart(...) do{ std::cout << "FUNCstart: " << __PRETTY_FUNCTION__ << __VA_ARGS__ << std::endl; } while(0)
-#define DEBUGprint_FUNCend(...) do{ std::cout << __PRETTY_FUNCTION__ << " done." << __VA_ARGS__ << std::endl; } while(0)
+#define DEBUGprint_FUNCStart() do{ std::cout << "FUNCstart: " << __PRETTY_FUNCTION__ << std::endl; } while(0)
+#define DEBUGprint_FUNCend() do{ std::cout << __PRETTY_FUNCTION__ << " done." << std::endl; } while(0)
 #else
 #define DEBUGprint(...) do{} while(0)
 #define DEBUGprint_FUNCStart(...) do{} while(0)
