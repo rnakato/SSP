@@ -126,7 +126,7 @@ Usage: ssp [option] -i <inputfile> -o <output> --gt <genome_table>)";
     }
     std::vector<std::string> opts = {"input", "output", "gt"};
     for (auto x: opts) {
-      if (!values.count(x)) PRINTERR("specify --" << x << " option.");
+      if (!values.count(x)) PRINTERR_AND_EXIT("specify --" << x << " option.");
     }
 
     try {

@@ -29,7 +29,7 @@ void SeqStatsGenome::setValues(const MyOpt::Variables &values) {
   specifyFtype  = values.count("ftype");
   if(onFtype()) {
     ftype = MyOpt::getVal<std::string>(values, "ftype");
-    if(ftype != "SAM" && ftype != "BAM" && ftype != "CRAM" && ftype != "BOWTIE" && ftype != "TAGALIGN") PRINTERR("invalid --ftype.\n");
+    if(ftype != "SAM" && ftype != "BAM" && ftype != "CRAM" && ftype != "BOWTIE" && ftype != "TAGALIGN") PRINTERR_AND_EXIT("invalid --ftype.\n");
   }
 
   dflen.setValues(values);
@@ -65,7 +65,7 @@ void SeqStatsGenome::readGenomeTable(const std::string &gt)
 {
   std::string lineStr;
   std::ifstream in(gt);
-  if(!in) PRINTERR("Could nome open " << gt << ".");
+  if(!in) PRINTERR_AND_EXIT("Could nome open " << gt << ".");
 
   while (!in.eof()) {
     std::vector<std::string> v;

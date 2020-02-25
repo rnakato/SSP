@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS += -std=c++11 -O2 -Wall -W
+CFLAGS  = -std=c++11 -O2 -Wall -W
 LDFLAGS = -lz -lgsl -lgslcblas -lboost_thread
 LIBS += -lboost_program_options -lboost_system -lboost_filesystem
 

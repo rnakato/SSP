@@ -203,7 +203,7 @@ class SeqStats {
   {
     std::string lineStr;
     std::ifstream in(mptable);
-    if(!in) PRINTERR("Could nome open " << mptable << ".");
+    if(!in) PRINTERR_AND_EXIT("Could nome open " << mptable << ".");
     while (!in.eof()) {
       std::vector<std::string> v;
       getline(in, lineStr);
