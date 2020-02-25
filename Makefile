@@ -36,11 +36,11 @@ $(BINDIR)/ssp: $(OBJS)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	@if [ ! -e `dirname $@` ]; then mkdir -p `dirname $@`; fi
-	$(CC) -o $@ -c $< $(CFLAGS) $(WFLAGS)
+	$(CC) -o $@ -c $< $(CFLAGS)
 
 $(CMNOBJDIR)/%.o: $(CMNDIR)/%.cpp
 	@if [ ! -e `dirname $@` ]; then mkdir -p `dirname $@`; fi
-	$(CC) -o $@ -c $< $(CFLAGS) $(WFLAGS)
+	$(CC) -o $@ -c $< $(CFLAGS)
 
 clean:
 	rm -rf $(BINDIR) $(OBJDIR) $(CMNOBJDIR)
