@@ -8,9 +8,11 @@
 #include <boost/thread.hpp>
 #include <boost/algorithm/string.hpp>
 #include "../common/seq.hpp"
+#include "../common/BedFormat.hpp"
 #include "../common/util.hpp"
 #include "../common/inline.hpp"
-#include "ReadBpStatus.hpp"
+#include "BpStatus.hpp"
+//#include "ReadBpStatus.hpp"
 
 template <class Thead, class... Tbody>
 void printList(Thead head, Tbody... body);
@@ -139,7 +141,16 @@ class SeqStats {
 
   void setFRiP(const std::vector<bed> &vbed) {
     std::vector<BpStatus> array(getlen(), BpStatus::MAPPABLE);
-    OverrideBedToArray(array, getname(), vbed);
+//    OverrideBedToArray(array, getname(), vbed);
+
+    int32_t chrlen(array.size());
+    for(auto &bed: vbed) {
+      if(bed.chr == getname()) {
+	size_t s(std::max(0, bed.start));
+	size_t e(std::min(bed.end, chrlen-1));
+	for(size_t i=s; i<=e; ++i) array[i] = BpStatus::INBED;
+      }
+    }
 
     for (auto strand: {Strand::FWD, Strand::REV}) {
       for (auto &x: seq[strand].vRead) {
