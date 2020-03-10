@@ -8,9 +8,9 @@
 #include <boost/thread.hpp>
 #include <boost/algorithm/string.hpp>
 #include "../common/seq.hpp"
+#include "../common/BedFormat.hpp"
 #include "../common/util.hpp"
 #include "../common/inline.hpp"
-#include "ReadBpStatus.hpp"
 
 template <class Thead, class... Tbody>
 void printList(Thead head, Tbody... body);
@@ -137,26 +137,7 @@ class SeqStats {
 #endif
   }
 
-  void setFRiP(const std::vector<bed> &vbed) {
-    std::vector<BpStatus> array(getlen(), BpStatus::MAPPABLE);
-    OverrideBedToArray(array, getname(), vbed);
-
-    for (auto strand: {Strand::FWD, Strand::REV}) {
-      for (auto &x: seq[strand].vRead) {
-	if(x.duplicate) continue;
-	int32_t s(std::min(x.F3, x.F5));
-	int32_t e(std::max(x.F3, x.F5));
-	for(int32_t i=s; i<=e; ++i) {
-	  if(array[i] == BpStatus::INBED) {
-	    x.inpeak = 1;
-	    ++nread_inbed;
-	    break;
-	  }
-	}
-      }
-    }
-    return;
-  }
+  void setFRiP(const std::vector<bed> &vbed); // defined in DROMPAplus/src/readMpblWigArray.cpp
 
   double getFRiP() const {
     return getratio(nread_inbed, getnread_nonred(Strand::BOTH));
@@ -209,8 +190,6 @@ class SeqStats {
       getline(in, lineStr);
       if(lineStr.empty() || lineStr[0] == '#') continue;
       ParseLine(v, lineStr, '\t');
-      //      ParseLine(v, lineStr, "\t");
-      //      boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
       if(name == rmchr(v[0])) len_mpbl = stoi(v[1]);
     }
     return;
