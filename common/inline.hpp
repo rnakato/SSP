@@ -9,7 +9,16 @@
 #include <boost/format.hpp>
 #include "statistics.hpp"
 
-#define PRINTERR_AND_EXIT(...) do{ std::cerr << "Error: " << __VA_ARGS__ << std::endl; std::exit(1); }while(0)
+#define PRINTERR_AND_EXIT(...) do{ std::cerr << "Error: " << __VA_ARGS__ << std::endl; std::exit(1); } while(0)
+#ifdef DEBUG
+#define DEBUGprint(...) do{ std::cout << __VA_ARGS__ << std::endl; } while(0)
+#define DEBUGprint_FUNCStart() do{ std::cout << "FUNCstart: " << __PRETTY_FUNCTION__ << std::endl; } while(0)
+#define DEBUGprint_FUNCend() do{ std::cout << "FUNCend: " << __PRETTY_FUNCTION__  << std::endl; } while(0)
+#else
+#define DEBUGprint(...) do{} while(0)
+#define DEBUGprint_FUNCStart(...) do{} while(0)
+#define DEBUGprint_FUNCend(...) do{} while(0)
+#endif
 
 enum {NUM_1K=1000,
       NUM_100K=100000,
@@ -58,15 +67,6 @@ template <class T, class S>
 {
   out << boost::format("%1% (%2$.1f%%)\t") % a % getpercent(a,b);
 };
-
-inline void DEBUGprint(const std::string &str)
-{
-#ifdef DEBUG
-  std::cout << str << std::endl;
-#else
-  if(str==""){}
-#endif
-}
 
 inline void PrintTime(const clock_t t1, const clock_t t2, const std::string &str)
 {
