@@ -14,22 +14,22 @@
 namespace SSP {
   class Global: private Uncopyable {
     bool Greekchr;
-    
+
     std::string samplename;
     std::string oprefix;
     std::string obinprefix;
     bool lackOfRead4FragmentVar;
-  
+
   public:
     SeqStatsGenome genome;
     LibComp complexity;
     SSPstats sspst;
     FCSstats fcsst;
-  
+
     Global(): Greekchr(false), lackOfRead4FragmentVar(false), complexity(),
 	      sspst(5*NUM_100K, NUM_1M, 5000, 500, 1500)
     {}
-    
+
     void setOpts(MyOpt::Opts &allopts) {
       genome.setOpts(allopts);
       sspst.setOpts(allopts);
@@ -44,8 +44,8 @@ namespace SSP {
       samplename = MyOpt::getVal<std::string>(values, "output");
       oprefix = MyOpt::getVal<std::string>(values, "odir") + "/" + MyOpt::getVal<std::string>(values, "output");
     }
-    
-    std::string getprefix() const { return oprefix; }      
+
+    std::string getprefix() const { return oprefix; }
     void outputSSPstats() {
       std::string filename = getprefix() + ".stats.txt";
       std::ofstream out(filename);
@@ -60,7 +60,7 @@ namespace SSP {
       out << "\t";
       fcsst.print(out);
     }
-    
+
   };
 }
 

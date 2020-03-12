@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.5 (2020-03-12)
+- Modify Boost::options to get more intelligible error messages
+
 ## 1.1.4 (2020-02-25)
 - Remove unnecesary source files from common/ directory
 
