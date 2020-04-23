@@ -10,7 +10,7 @@ if($file =~ /(.+)\/(.+)/){
 
 $pcrbiasthre="";
 $FRiP="";
-$gcsummit=""; 
+$gcsummit="";
 open(File, $ARGV[0]) ||die "error: can't open $ARGV[0].\n";
 while(<File>){
     next if($_ eq "\n");
@@ -22,7 +22,7 @@ while(<File>){
 	$tested_reads = $2;
     }elsif($_ =~ /GC summit: (.+)/){
 	$gcsummit = $1;
-    }elsif($_ =~ /Whole genome/){
+    }elsif($_ =~ /Genome/){
 	chomp;
 	my @clm= split(/\t/, $_);
 	$total_reads = $clm[4];
