@@ -6,6 +6,7 @@
 #include <boost/iostreams/device/file.hpp>
 #include <boost/iostreams/device/file_descriptor.hpp>
 #include <ext/stdio_filebuf.h>
+#include "../common/gzstream.h"
 #include "ParseMapfile.hpp"
 #include "Mapfile.hpp"
 
@@ -227,6 +228,20 @@ namespace {
   void parseTagAlign(const std::string &inputfile, SeqStatsGenome &genome)
   {
     if(isStr(inputfile, ".gz")) {
+
+      igzstream in(inputfile.c_str());
+      funcTagAlign(genome, in);      
+    } else {
+      std::ifstream in(inputfile);
+      if(!in) PRINTERR_AND_EXIT("Could not open " << inputfile << ".");
+      funcTagAlign(genome, in);
+    }
+    return;
+  }
+
+  /*  void parseTagAlign(const std::string &inputfile, SeqStatsGenome &genome)
+  {
+    if(isStr(inputfile, ".gz")) {
       std::string command = "zcat " + inputfile;
       FILE *fp = popen(command.c_str(), "r");
       __gnu_cxx::stdio_filebuf<char> *p_fb = new __gnu_cxx::stdio_filebuf<char>(fp, std::ios_base::in);
@@ -238,7 +253,7 @@ namespace {
       funcTagAlign(genome, in);
     }
     return;
-  }
+    }*/
 
   /*int32_t check_sv(int32_t sv)
 {

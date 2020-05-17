@@ -1,4 +1,4 @@
-CC = g++
+CC = clang++
 CFLAGS  = -std=c++11 -O2 -Wall -W
 LDFLAGS = -lz -lgsl -lgslcblas -lboost_thread
 LIBS += -lboost_program_options -lboost_system -lboost_filesystem -lpthread
@@ -11,7 +11,6 @@ BINDIR = ./bin
 
 PROGRAMS = ssp
 TARGET = $(addprefix $(BINDIR)/,$(PROGRAMS))
-#$(warning $(TARGET))
 
 ifdef CLOCK
 CFLAGS += -DCLOCK
@@ -24,7 +23,7 @@ CFLAGS += -DPRINTREAD
 endif
 
 OBJS = $(OBJDIR)/ssp_main.o $(OBJDIR)/Mapfile.o $(OBJDIR)/ParseMapfile.o $(OBJDIR)/LibraryComplexity.o $(OBJDIR)/ShiftProfile.o $(OBJDIR)/FragmentClusterScore.o
-OBJS += $(CMNOBJDIR)/statistics.o $(CMNOBJDIR)/util.o $(CMNOBJDIR)/BoostOptions.o
+OBJS += $(CMNOBJDIR)/statistics.o $(CMNOBJDIR)/util.o $(CMNOBJDIR)/BoostOptions.o $(CMNOBJDIR)/gzstream.o
 
 .PHONY: all clean
 
@@ -33,6 +32,9 @@ all: $(TARGET)
 $(BINDIR)/ssp: $(OBJS)
 	@if [ ! -e `dirname $@` ]; then mkdir -p `dirname $@`; fi
 	$(CC) -o $@ $^ $(LIBS) $(LDFLAGS)
+
+$(CMNOBJDIR)/gzstream.o: $(CMNDIR)/gzstream.C $(CMNDIR)/gzstream.h
+	$(CC) -o $@ -c $< -I. -O
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	@if [ ! -e `dirname $@` ]; then mkdir -p `dirname $@`; fi
