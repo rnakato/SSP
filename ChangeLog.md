@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.6 (2020-05-17)
+- Change C++ compiler from g++ to clang++
+
 ## 1.1.5 (2020-03-12)
 - Modify Boost::options to get more intelligible error messages
 

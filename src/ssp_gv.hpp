@@ -13,12 +13,12 @@
 
 namespace SSP {
   class Global: private Uncopyable {
-    //    bool Greekchr;
+//    bool Greekchr;
 
     std::string samplename;
     std::string oprefix;
     std::string obinprefix;
-    //  bool lackOfRead4FragmentVar;
+//    bool lackOfRead4FragmentVar;
 
   public:
     SeqStatsGenome genome;
