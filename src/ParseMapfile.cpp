@@ -83,6 +83,73 @@ namespace {
     return;
   }
 
+  void func(SeqStatsGenome &genome, const std::string &inputfile)
+  {
+    BamTools::BamReader reader;
+    if (!reader.Open(inputfile)) PRINTERR_AND_EXIT("Failed to open file " << inputfile);
+
+    std::cout << "filename: " << reader.GetFilename() << std::endl;
+    BamTools::SamHeader header = reader.GetHeader();
+    std::string headerStr = reader.GetHeaderText();
+    std::cout << "header: " << headerStr << std::endl;
+    std::cout << "header: " << header.ToString() << std::endl;
+    uint64_t count(reader.GetReferenceCount());
+    std::cout << "count: " << count << std::endl;
+
+    //  uint64_t totalCoverage(0);
+    uint64_t mappedReads(0);
+    uint64_t unmappedReads(0);
+    uint64_t duplicatedReads(0);
+    uint64_t forwardReads(0), reverseReads(0);
+    //  uint64_t nonFitttingReads(0);
+
+    reader.Rewind();
+    const BamTools::RefVector &refData = reader.GetReferenceData();
+    for (auto &x: refData) {
+      std::cout << "refData\t" << x.RefName << "\t" << x.RefLength << std::endl;
+    }
+
+    BamTools::BamAlignment read;
+    while (reader.GetNextAlignment(read)) {
+      if (read.IsMapped()) {
+	/*	std::cout << "refID: " << read.RefID
+		<< "\tName: " << read.Name
+		<< "\tFlag: " << read.AlignmentFlag
+		<< "\tPosition: " << read.Position
+		<< "\tLength: " << read.Length
+		<< "\tEndPosition: " << read.GetEndPosition()
+		<< "\tQuery: " << read.QueryBases
+		<< "\tAligned: " << read.AlignedBases
+		<< "\tTagData: " << read.TagData
+		<< std::endl;*/
+	++mappedReads;
+
+	if (read.IsDuplicate()) ++duplicatedReads;
+	if (read.IsReverseStrand()) ++reverseReads; else ++forwardReads;
+
+/*      int32_t sv(stoi(v[1])); // bitwise FLAG
+      // unmapped reads, low quality reads
+      if(sv&4 || sv&512 || sv&1024) continue;
+      if(sv&64 || sv&128) std::cerr << "Warning: parsing paired-end file as single-end." << std::endl;
+      Fragment frag;
+      frag.addSAM(v, genome.isPaired(), sv);
+      frag.print();
+      addFragToChr(genome, frag);
+      */
+      } else ++unmappedReads;
+    }
+    reader.Close();
+
+    std::cout << "mapped reads: " << mappedReads
+	      << "\nduplicated reads: " << duplicatedReads
+	      << "\n+ reads: " << forwardReads
+	      << "\t- reads: " << reverseReads
+	      << "\nunmapped reads: " << unmappedReads
+	      << std::endl;
+    exit(0);
+    return;
+  }
+
   void parseSam(const std::string &inputfile, SeqStatsGenome &genome)
   {
     if((genome.onFtype() && genome.getftype() == "SAM") || isStr(inputfile, ".sam")) {  // SAM
@@ -90,16 +157,19 @@ namespace {
       std::ifstream in(inputfile);
       if(!in) PRINTERR_AND_EXIT("Could not open " << inputfile << ".");
       if(genome.isPaired()) do_bampe(genome, in);
-      else do_bamse( genome, in);
+      else do_bamse(genome, in);
     }
     else if((genome.onFtype() && genome.getftype() == "BAM") || isStr(inputfile, ".bam")) {  // BAM
       std::cout << "Input format: BAM" << std::endl;
+      func(genome, inputfile);
+
+/*
       std::string command = "samtools view -h " + inputfile;
       FILE *fp = popen(command.c_str(), "r");
       __gnu_cxx::stdio_filebuf<char> *p_fb = new __gnu_cxx::stdio_filebuf<char>(fp, std::ios_base::in);
       std::istream in(static_cast<std::streambuf *>(p_fb));
       if(genome.isPaired()) do_bampe(genome, in);
-      else do_bamse(genome, in);
+      else do_bamse(genome, in);*/
     }
     else if((genome.onFtype() && genome.getftype() == "CRAM") || isStr(inputfile, ".cram")) {  // CRAM
       std::cout << "Input format: CRAM" << std::endl;
