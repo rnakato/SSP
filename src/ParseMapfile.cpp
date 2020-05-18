@@ -5,6 +5,8 @@
 #include <boost/iostreams/filter/gzip.hpp>
 #include <boost/iostreams/device/file.hpp>
 #include <boost/iostreams/device/file_descriptor.hpp>
+#include <api/BamReader.h>
+#include <api/BamAlignment.h>
 #include <ext/stdio_filebuf.h>
 #include "../common/gzstream.h"
 #include "ParseMapfile.hpp"
@@ -230,7 +232,7 @@ namespace {
     if(isStr(inputfile, ".gz")) {
 
       igzstream in(inputfile.c_str());
-      funcTagAlign(genome, in);      
+      funcTagAlign(genome, in);
     } else {
       std::ifstream in(inputfile);
       if(!in) PRINTERR_AND_EXIT("Could not open " << inputfile << ".");
