@@ -1,6 +1,6 @@
 CC = clang++
 CFLAGS  = -std=c++11 -O2 -Wall -W
-LDFLAGS = -lz -lgsl -lgslcblas -lboost_thread
+LDFLAGS = -lz -lgsl -lgslcblas -lboost_thread -lcurl -llzma -lbz2
 LIBS += -lboost_program_options -lboost_system -lboost_filesystem -lpthread
 
 SRCDIR = ./src
@@ -59,7 +59,7 @@ clean:
 HEADS = $(SRCDIR)/ssp_gv.hpp $(SRCDIR)/Mapfile.hpp $(SRCDIR)/ParseMapfile.hpp $(SRCDIR)/LibraryComplexity.hpp $(CMNDIR)/BoostOptions.hpp $(SRCDIR)/MThread.hpp $(SRCDIR)/SeqStats.hpp $(CMNDIR)/BedFormat.hpp $(SRCDIR)/FragmentClusterScore.hpp
 HEADS += $(CMNDIR)/inline.hpp $(CMNDIR)/seq.hpp $(CMNDIR)/statistics.hpp $(CMNDIR)/util.hpp
 
-$(OBJDIR)/ParseMapfile.o: $(SRCDIR)/ShiftProfile.hpp $(HTSLIBDIR)/libhts.a
+$(OBJDIR)/ParseMapfile.o: $(SRCDIR)/ShiftProfile.hpp $(HTSLIBDIR)/htslib/sam.h
 $(OBJDIR)/ShiftProfile.o: $(SRCDIR)/ShiftProfile_p.hpp $(SRCDIR)/ShiftProfile.hpp
 $(OBJDIR)/FragmentCluterScore.o: $(SRCDIR)/FragmentCluterScore_p.hpp
 $(OBJS): Makefile $(HEADS)

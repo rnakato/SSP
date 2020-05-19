@@ -5,6 +5,7 @@
 #include <boost/iostreams/filter/gzip.hpp>
 #include <boost/iostreams/device/file.hpp>
 #include <boost/iostreams/device/file_descriptor.hpp>
+#include <htslib/sam.h>
 #include <ext/stdio_filebuf.h>
 #include "../common/gzstream.h"
 #include "ParseMapfile.hpp"
@@ -17,13 +18,13 @@ namespace {
     genome.dflen.addvflen(frag.fraglen);
 
     bool on(false);
-    for(auto &x: genome.chr) {
-      if(x.getname() == frag.chr) {
+    for (auto &x: genome.chr) {
+      if (x.getname() == frag.chr) {
 	x.addfrag(frag);
-	on=true;
+	on = true;
       }
     }
-    if(!on) std::cerr << "Warning: " << frag.chr << " is not in genometable." << std::endl;
+    if (!on) std::cerr << "Warning: " << frag.chr << " is not in genometable." << std::endl;
 
     return;
   }
@@ -34,22 +35,20 @@ namespace {
     std::string lineStr;
     while (!in.eof()) {
       getline(in, lineStr);
-      if(lineStr.empty() || lineStr[0]=='@') continue;
+      if (lineStr.empty() || lineStr[0]=='@') continue;
 
       std::vector<std::string> v;
       ParseLine(v, lineStr, '\t');
-      //      ParseLine(v, lineStr, "\t");
-      //      boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
       int32_t sv(stoi(v[1]));   // bitwise FLAG
-      if(sv&4 || sv&512 || sv&1024) continue;
-      if(!(sv&2)) continue;
-      if(sv&128) {
+      if (sv&4 || sv&512 || sv&1024) continue;
+      if (!(sv&2)) continue;
+      if (sv&128) {
 	genome.dflen.addF5(v[9].length());
 	continue;
       }
       Fragment frag;
       frag.addSAM(v, genome.isPaired(), sv);
-      if(frag.fraglen > genome.getmaxins()) continue;
+      if (frag.fraglen > genome.getmaxins()) continue;
       frag.print();
 
       addFragToChr(genome, frag);
@@ -64,15 +63,15 @@ namespace {
     std::string lineStr;
     while (!in.eof()) {
       getline(in, lineStr);
-      if(lineStr.empty() || lineStr[0]=='@') continue;
+      if (lineStr.empty() || lineStr[0]=='@') continue;
       std::vector<std::string> v;
       ParseLine(v, lineStr, '\t');
       //            ParseLine(v, lineStr, "\t");
       //      boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
       int32_t sv(stoi(v[1])); // bitwise FLAG
       // unmapped reads, low quality reads
-      if(sv&4 || sv&512 || sv&1024) continue;
-      if(sv&64 || sv&128) std::cerr << "Warning: parsing paired-end file as single-end." << std::endl;
+      if (sv&4 || sv&512 || sv&1024) continue;
+      if (sv&64 || sv&128) std::cerr << "Warning: parsing paired-end file as single-end." << std::endl;
       Fragment frag;
       frag.addSAM(v, genome.isPaired(), sv);
       frag.print();
@@ -83,41 +82,37 @@ namespace {
 
   void func(SeqStatsGenome &genome, const std::string &inputfile)
   {
-/*    BamTools::BamReader reader;
-    if (!reader.Open(inputfile)) PRINTERR_AND_EXIT("Failed to open file " << inputfile);
 
-    std::cout << "filename: " << reader.GetFilename() << std::endl;
-    BamTools::SamHeader header = reader.GetHeader();
-    std::string headerStr = reader.GetHeaderText();
-    std::cout << "header: " << headerStr << std::endl;
-    std::cout << "header: " << header.ToString() << std::endl;
-    uint64_t count(reader.GetReferenceCount());
-    std::cout << "count: " << count << std::endl;
+    samFile *fp = hts_open(inputfile.c_str(), "r");  //open bam file
+    bam_hdr_t *bamHdr = sam_hdr_read(fp); //read header
+    bam1_t *aln = bam_init1(); //initialize an alignment
 
-    //  uint64_t totalCoverage(0);
+    printf("%s\n", bamHdr->text);
+
     uint64_t mappedReads(0);
     uint64_t unmappedReads(0);
     uint64_t duplicatedReads(0);
     uint64_t forwardReads(0), reverseReads(0);
-    //  uint64_t nonFitttingReads(0);
 
-    reader.Rewind();
-    const BamTools::RefVector &refData = reader.GetReferenceData();
-    for (auto &x: refData) {
-      std::cout << "refData\t" << x.RefName << "\t" << x.RefLength << std::endl;
+    while (sam_read1(fp, bamHdr, aln) >= 0) { // 0: SAM, >0: BAM, CRAM
+      auto &x = aln->core;
+
+      char *chr = bamHdr->target_name[x.tid];
+      int32_t position = x.pos;
+      int32_t readlen = x.l_qseq;
+      uint32_t flag = x.flag;
+      uint32_t q2  = x.qual ; //mapping quality
+      uint8_t *q   = bam_get_seq(aln); //quality string
+      int32_t mpos  = x.mpos;
+      int32_t isize  = x.isize;
+      bool is_mapped = !(flag&4);
+      if (is_mapped) ++mappedReads; else ++unmappedReads;
+      bool strand = bam_is_rev(aln); // 0: forward 1: reverse
+      if (strand) ++reverseReads; else ++forwardReads;
     }
 
-    BamTools::BamAlignment read;
-    while (reader.GetNextAlignment(read)) {
-      if (read.IsMapped()) {
-	++mappedReads;
-
-	if (read.IsDuplicate()) ++duplicatedReads;
-	if (read.IsReverseStrand()) ++reverseReads; else ++forwardReads;
-
-      } else ++unmappedReads;
-    }
-    reader.Close();
+    bam_destroy1(aln);
+    sam_close(fp);
 
     std::cout << "mapped reads: " << mappedReads
 	      << "\nduplicated reads: " << duplicatedReads
@@ -125,40 +120,28 @@ namespace {
 	      << "\t- reads: " << reverseReads
 	      << "\nunmapped reads: " << unmappedReads
 	      << std::endl;
-*/
+
     exit(0);
     return;
   }
 
   void parseSam(const std::string &inputfile, SeqStatsGenome &genome)
   {
-    if((genome.onFtype() && genome.getftype() == "SAM") || isStr(inputfile, ".sam")) {  // SAM
+    if ((genome.onFtype() && genome.getftype() == "SAM") || isStr(inputfile, ".sam")) {  // SAM
       std::cout << "Input format: SAM" << std::endl;
-      std::ifstream in(inputfile);
-      if(!in) PRINTERR_AND_EXIT("Could not open " << inputfile << ".");
-      if(genome.isPaired()) do_bampe(genome, in);
-      else do_bamse(genome, in);
-    }
-    else if((genome.onFtype() && genome.getftype() == "BAM") || isStr(inputfile, ".bam")) {  // BAM
-      std::cout << "Input format: BAM" << std::endl;
       func(genome, inputfile);
-
-/*
-      std::string command = "samtools view -h " + inputfile;
-      FILE *fp = popen(command.c_str(), "r");
-      __gnu_cxx::stdio_filebuf<char> *p_fb = new __gnu_cxx::stdio_filebuf<char>(fp, std::ios_base::in);
-      std::istream in(static_cast<std::streambuf *>(p_fb));
-      if(genome.isPaired()) do_bampe(genome, in);
+/*      std::ifstream in(inputfile);
+      if (!in) PRINTERR_AND_EXIT("Could not open " << inputfile << ".");
+      if (genome.isPaired()) do_bampe(genome, in);
       else do_bamse(genome, in);*/
     }
-    else if((genome.onFtype() && genome.getftype() == "CRAM") || isStr(inputfile, ".cram")) {  // CRAM
+    else if ((genome.onFtype() && genome.getftype() == "BAM") || isStr(inputfile, ".bam")) {  // BAM
+      std::cout << "Input format: BAM" << std::endl;
+      func(genome, inputfile);
+    }
+    else if ((genome.onFtype() && genome.getftype() == "CRAM") || isStr(inputfile, ".cram")) {  // CRAM
       std::cout << "Input format: CRAM" << std::endl;
-      std::string command = "samtools view -h " + inputfile;
-      FILE *fp = popen(command.c_str(), "r");
-      __gnu_cxx::stdio_filebuf<char> *p_fb = new __gnu_cxx::stdio_filebuf<char>(fp, std::ios_base::in);
-      std::istream in(static_cast<std::streambuf *>(p_fb));
-      if(genome.isPaired()) do_bampe(genome, in);
-      else do_bamse(genome, in);
+      func(genome, inputfile);
     }
     else {
       std::cerr << "error: invalid input file type." << std::endl;
@@ -171,7 +154,7 @@ namespace {
   void parseBowtie(const std::string &inputfile, SeqStatsGenome &genome)
   {
     std::ifstream in(inputfile);
-    if(!in) PRINTERR_AND_EXIT("Could not open " << inputfile << ".");
+    if (!in) PRINTERR_AND_EXIT("Could not open " << inputfile << ".");
     std::cout << "Input format: BOWTIE" << std::endl;
 
     std::string chr_F3(""), chr_F5(""), nametemp("");
@@ -181,23 +164,23 @@ namespace {
     std::string lineStr;
     while (!in.eof()) {
       getline(in, lineStr);
-      if(lineStr.empty()) continue;
+      if (lineStr.empty()) continue;
 
       std::vector<std::string> v;
       ParseLine(v, lineStr, '\t');
       //      ParseLine(v, lineStr, "\t");
       //      boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
 
-      if(genome.isPaired()) {
+      if (genome.isPaired()) {
 	std::vector<std::string> read;
 	ParseLine(read, v[0], '/');
 	//	ParseLine(read, v[0], "/");
 	//boost::split(read, v[0], boost::algorithm::is_any_of("/"));
-	if(nametemp != "" && nametemp != read[0]) PRINTERR_AND_EXIT("Invalid read pair." << nametemp <<"-" << read[0]);
-	if(read[1] == "1") {  // F3 read
+	if (nametemp != "" && nametemp != read[0]) PRINTERR_AND_EXIT("Invalid read pair." << nametemp <<"-" << read[0]);
+	if (read[1] == "1") {  // F3 read
 	  chr_F3 = rmchr(v[2]);
 	  fragpair.readlen_F3 = v[4].length();
-	  if(v[1] == "+") {
+	  if (v[1] == "+") {
 	    fragpair.strand = Strand::FWD;
 	    fragpair.F3 = stoi(v[3]);
 	  } else {
@@ -206,15 +189,15 @@ namespace {
 	  }
 	} else {
 	  chr_F5 = rmchr(v[2]);
-	  if(v[1] == "+") F5 = stoi(v[3]);
+	  if (v[1] == "+") F5 = stoi(v[3]);
 	  else            F5 = stoi(v[3]) + v[4].length();
 	  genome.dflen.addF5(v[4].length());
 	}
-	if(chr_F3 != "" && chr_F5 != ""){
-	  if(chr_F3 == chr_F5) {
+	if (chr_F3 != "" && chr_F5 != ""){
+	  if (chr_F3 == chr_F5) {
 	    fragpair.chr = chr_F3;
 	    fragpair.fraglen = abs(F5 - fragpair.F3);
-	    if(fragpair.fraglen <= genome.getmaxins()) addFragToChr(genome, fragpair);
+	    if (fragpair.fraglen <= genome.getmaxins()) addFragToChr(genome, fragpair);
 	    fragpair.print();
 	  }
 	  chr_F3 = "";
@@ -222,11 +205,11 @@ namespace {
 	  nametemp = "";
 	}
       } else {
-	if(isStr(v[0], "/2")) PRINTERR_AND_EXIT("Warning: parsing paired-end file as single-end");
+	if (isStr(v[0], "/2")) PRINTERR_AND_EXIT("Warning: parsing paired-end file as single-end");
 	Fragment frag;
 	frag.chr = rmchr(v[2]);
 	frag.readlen_F3 = v[4].length();
-	if(v[1] == "+") {
+	if (v[1] == "+") {
 	  frag.strand = Strand::FWD;
 	  frag.F3 = stoi(v[3]);
 	} else {
@@ -248,22 +231,22 @@ namespace {
     std::string lineStr;
     while (!in.eof()) {
       getline(in, lineStr);
-      if(lineStr.empty()) continue;
+      if (lineStr.empty()) continue;
 
       std::vector<std::string> v;
       ParseLine(v, lineStr, '\t');
       //      ParseLine(v, lineStr, "\t");
       //      boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
-      if(v.size() < 6) PRINTERR_AND_EXIT("Use tagAlign (BED3+3) file");
+      if (v.size() < 6) PRINTERR_AND_EXIT("Use tagAlign (BED3+3) file");
 
-      if(genome.isPaired()) PRINTERR_AND_EXIT("tagAlign format does not support paired-end file.\n");
+      if (genome.isPaired()) PRINTERR_AND_EXIT("tagAlign format does not support paired-end file.\n");
       else {
 	int32_t start(stoi(v[1]));
 	int32_t end(stoi(v[2]));
 	Fragment frag;
 	frag.chr = rmchr(v[0]);
 	frag.readlen_F3 = abs(end - start);
-	if(v[5] == "+") {
+	if (v[5] == "+") {
 	  frag.strand = Strand::FWD;
 	  frag.F3 = start;
 	} else {
@@ -279,13 +262,13 @@ namespace {
 
   void parseTagAlign(const std::string &inputfile, SeqStatsGenome &genome)
   {
-    if(isStr(inputfile, ".gz")) {
+    if (isStr(inputfile, ".gz")) {
 
       igzstream in(inputfile.c_str());
       funcTagAlign(genome, in);
     } else {
       std::ifstream in(inputfile);
-      if(!in) PRINTERR_AND_EXIT("Could not open " << inputfile << ".");
+      if (!in) PRINTERR_AND_EXIT("Could not open " << inputfile << ".");
       funcTagAlign(genome, in);
     }
     return;
@@ -293,7 +276,7 @@ namespace {
 
   /*  void parseTagAlign(const std::string &inputfile, SeqStatsGenome &genome)
   {
-    if(isStr(inputfile, ".gz")) {
+    if (isStr(inputfile, ".gz")) {
       std::string command = "zcat " + inputfile;
       FILE *fp = popen(command.c_str(), "r");
       __gnu_cxx::stdio_filebuf<char> *p_fb = new __gnu_cxx::stdio_filebuf<char>(fp, std::ios_base::in);
@@ -301,7 +284,7 @@ namespace {
       funcTagAlign(genome, in);
     } else {
       std::ifstream in(inputfile);
-      if(!in) PRINTERR_AND_EXIT("Could not open " << inputfile << ".");
+      if (!in) PRINTERR_AND_EXIT("Could not open " << inputfile << ".");
       funcTagAlign(genome, in);
     }
     return;
@@ -337,16 +320,16 @@ namespace {
 
 
   // unmapped reads
-  if(sv&4) goto err;
+  if (sv&4) goto err;
   // low quality reads
-  if(sv&512 || sv&1024) goto err;
-  //  if(p->rtype==READTYPE_PAIR){
+  if (sv&512 || sv&1024) goto err;
+  //  if (p->rtype==READTYPE_PAIR){
     // unproper pair
-    if(!(sv&2)) goto err;
+    if (!(sv&2)) goto err;
     // unmatched pairs and interchromosomal pairs
-    if(sv&8) goto err;
+    if (sv&8) goto err;
     // read pair mapped in same strand (for paired-end)
-    if((sv&16 && sv&32) || (!(sv&16) && !(sv&32))) goto err;
+    if ((sv&16 && sv&32) || (!(sv&16) && !(sv&32))) goto err;
     // }
 
  err:
@@ -361,7 +344,7 @@ void read_mapfile(SeqStatsGenome &genome)
   ParseLine(v, genome.getInputfile(), ',');
   //  ParseLine(v, genome.getInputfile(), ",");
   //  boost::split(v, genome.getInputfile(), boost::algorithm::is_any_of(","));
-  for (auto inputfile: v) {
+  for (auto &inputfile: v) {
     isFile(inputfile);
     std::cout << boost::format("Parsing %1%...\n") % inputfile;
     if (genome.onFtype()) {
@@ -379,7 +362,7 @@ void read_mapfile(SeqStatsGenome &genome)
     }
   }
 
-  if(!genome.getnread(Strand::BOTH)) PRINTERR_AND_EXIT("no read in input file.");
+  if (!genome.getnread(Strand::BOTH)) PRINTERR_AND_EXIT("no read in input file.");
 
   return;
 }

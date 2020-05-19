@@ -137,7 +137,7 @@ class SeqStats {
 #endif
   }
 
-  void setFRiP(const std::vector<bed> &vbed); // defined in DROMPAplus/src/readMpblWigArray.cpp
+  void setFRiP(const std::vector<NAKATO::bed> &vbed); // defined in DROMPAplus/src/readMpblWigArray.cpp
 
   double getFRiP() const {
     return getratio(nread_inbed, getnread_nonred(Strand::BOTH));

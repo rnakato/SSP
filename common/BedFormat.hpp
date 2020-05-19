@@ -6,6 +6,7 @@
 
 #include "util.hpp"
 
+namespace NAKATO {
 class bed {
  public:
   std::string chr;
@@ -38,5 +39,6 @@ class bed {
   }
 
 };
+}
 
 #endif  // _BEDFORMAT_HPP_
