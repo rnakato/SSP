@@ -23,7 +23,7 @@ namespace {
 	on = true;
       }
     }
-    if (!on) std::cerr << "Warning: " << frag.chr << " is not in genometable." << std::endl;
+//    if (!on) std::cerr << "Warning: " << frag.chr << " is not in genometable." << std::endl;
 
     return;
   }
@@ -94,36 +94,39 @@ namespace {
 
     while (sam_read1(fp, bamHdr, aln) >= 0) { // 0: SAM, >0: BAM, CRAM
       auto &x = aln->core;
-
-//      const char *chr = bamHdr->target_name[x.tid];
-      std::string chr(bamHdr->target_name[x.tid]);
-      int32_t position = x.pos;
-      int32_t readlen = x.l_qseq;
       uint32_t flag = x.flag;
-//      uint32_t q2  = x.qual ; //mapping quality
-//      uint8_t *q   = bam_get_seq(aln); //quality string
-//      int32_t mpos  = x.mpos;
-      int32_t isize  = x.isize;
       bool is_mapped = !(flag&4);
-      bool is_failquality = flag&512;
-      bool is_duplicate = flag&1024;
-      if (is_mapped) ++mappedReads; else ++unmappedReads;
-      if (is_duplicate) {
-	++duplicatedReads;
-	continue;
-      }
-      if (is_failquality) {
-	++failqualityReads;
-	continue;
-      }
-      bool strand = bam_is_rev(aln); // 0: forward 1: reverse
-      if (strand) ++reverseReads; else ++forwardReads;
 
-      if (flag&64 || flag&128) std::cerr << "Warning: parsing paired-end file as single-end.\n";
-      Fragment frag;
-      frag.addSAM(chr, readlen, position, isize, strand, genome.isPaired());
-      frag.print();
-      addFragToChr(genome, frag);
+      if (is_mapped) {
+	++mappedReads;
+
+	std::string chr = bamHdr->target_name[x.tid];
+	int32_t position = x.pos;
+	int32_t readlen = x.l_qseq;
+	//      uint32_t q2  = x.qual ; //mapping quality
+	//      uint8_t *q   = bam_get_seq(aln); //quality string
+	//      int32_t mpos  = x.mpos;
+	int32_t isize  = x.isize;
+	bool is_failquality = flag&512;
+	bool is_duplicate = flag&1024;
+	if (is_duplicate) {
+	  ++duplicatedReads;
+	  continue;
+	}
+	if (is_failquality) {
+	  ++failqualityReads;
+	  continue;
+	}
+	bool strand = bam_is_rev(aln); // 0: forward 1: reverse
+	if (strand) ++reverseReads; else ++forwardReads;
+
+	if (flag&64 || flag&128) std::cerr << "Warning: parsing paired-end file as single-end.\n";
+	Fragment frag;
+	frag.addSAM(chr, readlen, position, isize, strand, genome.isPaired());
+	frag.print();
+	addFragToChr(genome, frag);
+      }
+      else ++unmappedReads;
     }
 
     bam_destroy1(aln);

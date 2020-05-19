@@ -84,22 +84,7 @@ public:
   int32_t fraglen;
   int32_t readlen_F3;
 
-  Fragment(): F3(0), strand(Strand::FWD), fraglen(0), readlen_F3(0) {}
-
-  void addSAM(const char *_chrname, const int32_t _readlen, const int32_t position,
-	      const int32_t isize, const bool _strand, const bool pair)
-  {
-    chr = rmchr(_chrname);
-    readlen_F3 = _readlen;
-    if (pair) fraglen = abs(isize);
-    if (_strand) {  // 0: forward 1: reverse
-      strand = Strand::REV;
-      F3 = position + readlen_F3;
-    } else {
-      strand = Strand::FWD;
-      F3 = position;
-    }
-  }
+  Fragment(): chr(""), F3(0), strand(Strand::FWD), fraglen(0), readlen_F3(0) {}
 
   void addSAM(const std::string &_chrname, const int32_t _readlen, const int32_t position,
 	      const int32_t isize, const bool _strand, const bool pair)
