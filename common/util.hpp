@@ -10,6 +10,7 @@
 #include <boost/program_options.hpp>
 #include "inline.hpp"
 
+std::string rmchr(const char *chr);
 std::string rmchr(const std::string &chr);
 void isFile(const std::string &);
 bool checkFile(const std::string &str);
@@ -17,7 +18,6 @@ bool isStr(std::string, std::string);
 int32_t compare_chr(const std::string &, const std::string &);
 
 void ParseLine(std::vector<std::string> &v, const std::string &str, char delim);
-//void ParseLine(std::vector<std::string> &v, const std::string &str, const std::string &delim);
 void printList();
 
 template <class Thead, class... Tbody>

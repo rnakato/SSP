@@ -95,7 +95,8 @@ namespace {
     while (sam_read1(fp, bamHdr, aln) >= 0) { // 0: SAM, >0: BAM, CRAM
       auto &x = aln->core;
 
-      char *chr = bamHdr->target_name[x.tid];
+//      const char *chr = bamHdr->target_name[x.tid];
+      std::string chr(bamHdr->target_name[x.tid]);
       int32_t position = x.pos;
       int32_t readlen = x.l_qseq;
       uint32_t flag = x.flag;

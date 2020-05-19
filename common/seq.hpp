@@ -101,6 +101,21 @@ public:
     }
   }
 
+  void addSAM(const std::string &_chrname, const int32_t _readlen, const int32_t position,
+	      const int32_t isize, const bool _strand, const bool pair)
+  {
+    chr = rmchr(_chrname);
+    readlen_F3 = _readlen;
+    if (pair) fraglen = abs(isize);
+    if (_strand) {  // 0: forward 1: reverse
+      strand = Strand::REV;
+      F3 = position + readlen_F3;
+    } else {
+      strand = Strand::FWD;
+      F3 = position;
+    }
+  }
+
   void addSAM(const std::vector<std::string> &v, const bool pair, const int32_t sv) {
    chr = rmchr(v[2]);
    readlen_F3 = v[9].length();
