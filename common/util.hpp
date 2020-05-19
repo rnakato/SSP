@@ -10,7 +10,6 @@
 #include <boost/program_options.hpp>
 #include "inline.hpp"
 
-std::string rmchr(const char *chr);
 std::string rmchr(const std::string &chr);
 void isFile(const std::string &);
 bool checkFile(const std::string &str);

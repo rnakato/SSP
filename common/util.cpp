@@ -25,16 +25,6 @@ void printList()
   std::cout << std::endl;
 }
 
-std::string rmchr(const char *chr)
-{
-  std::string s("");
-  char    *sp;
-  sp = strstr(chr, "chr");
-  if (sp) s = sp;
-  else s = chr;
-  return s;
-}
-
 std::string rmchr(const std::string &chr)
 {
   std::string s;
