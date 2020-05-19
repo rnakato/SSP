@@ -44,7 +44,7 @@ On Linux:
     cd SSP
     make
 
-On Mac
+On Mac:
 
     git clone https://github.com/rnakato/SSP.git
     cd SSP
