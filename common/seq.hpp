@@ -107,14 +107,14 @@ public:
   }
 
  void print() const {
-//#ifdef PRINTFRAGMENT
+#ifdef PRINTFRAGMENT
    std::cout << "chr:"       << chr
 	     << "\tposi:"    << F3
 	     << "\tstrand:"  << strand
 	     << "\tfraglen:" << fraglen
 	     <<"\treadlen:"  << readlen_F3
 	     << std::endl;
-//#endif
+#endif
  }
 };
 

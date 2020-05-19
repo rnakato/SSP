@@ -1,11 +1,11 @@
 # SSP README
 
 # 1. Overview
-SSP (strand-shift profile) is a tool for quality assessment of ChIP-seq data without peak calling. 
+SSP (strand-shift profile) is a tool for quality assessment of ChIP-seq data without peak calling.
 
 
 SSP provides metrics to:
-- quantify the S/N for both point- and broad-source factors (NSC), 
+- quantify the S/N for both point- and broad-source factors (NSC),
 - estimate peak reliability based on the mapped-read distribution throughout a genome (Bu),
 - and estimate peak intensity and peak mode (point- or broad-source, FCS).
 
@@ -15,66 +15,78 @@ The outputs of SSP are displayed in PDF format and also written to text files.
 
 ### 2.1 Dependencies
 SSP is written in C++11 and requires the following programs and libraries.
-The version numbers listed have been tested successfully. 
+The version numbers listed have been tested successfully.
 * [Boost C++ library (1.53.0, 1.58.0)](http://www.boost.org/)
 * [GNU Scientific Library (1.15, 2.1)](http://www.gnu.org/software/gsl/)
 * [zlib (1.2.7, 1.2.8)](http://www.zlib.net/)
-* [SAMtools (1.5)](http://samtools.sourceforge.net/) (for BAM formatted input)
+* [HTSlib (1.10.2)](https://github.com/samtools/htslib) (for SAM/BAM/CRAM formatted input)
 
-### 2.2. Install required libraries
-#### Ubuntu and Debian:
+### 2.2 Building from source
 
-    sudo apt-get install git build-essential libboost-all-dev libgsl-dev libz-dev samtools
- 
-#### CentOS and Red Hat:
+#### 2.2.1 Install required libraries
+
+On Ubuntu and Debian:
+
+    sudo apt-get install git build-essential libboost-all-dev libgsl-dev libz-dev
+
+On CentOS and Red Hat:
 
     sudo yum -y install git gcc-c++ boost-devel gsl-devel zlib-devel
-and install samtools from [the website](http://samtools.sourceforge.net/).
 
-### 2.3. Install SSP
+On Mac:
+
+    brew install gsl curl xz zlib boost
+
+#### 2.2.2 Install SSP
     git clone https://github.com/rnakato/SSP.git
     cd SSP
     make
 
-### 2.4. Add the PATH environment variable
+#### 2.2.3 Add the PATH environment variable
 For example, if you downloaded SSP into the $HOME/my_chipseq_exp directory, type:
 
     export PATH = $PATH:$HOME/my_chipseq_exp/SSP/bin
 
-### 2.5 Docker image
+### 2.3 Docker image
 
 SSP and DROMPA are also probatively available on Docker Hub.
 
 To obtain a docker image for SSP and DROMPA, type:
 
     docker pull rnakato/ssp_drompa
+    docker run -it --rm rnakato/ssp_drompa ssp
+
+For Singularity:
+
+    singularity pull ssp_drompa.img docker://rnakato/ssp_drompa
+    singularity exec ssp_drompa.img ssp
 
 # 3. Usage
 ### 3.1. Options
     Usage: ssp [option] -i <inputfile> -o <output> --gt <genome_table>
 
     Options:
-    
+
     Input/Output:
       -i [ --input ] arg           Mapping file. Multiple files are allowed (separated by ',')
       -o [ --output ] arg          Prefix of output files
       --odir arg (=sspout)         output directory name
       -f [ --ftype ] arg           {SAM|BAM|CRAM|BOWTIE|TAGALIGN}: format of input file
                                     TAGALIGN can be gzip'ed (extension: tagAlign.gz)
-    
+
     For paired-end:
       --pair                       add when the input file is paired-end
       --maxins arg (=500)          maximum fragment length
-    
+
     Genome:
-      --gt arg                     Genome table (tab-delimited file describing the name and length of 
+      --gt arg                     Genome table (tab-delimited file describing the name and length of
                                    each chromosome)
       --mptable arg                Genome table of mappable regions
-    
+
     Fragment:
       --nomodel                    omit fraglent length estimation (default: estimated by strand-shift profile)
       --flen arg (=150)            predefined fragment length (with --nomodel option)
-    
+
     Strand shift profile:
       --num4ssp arg (=10000000)    Read number for calculating backgroud uniformity (per 100 Mbp)
       --ng_from arg (=500000)      start shift of background
@@ -91,11 +103,11 @@ To obtain a docker image for SSP and DROMPA, type:
       --ng_step_fcs arg (=100000)  fcs step on of background
 
     Library complexity:
-      --thre_pb arg (=0)           PCRbias threshold (default: more than max(1 read, 10 times greater 
-                                   than genome average)) 
+      --thre_pb arg (=0)           PCRbias threshold (default: more than max(1 read, 10 times greater
+                                   than genome average))
       --ncmp arg (=10000000)       read number for calculating library complexity
       --nofilter                   do not filter PCR bias
-    
+
     Others:
       -p [ --threads ] arg (=1)    number of threads to launch
       -v [ --version ]             print version
@@ -121,13 +133,13 @@ To supply the mappable genome table and use multiple CPUs:
 
 SSP allows multiple input files (separated by ",")
 
-     ssp -i ChIP1.bam,ChIP2.bam,ChIP3.bam -o ChIP --gt genometable.txt 
+     ssp -i ChIP1.bam,ChIP2.bam,ChIP3.bam -o ChIP --gt genometable.txt
 
 
 Note that the chromosome length should be enough longer than the background length specified. For small genomes (e.g., yeast), the background length should be shorten:
 
      ssp -i ChIP1.bam -o ChIP --gt genometable.txt --ng_from 10000 --ng_to 50000 --ng_step 500
-     
+
 In this parameter set, the background region is the average ranging from 10k to 50k at steps of 500 bp.
 
 In default, FCS is calcutated for 10M nonredundant reads. If the number of nonredundant reads in the input data are smaller than 10M, specify smaller number for fair comparison among samples as follows:
