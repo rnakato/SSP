@@ -181,8 +181,9 @@ void genThread(T &dist, const SeqStatsGenomeSSP &genome, uint32_t chr_s, uint32_
   }
 }
 
-template <class T>
-void makeProfile(SSPstats &sspst, SeqStatsGenomeSSP &genome, const std::string &head, const std::string &typestr)
+template <class T, class S>
+//void makeProfile(SSPstats &sspst, SeqStatsGenomeSSP &genome, const std::string &head, const std::string &typestr)
+void makeProfile(SSPstats &sspst, S &genome, const std::string &head, const std::string &typestr)
 {
   DEBUGprint("makeProfile: " + typestr);
   T dist(sspst, genome);

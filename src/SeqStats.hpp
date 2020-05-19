@@ -48,7 +48,6 @@ void printSeqStats(const T &obj)
 class SeqStatsSSP {
   enum {STRANDNUM=2};
 
-protected:
   std::string refname;
   std::string name;
   uint64_t len, len_mpbl;
