@@ -173,7 +173,7 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
   std::string name;
   std::vector<ReadShiftProfile> chr;
   
- ReadShiftProfileGenome(const std::string n, const SSPstats &sspst, const SeqStatsGenome &genome):
+ ReadShiftProfileGenome(const std::string n, const SSPstats &sspst, const SeqStatsGenomeSSP &genome):
    ReadShiftProfile(genome.dflen.getlenF3(), sspst.getMpFrom(), sspst.getMpTo(), sspst.getNgFrom(), sspst.getnum4ssp()),
     ng_from(5000),
     ng_to(sspst.getNgTo()),
@@ -258,11 +258,11 @@ class shiftJacVec : public ReadShiftProfileGenome {
 		       const int32_t s, const int32_t e, boost::mutex &mtx);
   
  public:
- shiftJacVec(const SSPstats &sspst, const SeqStatsGenome &genome):
+ shiftJacVec(const SSPstats &sspst, const SeqStatsGenomeSSP &genome):
    ReadShiftProfileGenome("Jaccard index", sspst, genome) {}
 
   void setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev);
-  void execchr(const SeqStatsGenome &genome, int32_t i) {
+  void execchr(const SeqStatsGenomeSSP &genome, int32_t i) {
     auto fwd = genVector(genome.chr[i].getvReadref(Strand::FWD), chr[i].start, chr[i].end);
     auto rev = genVector(genome.chr[i].getvReadref(Strand::REV), chr[i].start, chr[i].end);
 
@@ -272,11 +272,11 @@ class shiftJacVec : public ReadShiftProfileGenome {
 
 class shiftJacBit : public ReadShiftProfileGenome {
  public:
- shiftJacBit(const SSPstats &sspst, const SeqStatsGenome &genome):
+ shiftJacBit(const SSPstats &sspst, const SeqStatsGenomeSSP &genome):
   ReadShiftProfileGenome("Jaccard index", sspst, genome) {}
 
   void setDist(ReadShiftProfile &chr, boost::dynamic_bitset<> &fwd, boost::dynamic_bitset<> &rev);
-  void execchr(const SeqStatsGenome &genome, int32_t i) {
+  void execchr(const SeqStatsGenomeSSP &genome, int32_t i) {
     auto fwd = genBitset(genome.chr[i].getvReadref(Strand::FWD), chr[i].start, chr[i].end);
     auto rev = genBitset(genome.chr[i].getvReadref(Strand::REV), chr[i].start, chr[i].end);
 
@@ -288,11 +288,11 @@ class shiftCcp : public ReadShiftProfileGenome {
   void genThread(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev,
 		 const double mx, const double my, const int32_t s, const int32_t e, boost::mutex &mtx);
 public:
- shiftCcp(const SSPstats &sspst, const SeqStatsGenome &genome):
+ shiftCcp(const SSPstats &sspst, const SeqStatsGenomeSSP &genome):
   ReadShiftProfileGenome("Cross correlation", sspst, genome) {}
 
   void setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev);
-  void execchr(const SeqStatsGenome &genome, int32_t i) {
+  void execchr(const SeqStatsGenomeSSP &genome, int32_t i) {
     auto fwd = genVector(genome.chr[i].getvReadref(Strand::FWD),  chr[i].start, chr[i].end);
     auto rev = genVector(genome.chr[i].getvReadref(Strand::REV),  chr[i].start, chr[i].end);
 
@@ -302,11 +302,11 @@ public:
 
 class shiftHamming : public ReadShiftProfileGenome {
  public:
- shiftHamming(const SSPstats &sspst, const SeqStatsGenome &genome):
+ shiftHamming(const SSPstats &sspst, const SeqStatsGenomeSSP &genome):
   ReadShiftProfileGenome("Hamming distance", sspst, genome) {}
 
   void setDist(ReadShiftProfile &chr, const boost::dynamic_bitset<> &fwd, boost::dynamic_bitset<> &rev);
-  void execchr(const SeqStatsGenome &genome, int32_t i) {
+  void execchr(const SeqStatsGenomeSSP &genome, int32_t i) {
     auto fwd = genBitset(genome.chr[i].getvReadref(Strand::FWD),  chr[i].start, chr[i].end);
     auto rev = genBitset(genome.chr[i].getvReadref(Strand::REV), chr[i].start, chr[i].end);
     

@@ -12,7 +12,7 @@
 #include "SeqStats.hpp"
 #include "../common/BoostOptions.hpp"
 
-class SeqStatsGenome;
+class SeqStatsGenomeSSP;
 
 class LibComp {
   MyOpt::Opts opt;
@@ -72,11 +72,11 @@ class LibComp {
   }
   int32_t getThreshold() const { return threshold; };
 
-  void checkRedundantReads(SeqStatsGenome &genome);
-  void filtering_eachchr_single(SeqStats &chr);
-  void filtering_eachchr_pair(SeqStats &chr);
-  void hashFilterCmpSingle(std::unordered_map<int32_t, int32_t> &mp, const SeqStats &chr, const Strand::Strand strand);
-  void hashFilterCmpPair(std::unordered_map<std::string, int32_t> &mp, const SeqStats &chr, const Strand::Strand strand);
+  void checkRedundantReads(SeqStatsGenomeSSP &genome);
+  void filtering_eachchr_single(SeqStatsSSP &chr);
+  void filtering_eachchr_pair(SeqStatsSSP &chr);
+  void hashFilterCmpSingle(std::unordered_map<int32_t, int32_t> &mp, const SeqStatsSSP &chr, const Strand::Strand strand);
+  void hashFilterCmpPair(std::unordered_map<std::string, int32_t> &mp, const SeqStatsSSP &chr, const Strand::Strand strand);
 
   void print(std::ofstream &out) const {
     if(lackOfRead) out << boost::format("Library complexity: (%1$.3f) (%2%/%3%)\n") % getcomplexity() % nt_nonred % nt_all;

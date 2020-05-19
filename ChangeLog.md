@@ -2,6 +2,7 @@
 
 ## 1.2.0 (2020-05-19)
 - Adopt htslib API for parsing SAM/BAM/CRAM format
+- Remove BedFormat.hpp that is used in DROMPAplus
 
 ## 1.1.6 (2020-05-17)
 - Change C++ compiler from g++ to clang++

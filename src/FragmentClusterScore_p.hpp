@@ -53,9 +53,9 @@ class shiftFragVar {
   long nread;
 
  public:
-  shiftFragVar(const FCSstats &fcsst, const SeqStatsGenome &genome);
+  shiftFragVar(const FCSstats &fcsst, const SeqStatsGenomeSSP &genome);
 
-  void execchr(const SeqStats &chr);
+  void execchr(const SeqStatsSSP &chr);
   uint32_t getnumUsed4FCS() const { return numUsed4FCS; }
   double getpnfbg(const int32_t i) const {
     double v(0);

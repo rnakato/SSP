@@ -11,7 +11,7 @@
 #include "Mapfile.hpp"
 
 namespace {
-  void addFragToChr(SeqStatsGenome &genome, const Fragment &frag)
+  void addFragToChr(SeqStatsGenomeSSP &genome, const Fragment &frag)
   {
     genome.dflen.addF3(frag.readlen_F3);
     genome.dflen.addvflen(frag.fraglen);
@@ -28,7 +28,7 @@ namespace {
     return;
   }
 
-  void do_bampe(SeqStatsGenome &genome, const std::string &inputfile)
+  void do_bampe(SeqStatsGenomeSSP &genome, const std::string &inputfile)
   {
 
     htsFile *fp = hts_open(inputfile.c_str(), "r");  //open bam file
@@ -123,7 +123,7 @@ namespace {
     return;
   }
 
-  void do_bamse(SeqStatsGenome &genome, const std::string &inputfile)
+  void do_bamse(SeqStatsGenomeSSP &genome, const std::string &inputfile)
   {
     htsFile *fp = hts_open(inputfile.c_str(), "r");  //open bam file
     bam_hdr_t *bamHdr = sam_hdr_read(fp); //read header
@@ -189,7 +189,7 @@ namespace {
     return;
   }
 
-  void parseSam(const std::string &inputfile, SeqStatsGenome &genome)
+  void parseSam(const std::string &inputfile, SeqStatsGenomeSSP &genome)
   {
     if ((genome.onFtype() && genome.getftype() == "SAM") || isStr(inputfile, ".sam")) {
       std::cout << "Input format: SAM" << std::endl;
@@ -207,7 +207,7 @@ namespace {
     return;
   }
 
-  void parseBowtie(const std::string &inputfile, SeqStatsGenome &genome)
+  void parseBowtie(const std::string &inputfile, SeqStatsGenomeSSP &genome)
   {
     std::ifstream in(inputfile);
     if (!in) PRINTERR_AND_EXIT("Could not open " << inputfile << ".");
@@ -281,7 +281,7 @@ namespace {
   }
 
   template <class T>
-  void funcTagAlign(SeqStatsGenome &genome, T &in)
+  void funcTagAlign(SeqStatsGenomeSSP &genome, T &in)
   {
     std::cout << "Input format: TAGALIGN" << std::endl;
     std::string lineStr;
@@ -316,7 +316,7 @@ namespace {
     return;
   }
 
-  void parseTagAlign(const std::string &inputfile, SeqStatsGenome &genome)
+  void parseTagAlign(const std::string &inputfile, SeqStatsGenomeSSP &genome)
   {
     if (isStr(inputfile, ".gz")) {
 
@@ -330,7 +330,7 @@ namespace {
     return;
   }
 
-  /*  void parseTagAlign(const std::string &inputfile, SeqStatsGenome &genome)
+  /*  void parseTagAlign(const std::string &inputfile, SeqStatsGenomeSSP &genome)
   {
     if (isStr(inputfile, ".gz")) {
       std::string command = "zcat " + inputfile;
@@ -394,7 +394,7 @@ namespace {
 
 }
 
-void read_mapfile(SeqStatsGenome &genome)
+void read_mapfile(SeqStatsGenomeSSP &genome)
 {
   std::vector<std::string> v;
   ParseLine(v, genome.getInputfile(), ',');

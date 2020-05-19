@@ -20,8 +20,8 @@ void FragmentLengthDist::outputDistFile(const std::string &prefix, const uint64_
   }
 }
 
-void SeqStatsGenome::setValues(const MyOpt::Variables &values) {
-  DEBUGprint("SeqStatsGenome setValues...");
+void SeqStatsGenomeSSP::setValues(const MyOpt::Variables &values) {
+  DEBUGprint("SeqStatsGenomeSSP setValues...");
 
   inputfilename = MyOpt::getVal<std::string>(values, "input");
   pairedend     = values.count("pair");
@@ -51,7 +51,7 @@ void SeqStatsGenome::setValues(const MyOpt::Variables &values) {
   // sepchr
   vsepchr = MyMthread::getVsepchr(getlen(), chr, MyOpt::getVal<int32_t>(values, "threads"));
 
-  DEBUGprint("SeqStatsGenome setValues done.");
+  DEBUGprint("SeqStatsGenomeSSP setValues done.");
 #ifdef DEBUG
   std::cout << "chr\tautosome" << std::endl;
   for(auto &x: chr) printList(x.getname(), x.isautosome());
@@ -61,7 +61,7 @@ void SeqStatsGenome::setValues(const MyOpt::Variables &values) {
 #endif
 }
 
-void SeqStatsGenome::readGenomeTable(const std::string &gt)
+void SeqStatsGenomeSSP::readGenomeTable(const std::string &gt)
 {
   std::string lineStr;
   std::ifstream in(gt);
@@ -79,7 +79,7 @@ void SeqStatsGenome::readGenomeTable(const std::string &gt)
   return;
 }
 
-int32_t setIdLongestChr(SeqStatsGenome &genome)
+int32_t setIdLongestChr(SeqStatsGenomeSSP &genome)
 {
   int32_t id(0);
   uint64_t lenmax(0);

@@ -8,7 +8,6 @@
 #include <boost/thread.hpp>
 #include <boost/algorithm/string.hpp>
 #include "../common/seq.hpp"
-//#include "../common/BedFormat.hpp"
 #include "../common/util.hpp"
 #include "../common/inline.hpp"
 
@@ -46,7 +45,7 @@ void printSeqStats(const T &obj)
 	    obj.getdepth());
 }
 
-class SeqStats {
+class SeqStatsSSP {
   enum {STRANDNUM=2};
 
   std::string refname;
@@ -60,7 +59,7 @@ class SeqStats {
 
  public:
 
- SeqStats(std::string &s, int32_t l):
+ SeqStatsSSP(std::string &s, int32_t l):
    refname(s), name(rmchr(s)), len(l), len_mpbl(l),
    Greekchr(false), depth(0), nread_inbed(0),
    sizefactor(0) {}

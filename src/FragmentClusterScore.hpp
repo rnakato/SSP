@@ -16,8 +16,7 @@ namespace {
   const std::vector<int32_t> v4pnf{10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 100, 105, 110, 115, 120, 125, 130, 135, 140, 145, 150, 155, 160, 165, 170, 175, 180, 190, 200, 300, 400, 500, 700, 1000, 2000, 3000, 5000, 10000, 100000, 1000000};
 }
 
-class SeqStats;
-class SeqStatsGenome;
+class SeqStatsGenomeSSP;
 
 class FCSstats {
   MyOpt::Opts opt;
@@ -86,6 +85,6 @@ public:
   }
 };
 
-void makeFCSProfile(FCSstats &, const SeqStatsGenome &genome, const std::string &head, const std::string &typestr);
+void makeFCSProfile(FCSstats &, const SeqStatsGenomeSSP &genome, const std::string &head, const std::string &typestr);
 
 #endif /* _FRAGMENTCLUSTERSCORE_H_ */

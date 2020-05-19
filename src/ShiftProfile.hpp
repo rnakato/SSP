@@ -10,7 +10,7 @@
 #include "../common/inline.hpp"
 #include "../common/BoostOptions.hpp"
 
-class SeqStatsGenome;
+class SeqStatsGenomeSSP;
 
 class SSPstats {
   MyOpt::Opts opt;
@@ -111,6 +111,6 @@ class SSPstats {
   }
 };
 
-void strShiftProfile(SSPstats &sspst, SeqStatsGenome &genome, const std::string &head, const std::string &typestr);
+void strShiftProfile(SSPstats &sspst, SeqStatsGenomeSSP &genome, const std::string &head, const std::string &typestr);
 
 #endif /* _SHIFTPROFILE_H_ */

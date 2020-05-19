@@ -92,7 +92,7 @@ class FragmentLengthDist {
   void outputDistFile(const std::string &prefix, const uint64_t nread);
 };
 
-class SeqStatsGenome {
+class SeqStatsGenomeSSP {
   MyOpt::Opts opt;
 
   std::string inputfilename;
@@ -110,11 +110,11 @@ class SeqStatsGenome {
   void readGenomeTable(const std::string &gt);
 
  public:
-  std::vector<SeqStats> chr;
+  std::vector<SeqStatsSSP> chr;
   std::vector<MyMthread::chrrange> vsepchr;
   FragmentLengthDist dflen;
 
- SeqStatsGenome():
+ SeqStatsGenomeSSP():
    opt("Genome",100),
    pairedend(0), maxins(0), specifyFtype(0),
    ftype(""),
@@ -201,6 +201,6 @@ class SeqStatsGenome {
   }
 };
 
-int32_t setIdLongestChr(SeqStatsGenome &genome);
+int32_t setIdLongestChr(SeqStatsGenomeSSP &genome);
 
 #endif /* _MAPFILE_HPP_ */

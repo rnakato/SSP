@@ -5,8 +5,10 @@
 #include "Mapfile.hpp"
 #include "FragmentClusterScore_p.hpp"
 
+class SeqStatsSSP;
+
 namespace {
-  std::vector<int8_t> genVector4FixedReadsNum(const SeqStats &chr, const double r4cmp, int32_t &numUsed4FCS, Strand::Strand strand)
+  std::vector<int8_t> genVector4FixedReadsNum(const SeqStatsSSP &chr, const double r4cmp, int32_t &numUsed4FCS, Strand::Strand strand)
   {
     int32_t chrlen(chr.getlen());
     std::vector<int8_t> array(chrlen, 0);
@@ -63,7 +65,7 @@ namespace {
   }
 }
 
-void makeFCSProfile(FCSstats &fcsst, const SeqStatsGenome &genome, const std::string &head, const std::string &typestr)
+void makeFCSProfile(FCSstats &fcsst, const SeqStatsGenomeSSP &genome, const std::string &head, const std::string &typestr)
 {
   shiftFragVar dist(fcsst, genome);
   std::cout << "Making FCS profile..." << std::flush;
@@ -89,7 +91,7 @@ void makeFCSProfile(FCSstats &fcsst, const SeqStatsGenome &genome, const std::st
   return;
 }
 
-shiftFragVar::shiftFragVar(const FCSstats &fcsst, const SeqStatsGenome &genome):
+shiftFragVar::shiftFragVar(const FCSstats &fcsst, const SeqStatsGenomeSSP &genome):
    lenF3(genome.dflen.getlenF3()), flen(genome.dflen.getflen()),
    r4cmp(0), numUsed4FCS(0), lackOfReads(false),
    ng_from_fcs(fcsst.getNgFromFCS()),
@@ -145,7 +147,7 @@ void PropNeighborFrag::setNeighborFrag(const int32_t flen, const int32_t end,
   }
 }
 
-void shiftFragVar::execchr(const SeqStats &chr)
+void shiftFragVar::execchr(const SeqStatsSSP &chr)
 {
   auto fwd = genVector4FixedReadsNum(chr, r4cmp, numUsed4FCS, Strand::FWD);
   auto rev = genVector4FixedReadsNum(chr, r4cmp, numUsed4FCS, Strand::REV);

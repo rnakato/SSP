@@ -160,7 +160,7 @@ namespace {
 }
 
 template <class T>
-void genThread(T &dist, const SeqStatsGenome &genome, uint32_t chr_s, uint32_t chr_e, const std::string &prefix, const bool output_eachchr, const int32_t ng_to)
+void genThread(T &dist, const SeqStatsGenomeSSP &genome, uint32_t chr_s, uint32_t chr_e, const std::string &prefix, const bool output_eachchr, const int32_t ng_to)
 {
   for (uint32_t i=chr_s; i<=chr_e; ++i) {
     if (static_cast<int32_t>(genome.chr[i].getlen()) < ng_to) {
@@ -182,7 +182,7 @@ void genThread(T &dist, const SeqStatsGenome &genome, uint32_t chr_s, uint32_t c
 }
 
 template <class T>
-void makeProfile(SSPstats &sspst, SeqStatsGenome &genome, const std::string &head, const std::string &typestr)
+void makeProfile(SSPstats &sspst, SeqStatsGenomeSSP &genome, const std::string &head, const std::string &typestr)
 {
   DEBUGprint("makeProfile: " + typestr);
   T dist(sspst, genome);
@@ -219,7 +219,7 @@ void makeProfile(SSPstats &sspst, SeqStatsGenome &genome, const std::string &hea
 }
 
 template <class T>
-void makeProfile_forDROMPA(SSPstats &sspst, SeqStatsGenome &genome, const std::string &head, const std::string &typestr)
+void makeProfile_forDROMPA(SSPstats &sspst, SeqStatsGenomeSSP &genome, const std::string &head, const std::string &typestr)
 {
   DEBUGprint("makeProfile: " + typestr);
   T dist(sspst, genome);
@@ -248,7 +248,7 @@ void makeProfile_forDROMPA(SSPstats &sspst, SeqStatsGenome &genome, const std::s
   return;
 }
 
-void strShiftProfile(SSPstats &sspst, SeqStatsGenome &genome, const std::string &head, const std::string &typestr)
+void strShiftProfile(SSPstats &sspst, SeqStatsGenomeSSP &genome, const std::string &head, const std::string &typestr)
 {
   DEBUGprint("strShiftProfile...");
   
