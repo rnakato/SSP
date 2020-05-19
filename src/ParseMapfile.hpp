@@ -4,8 +4,7 @@
 #ifndef _READMAPFILE_H_
 #define _READMAPFILE_H_
 
-class SeqStatsGenomeSSP;
-
-void read_mapfile(SeqStatsGenomeSSP &genome);
+template <class T>
+void read_mapfile(T &genome);
 
 #endif /* _READMAPFILE_H_ */

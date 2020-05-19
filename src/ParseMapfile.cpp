@@ -394,12 +394,11 @@ namespace {
 
 }
 
-void read_mapfile(SeqStatsGenomeSSP &genome)
+template <class T>
+void read_mapfile(T &genome)
 {
   std::vector<std::string> v;
   ParseLine(v, genome.getInputfile(), ',');
-  //  ParseLine(v, genome.getInputfile(), ",");
-  //  boost::split(v, genome.getInputfile(), boost::algorithm::is_any_of(","));
   for (auto &inputfile: v) {
     isFile(inputfile);
     std::cout << boost::format("Parsing %1%...\n") % inputfile;
@@ -422,3 +421,5 @@ void read_mapfile(SeqStatsGenomeSSP &genome)
 
   return;
 }
+
+template void read_mapfile<SeqStatsGenomeSSP>(SeqStatsGenomeSSP &);
