@@ -219,36 +219,6 @@ void makeProfile(SSPstats &sspst, S &genome, const std::string &head, const std:
   return;
 }
 
-/*template <class T>
-void makeProfile_forDROMPA(SSPstats &sspst, SeqStatsGenomeSSP &genome, const std::string &head, const std::string &typestr)
-{
-  DEBUGprint("makeProfile: " + typestr);
-  T dist(sspst, genome);
-  dist.printStartMessage();
-
-  int32_t id_longestChr = setIdLongestChr(genome);
-
-  std::string prefix(head + "." + typestr);
-  genThread(dist, genome, id_longestChr, id_longestChr, prefix, sspst.isEachchr(), sspst.getNgTo());
-
-  for (size_t i=0; i<genome.chr.size(); ++i) {
-    if (genome.chr[i].isautosome()) dist.addmp2genome(i);
-  }
-
-  dist.setflen(dist.name);
-  genome.dflen.setflen_ssp(dist.getnsci());
-
-  if(sspst.getNgTo() < 0) return;
-
-  std::string prefix2 = head + "." + typestr;
-  dist.outputmpGenome(prefix2);
-
-  if (typestr == "jaccard") setSSPstats(sspst, dist.getbackgroundUniformity(), dist.getnsc(), dist.getrlsc(), dist.getrsc());
-
-  DEBUGprint("makeProfile: " + typestr + " done.");
-  return;
-}*/
-
 void strShiftProfile(SSPstats &sspst, SeqStatsGenomeSSP &genome,
 		     const std::string &head, const std::string &typestr)
 {

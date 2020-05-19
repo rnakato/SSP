@@ -78,16 +78,3 @@ void SeqStatsGenomeSSP::readGenomeTable(const std::string &gt)
   }
   return;
 }
-
-int32_t setIdLongestChr(SeqStatsGenomeSSP &genome)
-{
-  int32_t id(0);
-  uint64_t lenmax(0);
-  for(size_t i=0; i<genome.chr.size(); ++i) {
-    if(lenmax < genome.chr[i].getlenmpbl()) {
-      lenmax = genome.chr[i].getlenmpbl();
-      id = i;
-    }
-  }
-  return id;
-}

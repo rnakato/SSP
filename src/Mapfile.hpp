@@ -201,6 +201,4 @@ class SeqStatsGenomeSSP {
   }
 };
 
-int32_t setIdLongestChr(SeqStatsGenomeSSP &genome);
-
 #endif /* _MAPFILE_HPP_ */
