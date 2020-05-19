@@ -99,32 +99,43 @@ namespace {
       int32_t position = x.pos;
       int32_t readlen = x.l_qseq;
       uint32_t flag = x.flag;
-      uint32_t q2  = x.qual ; //mapping quality
-      uint8_t *q   = bam_get_seq(aln); //quality string
-      int32_t mpos  = x.mpos;
+//      uint32_t q2  = x.qual ; //mapping quality
+//      uint8_t *q   = bam_get_seq(aln); //quality string
+//      int32_t mpos  = x.mpos;
       int32_t isize  = x.isize;
       bool is_mapped = !(flag&4);
       bool is_failquality = flag&512;
       bool is_duplicate = flag&1024;
-      if (is_duplicate) ++duplicatedReads;
-      if (is_failquality) ++failqualityReads;
       if (is_mapped) ++mappedReads; else ++unmappedReads;
+      if (is_duplicate) {
+	++duplicatedReads;
+	continue;
+      }
+      if (is_failquality) {
+	++failqualityReads;
+	continue;
+      }
       bool strand = bam_is_rev(aln); // 0: forward 1: reverse
       if (strand) ++reverseReads; else ++forwardReads;
+
+      if (flag&64 || flag&128) std::cerr << "Warning: parsing paired-end file as single-end.\n";
+      Fragment frag;
+      frag.addSAM(chr, readlen, position, isize, strand, genome.isPaired());
+      frag.print();
+      addFragToChr(genome, frag);
     }
 
     bam_destroy1(aln);
     sam_close(fp);
 
     std::cout << "mapped reads: " << mappedReads
-	      << "\nduplicated reads: " << duplicatedReads
-	      << "\n+ reads: " << forwardReads
+	      << "\t+ reads: " << forwardReads
 	      << "\t- reads: " << reverseReads
-	      << "\nunmapped reads: " << unmappedReads
+	      << "\nduplicated reads: " << duplicatedReads
 	      << "\nFalied quality reads: " << failqualityReads
+	      << "\nunmapped reads: " << unmappedReads
 	      << std::endl;
 
-    exit(0);
     return;
   }
 
@@ -137,8 +148,7 @@ namespace {
     } else if ((genome.onFtype() && genome.getftype() == "CRAM") || isStr(inputfile, ".cram")) {
       std::cout << "Input format: CRAM" << std::endl;
     } else {
-      std::cerr << "error: invalid input file type." << std::endl;
-      exit(0);
+      PRINTERR_AND_EXIT("error: invalid input file type.");
     }
     do_bamse(genome, inputfile);
 /*    if (genome.isPaired()) do_bampe(genome, in);

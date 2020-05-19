@@ -20,60 +20,15 @@ class chrsize {
   std::string refname;
   std::string name;
   int32_t len;
-  //  bool Greekchr;
 
  public:
   chrsize(const std::string &n, const int32_t l):
-    refname(n), name(rmchr(n)), len(l) //, Greekchr(false)
+    refname(n), name(rmchr(n)), len(l)
   {}
 
   const std::string & getrefname() const { return refname; }
   const std::string & getname() const { return name; }
-  /*  const std::string & getrefname_GreekToInt() const {
-    std::string chrnum;
-    if(name=="chrI")         chrnum = "chr1";
-    else if(name=="chrII")   chrnum = "chr2";
-    else if(name=="chrIII")  chrnum = "chr3";
-    else if(name=="chrIV")   chrnum = "chr4";
-    else if(name=="chrV")    chrnum = "chr5";
-    else if(name=="chrVI")   chrnum = "chr6";
-    else if(name=="chrVII")  chrnum = "chr7";
-    else if(name=="chrVIII") chrnum = "chr8";
-    else if(name=="chrIX")   chrnum = "chr9";
-    else if(name=="chrX")    chrnum = "chr10";
-    else if(name=="chrXI")   chrnum = "chr11";
-    else if(name=="chrXII")  chrnum = "chr12";
-    else if(name=="chrXIII") chrnum = "chr13";
-    else if(name=="chrXIV")  chrnum = "chr14";
-    else if(name=="chrXV")   chrnum = "chr15";
-    else if(name=="XVIchr")  chrnum = "chr16";
-    return chrnum;
-    }*/
-  /*  const std::string getname_GreekToInt(const std::string &name) const {
-    std::string chrnum;
-    if(name=="I")         chrnum = "1";
-    else if(name=="II")   chrnum = "2";
-    else if(name=="III")  chrnum = "3";
-    else if(name=="IV")   chrnum = "4";
-    else if(name=="V")    chrnum = "5";
-    else if(name=="VI")   chrnum = "6";
-    else if(name=="VII")  chrnum = "7";
-    else if(name=="VIII") chrnum = "8";
-    else if(name=="IX")   chrnum = "9";
-    else if(name=="X")    chrnum = "10";
-    else if(name=="XI")   chrnum = "11";
-    else if(name=="XII")  chrnum = "12";
-    else if(name=="XIII") chrnum = "13";
-    else if(name=="XIV")  chrnum = "14";
-    else if(name=="XV")   chrnum = "15";
-    else if(name=="XVI")  chrnum = "16";
-    return chrnum;
-    }*/
   int32_t getlen() const { return len; }
-  /*  void Greekchron() {
-    name = getname_GreekToInt(name);
-    //Greekchr = true;
-    }*/
 };
 
 class range {
@@ -97,9 +52,9 @@ class var {
   var(std::string &str, T low):       name(str), val(0), limlow(low), limup(0), isupper(false) {}
   var(std::string &str, T low, T up): name(str), val(0), limlow(low), limup(up), isupper(true) {}
   void set(T n) {
-    if(isupper && (n<limlow || n>limup)) {
+    if (isupper && (n<limlow || n>limup)) {
       std::cout << "Error : variable " << name << " should be " << limlow << "<= and <=" << limup << "." << std::endl;
-    }else if(!isupper && n<limlow ) {
+    }else if (!isupper && n<limlow ) {
       std::cout << "Error : variable " << name << " should be >=" << limlow << "." << std::endl;
     }
     else val=n;
@@ -130,11 +85,27 @@ public:
   int32_t readlen_F3;
 
   Fragment(): F3(0), strand(Strand::FWD), fraglen(0), readlen_F3(0) {}
+
+  void addSAM(const char *_chrname, const int32_t _readlen, const int32_t position,
+	      const int32_t isize, const bool _strand, const bool pair)
+  {
+    chr = rmchr(_chrname);
+    readlen_F3 = _readlen;
+    if (pair) fraglen = abs(isize);
+    if (_strand) {  // 0: forward 1: reverse
+      strand = Strand::REV;
+      F3 = position + readlen_F3;
+    } else {
+      strand = Strand::FWD;
+      F3 = position;
+    }
+  }
+
   void addSAM(const std::vector<std::string> &v, const bool pair, const int32_t sv) {
    chr = rmchr(v[2]);
    readlen_F3 = v[9].length();
-   if(pair) fraglen = abs(stoi(v[8]));
-   if(sv&16) {
+   if (pair) fraglen = abs(stoi(v[8]));
+   if (sv&16) {
      strand = Strand::REV;
      F3 = stoi(v[3]) + readlen_F3 -1;
    } else {
@@ -142,6 +113,7 @@ public:
      F3 = stoi(v[3]) -1;
    }
  }
+
  void print() const {
 #ifdef PRINTFRAGMENT
    std::cout << "chr:"       << chr
@@ -166,8 +138,8 @@ class Read {
   Read(const Fragment &frag, const int32_t len):
     weight(WeightNum), F3(frag.F3), duplicate(0), inpeak(0)
   {
-    if(frag.strand == Strand::FWD) F5 = frag.F3 + frag.fraglen;
-    else                           F5 = frag.F3 - frag.fraglen;
+    if (frag.strand == Strand::FWD) F5 = frag.F3 + frag.fraglen;
+    else                            F5 = frag.F3 - frag.fraglen;
     F3 = std::max(F3, 0);
     F5 = std::max(F5, 0);
     F3 = std::min(F3, len-1);
