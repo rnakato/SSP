@@ -23,68 +23,112 @@ namespace {
 	on = true;
       }
     }
-//    if (!on) std::cerr << "Warning: " << frag.chr << " is not in genometable." << std::endl;
+    if (!on) std::cerr << "Warning: " << frag.chr << " is not in genometable." << std::endl;
 
     return;
   }
 
-  template <class T>
-  void do_bampe(SeqStatsGenome &genome, T &in)
+  void do_bampe(SeqStatsGenome &genome, const std::string &inputfile)
   {
-    std::string lineStr;
-    while (!in.eof()) {
-      getline(in, lineStr);
-      if (lineStr.empty() || lineStr[0]=='@') continue;
 
-      std::vector<std::string> v;
-      ParseLine(v, lineStr, '\t');
-      int32_t sv(stoi(v[1]));   // bitwise FLAG
-      if (sv&4 || sv&512 || sv&1024) continue;
-      if (!(sv&2)) continue;
-      if (sv&128) {
-	genome.dflen.addF5(v[9].length());
-	continue;
+    htsFile *fp = hts_open(inputfile.c_str(), "r");  //open bam file
+    bam_hdr_t *bamHdr = sam_hdr_read(fp); //read header
+    bam1_t *aln = bam_init1(); //initialize an alignment
+//    printf("%s\n", bamHdr->text);
+
+    uint64_t mappedReads(0), matchedReads(0), matchedProperReads(0), unmatchedReads(0), ProperPair(0);
+    uint64_t unmappedReads(0);
+    uint64_t duplicatedReads(0);
+    uint64_t failqualityReads(0);
+    uint64_t forwardReads(0), reverseReads(0);
+
+    while (sam_read1(fp, bamHdr, aln) >= 0) { // 0: SAM, >0: BAM, CRAM
+      auto &x = aln->core;
+      uint32_t flag = x.flag;
+      bool is_mapped = !(flag&4);
+
+      if (is_mapped) {
+	++mappedReads;
+
+	std::string chr = bamHdr->target_name[x.tid];
+	int32_t position = x.pos;
+	int32_t readlen = x.l_qseq;
+	int32_t isize  = x.isize;
+	bool is_failquality = flag&512;
+	bool is_duplicate = flag&1024;
+	bool is_paired = flag&1;
+	bool is_properpair = flag&2;
+	bool is_1stread_of_pair = flag&64;
+	bool is_unmatched_pair = flag&8;
+
+	if (is_duplicate) {
+	  ++duplicatedReads;
+	  continue;
+	}
+	if (is_failquality) {
+	  ++failqualityReads;
+	  continue;
+	}
+	if (!is_paired) continue;
+
+	if (is_unmatched_pair) ++unmatchedReads;
+	else {
+	  ++matchedReads;
+	  if (is_properpair) ++matchedProperReads;
+	}
+	if (!is_1stread_of_pair) genome.dflen.addF5(readlen);
+
+	if (is_properpair && is_1stread_of_pair) {
+	  ++ProperPair;
+	  bool strand = bam_is_rev(aln); // 0: forward 1: reverse
+	  if (strand) ++reverseReads; else ++forwardReads;
+
+	  Fragment frag;
+	  frag.addSAM(chr, readlen, position, isize, strand, genome.isPaired());
+	  if (frag.fraglen > genome.getmaxins()) continue;
+	  frag.print();
+	  addFragToChr(genome, frag);
+	}
       }
-      Fragment frag;
-      frag.addSAM(v, genome.isPaired(), sv);
-      if (frag.fraglen > genome.getmaxins()) continue;
-      frag.print();
-
-      addFragToChr(genome, frag);
+      else ++unmappedReads;
     }
 
+    bam_destroy1(aln);
+    sam_close(fp);
+
+    std::cout << "mapped reads: " << mappedReads
+	      << "\tunmapped reads: " << unmappedReads
+	      << "\nmatched reads: " << matchedReads
+	      << "\tmatched proper reads: " << matchedProperReads
+	      << "\tunmatched reads: " << unmatchedReads
+	      << "\nproperpair: " << ProperPair
+	      << "\t+ pairs: " << forwardReads
+	      << "\t- pairs: " << reverseReads
+	      << "\nduplicated reads: " << duplicatedReads
+	      << "\nFalied quality reads: " << failqualityReads
+	      << std::endl;
+
     return;
   }
 
-  template <class T>
-  void do_bamse(SeqStatsGenome &genome, T &in)
+  void PrintPairWarning(const bool is_paired)
   {
-    std::string lineStr;
-    while (!in.eof()) {
-      getline(in, lineStr);
-      if (lineStr.empty() || lineStr[0]=='@') continue;
-      std::vector<std::string> v;
-      ParseLine(v, lineStr, '\t');
-      int32_t sv(stoi(v[1])); // bitwise FLAG
-      // unmapped reads, low quality reads
-      if (sv&4 || sv&512 || sv&1024) continue;
-      if (sv&64 || sv&128) std::cerr << "Warning: parsing paired-end file as single-end." << std::endl;
-      Fragment frag;
-      frag.addSAM(v, genome.isPaired(), sv);
-      frag.print();
-      addFragToChr(genome, frag);
+    static bool pairwarning(false);
+    if (is_paired) {
+      if (!pairwarning) {
+	std::cerr << "Warning: parsing paired-end file as single-end." << std::endl;
+	pairwarning = true;
+      }
     }
     return;
   }
 
   void do_bamse(SeqStatsGenome &genome, const std::string &inputfile)
   {
-
-    samFile *fp = hts_open(inputfile.c_str(), "r");  //open bam file
+    htsFile *fp = hts_open(inputfile.c_str(), "r");  //open bam file
     bam_hdr_t *bamHdr = sam_hdr_read(fp); //read header
     bam1_t *aln = bam_init1(); //initialize an alignment
-
-    printf("%s\n", bamHdr->text);
+//    printf("%s\n", bamHdr->text);
 
     uint64_t mappedReads(0);
     uint64_t unmappedReads(0);
@@ -109,6 +153,7 @@ namespace {
 	int32_t isize  = x.isize;
 	bool is_failquality = flag&512;
 	bool is_duplicate = flag&1024;
+	bool is_paired = flag&1;
 	if (is_duplicate) {
 	  ++duplicatedReads;
 	  continue;
@@ -120,7 +165,8 @@ namespace {
 	bool strand = bam_is_rev(aln); // 0: forward 1: reverse
 	if (strand) ++reverseReads; else ++forwardReads;
 
-	if (flag&64 || flag&128) std::cerr << "Warning: parsing paired-end file as single-end.\n";
+	PrintPairWarning(is_paired);
+
 	Fragment frag;
 	frag.addSAM(chr, readlen, position, isize, strand, genome.isPaired());
 	frag.print();
@@ -154,9 +200,9 @@ namespace {
     } else {
       PRINTERR_AND_EXIT("error: invalid input file type.");
     }
-    do_bamse(genome, inputfile);
-/*    if (genome.isPaired()) do_bampe(genome, in);
-      else do_bamse(genome, in);*/
+
+    if (genome.isPaired()) do_bampe(genome, inputfile);
+    else do_bamse(genome, inputfile);
 
     return;
   }

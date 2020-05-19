@@ -72,7 +72,12 @@ class fasta {
   fasta (std::string &str, int32_t l=0): name(str), len(l), len_mpbl(0), nbin(0), p_mpbl(0), gcov(0) {}
   explicit fasta (std::vector<std::string> &v): name(v[0]), len(stoi(v[1])), len_mpbl(0), nbin(0), p_mpbl(0), gcov(0) {}
   void print() const {
-    std::cout << name << "\t" << len << "\t" << nbin << "\t" << len_mpbl << "\t"<< p_mpbl << "\t" << gcov << std::endl;
+    std::cout << name << "\t"
+	      << len << "\t"
+	      << nbin << "\t"
+	      << len_mpbl << "\t"
+	      << p_mpbl << "\t"
+	      << gcov << std::endl;
   }
 };
 
@@ -87,11 +92,11 @@ public:
   Fragment(): chr(""), F3(0), strand(Strand::FWD), fraglen(0), readlen_F3(0) {}
 
   void addSAM(const std::string &_chrname, const int32_t _readlen, const int32_t position,
-	      const int32_t isize, const bool _strand, const bool pair)
+	      const int32_t isize, const bool _strand, const bool ispaired)
   {
     chr = rmchr(_chrname);
     readlen_F3 = _readlen;
-    if (pair) fraglen = abs(isize);
+    if (ispaired) fraglen = abs(isize);
     if (_strand) {  // 0: forward 1: reverse
       strand = Strand::REV;
       F3 = position + readlen_F3;
@@ -101,28 +106,15 @@ public:
     }
   }
 
-  void addSAM(const std::vector<std::string> &v, const bool pair, const int32_t sv) {
-   chr = rmchr(v[2]);
-   readlen_F3 = v[9].length();
-   if (pair) fraglen = abs(stoi(v[8]));
-   if (sv&16) {
-     strand = Strand::REV;
-     F3 = stoi(v[3]) + readlen_F3 -1;
-   } else {
-     strand = Strand::FWD;
-     F3 = stoi(v[3]) -1;
-   }
- }
-
  void print() const {
-#ifdef PRINTFRAGMENT
+//#ifdef PRINTFRAGMENT
    std::cout << "chr:"       << chr
 	     << "\tposi:"    << F3
 	     << "\tstrand:"  << strand
 	     << "\tfraglen:" << fraglen
 	     <<"\treadlen:"  << readlen_F3
 	     << std::endl;
-#endif
+//#endif
  }
 };
 
@@ -149,6 +141,7 @@ class Read {
     return weight/static_cast<double>(WeightNum);
   }
   void multiplyWeight(const double w) { weight *= w; }
+
   void print() const {
 #ifdef PRINTREAD
     std::cout << "F3:"      << F3
@@ -159,7 +152,7 @@ class Read {
 	      << std::endl;
 #endif
   }
-};
 
+};
 
 #endif  // _SEQ_H_
