@@ -36,7 +36,8 @@ On CentOS and Red Hat:
 On Mac:
 
     brew install gsl curl xz zlib boost
-    sed -i -e 's/-lboost_thread/-lboost_thread-mt/g' Makefile  # change name from "-lboost_thread" to "-lboost_thread-mt"
+    # change name from "-lboost_thread" to "-lboost_thread-mt"
+    sed -i -e 's/-lboost_thread/-lboost_thread-mt/g' Makefile
 
 ### 2.2.2 Install SSP
     git clone https://github.com/rnakato/SSP.git
