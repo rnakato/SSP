@@ -13,7 +13,7 @@ The outputs of SSP are displayed in PDF format and also written to text files.
 
 # 2. Install
 
-### 2.1 Dependencies
+## 2.1 Dependencies
 SSP is written in C++11 and requires the following programs and libraries.
 The version numbers listed have been tested successfully.
 * [Boost C++ library (1.53.0, 1.58.0)](http://www.boost.org/)
@@ -21,9 +21,9 @@ The version numbers listed have been tested successfully.
 * [zlib (1.2.7, 1.2.8)](http://www.zlib.net/)
 * [HTSlib (1.10.2)](https://github.com/samtools/htslib) (for SAM/BAM/CRAM formatted input)
 
-### 2.2 Building from source
+## 2.2 Building from source
 
-#### 2.2.1 Install required libraries
+### 2.2.1 Install required libraries
 
 On Ubuntu and Debian:
 
@@ -37,17 +37,17 @@ On Mac:
 
     brew install gsl curl xz zlib boost
 
-#### 2.2.2 Install SSP
+### 2.2.2 Install SSP
     git clone https://github.com/rnakato/SSP.git
     cd SSP
     make
 
-#### 2.2.3 Add the PATH environment variable
+### 2.2.3 Add the PATH environment variable
 For example, if you downloaded SSP into the $HOME/my_chipseq_exp directory, type:
 
     export PATH = $PATH:$HOME/my_chipseq_exp/SSP/bin
 
-### 2.3 Docker image
+## 2.3 Docker image
 
 SSP and DROMPA are also probatively available on Docker Hub.
 
@@ -62,7 +62,7 @@ For Singularity:
     singularity exec ssp_drompa.img ssp
 
 # 3. Usage
-### 3.1. Options
+## 3.1. Options
     Usage: ssp [option] -i <inputfile> -o <output> --gt <genome_table>
 
     Options:
@@ -115,7 +115,7 @@ For Singularity:
 
 
 
-### 3.2. Tutorial
+## 3.2. Tutorial
 The simplest command is:
 
     ssp -i ChIP.sam -o ChIP --gt genometable.txt
@@ -148,7 +148,7 @@ In default, FCS is calcutated for 10M nonredundant reads. If the number of nonre
 
 When specifying smaller read number for --num4ssp, FCS score becomes smaller, but the magnitude relation among samples is consistent.
 
-### 3.3. Output files
+## 3.3. Output files
 * ChIP.stats.txt: Stats of the sample (read number, read length, estimated fragment length, NSC, RLSC, RSC, background uniformity, FCS)
 * ChIP.jaccard.csv: Jaccard score for each strand shift d
 * ChIP.jaccard.pdf: Strand-shift profiles (-500 < d < 1500 and 0 < d < 1M)
@@ -160,13 +160,13 @@ When specifying smaller read number for --num4ssp, FCS score becomes smaller, bu
 * ChIP.FCS.R, ChIP.FCS.R.log: R script and log file to make ChIP.FCS.pdf
 
 # 4. Annotation files
-### 4.1. Genome table
+## 4.1. Genome table
 The genome table file is a tab-delimited file describing the name and length of each chromosome.
 To make it, use makegenometable.pl in scripts directory as follows:
 
      scripts/makegenometable.pl genome.fa > genometable.txt
 
-### 4.2. Mappability table
+## 4.2. Mappability table
 The mappability table file is a tab-delimited file describing the name and 'mappabile' length of each chromosome.
 The mappability tables generated for several species (36 mer and 50 mer) are provided in mptable directory, which are based on the code from [Peakseq](http://info.gersteinlab.org/PeakSeq). See the manual for [DROMPA3](https://github.com/rnakato/DROMPA3) for detail.
 
