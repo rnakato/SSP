@@ -39,7 +39,7 @@ $(CMNOBJDIR)/gzstream.o: $(CMNDIR)/gzstream.C $(CMNDIR)/gzstream.h
 
 $(OBJDIR)/ParseMapfile.o: $(SRCDIR)/ParseMapfile.cpp
 	@if [ ! -e `dirname $@` ]; then mkdir -p `dirname $@`; fi
-	$(CC) -o $@ -c $< $(CFLAGS)
+	$(CC) -o $@ -c $< $(CFLAGS) -I$(HTSLIBDIR)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	@if [ ! -e `dirname $@` ]; then mkdir -p `dirname $@`; fi

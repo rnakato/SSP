@@ -6,7 +6,6 @@
 #include <boost/iostreams/device/file.hpp>
 #include <boost/iostreams/device/file_descriptor.hpp>
 #include <htslib/sam.h>
-#include <ext/stdio_filebuf.h>
 #include "../common/gzstream.h"
 #include "ParseMapfile.hpp"
 #include "Mapfile.hpp"
@@ -66,8 +65,6 @@ namespace {
       if (lineStr.empty() || lineStr[0]=='@') continue;
       std::vector<std::string> v;
       ParseLine(v, lineStr, '\t');
-      //            ParseLine(v, lineStr, "\t");
-      //      boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
       int32_t sv(stoi(v[1])); // bitwise FLAG
       // unmapped reads, low quality reads
       if (sv&4 || sv&512 || sv&1024) continue;
@@ -80,7 +77,7 @@ namespace {
     return;
   }
 
-  void func(SeqStatsGenome &genome, const std::string &inputfile)
+  void do_bamse(SeqStatsGenome &genome, const std::string &inputfile)
   {
 
     samFile *fp = hts_open(inputfile.c_str(), "r");  //open bam file
@@ -92,6 +89,7 @@ namespace {
     uint64_t mappedReads(0);
     uint64_t unmappedReads(0);
     uint64_t duplicatedReads(0);
+    uint64_t failqualityReads(0);
     uint64_t forwardReads(0), reverseReads(0);
 
     while (sam_read1(fp, bamHdr, aln) >= 0) { // 0: SAM, >0: BAM, CRAM
@@ -106,6 +104,10 @@ namespace {
       int32_t mpos  = x.mpos;
       int32_t isize  = x.isize;
       bool is_mapped = !(flag&4);
+      bool is_failquality = flag&512;
+      bool is_duplicate = flag&1024;
+      if (is_duplicate) ++duplicatedReads;
+      if (is_failquality) ++failqualityReads;
       if (is_mapped) ++mappedReads; else ++unmappedReads;
       bool strand = bam_is_rev(aln); // 0: forward 1: reverse
       if (strand) ++reverseReads; else ++forwardReads;
@@ -119,6 +121,7 @@ namespace {
 	      << "\n+ reads: " << forwardReads
 	      << "\t- reads: " << reverseReads
 	      << "\nunmapped reads: " << unmappedReads
+	      << "\nFalied quality reads: " << failqualityReads
 	      << std::endl;
 
     exit(0);
@@ -127,26 +130,19 @@ namespace {
 
   void parseSam(const std::string &inputfile, SeqStatsGenome &genome)
   {
-    if ((genome.onFtype() && genome.getftype() == "SAM") || isStr(inputfile, ".sam")) {  // SAM
+    if ((genome.onFtype() && genome.getftype() == "SAM") || isStr(inputfile, ".sam")) {
       std::cout << "Input format: SAM" << std::endl;
-      func(genome, inputfile);
-/*      std::ifstream in(inputfile);
-      if (!in) PRINTERR_AND_EXIT("Could not open " << inputfile << ".");
-      if (genome.isPaired()) do_bampe(genome, in);
-      else do_bamse(genome, in);*/
-    }
-    else if ((genome.onFtype() && genome.getftype() == "BAM") || isStr(inputfile, ".bam")) {  // BAM
+    } else if ((genome.onFtype() && genome.getftype() == "BAM") || isStr(inputfile, ".bam")) {
       std::cout << "Input format: BAM" << std::endl;
-      func(genome, inputfile);
-    }
-    else if ((genome.onFtype() && genome.getftype() == "CRAM") || isStr(inputfile, ".cram")) {  // CRAM
+    } else if ((genome.onFtype() && genome.getftype() == "CRAM") || isStr(inputfile, ".cram")) {
       std::cout << "Input format: CRAM" << std::endl;
-      func(genome, inputfile);
-    }
-    else {
+    } else {
       std::cerr << "error: invalid input file type." << std::endl;
       exit(0);
     }
+    do_bamse(genome, inputfile);
+/*    if (genome.isPaired()) do_bampe(genome, in);
+      else do_bamse(genome, in);*/
 
     return;
   }
