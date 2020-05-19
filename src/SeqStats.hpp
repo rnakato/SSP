@@ -8,7 +8,7 @@
 #include <boost/thread.hpp>
 #include <boost/algorithm/string.hpp>
 #include "../common/seq.hpp"
-#include "../common/BedFormat.hpp"
+//#include "../common/BedFormat.hpp"
 #include "../common/util.hpp"
 #include "../common/inline.hpp"
 
@@ -137,11 +137,11 @@ class SeqStats {
 #endif
   }
 
-  void setFRiP(const std::vector<NAKATO::bed> &vbed); // defined in DROMPAplus/src/readMpblWigArray.cpp
+  /*  void setFRiP(const std::vector<NAKATO::bed> &vbed); // defined in DROMPAplus/src/readMpblWigArray.cpp
 
   double getFRiP() const {
     return getratio(nread_inbed, getnread_nonred(Strand::BOTH));
-  }
+    }*/
   void setsizefactor(const double w) {
     sizefactor = w;
     for (auto strand: {Strand::FWD, Strand::REV}) seq[strand].nread_rpm = seq[strand].nread_nonred * sizefactor;

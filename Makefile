@@ -56,7 +56,7 @@ clean:
 	rm -rf $(BINDIR) $(OBJDIR) $(CMNOBJDIR)
 	make -C $(HTSLIBDIR) clean
 
-HEADS = $(SRCDIR)/ssp_gv.hpp $(SRCDIR)/Mapfile.hpp $(SRCDIR)/ParseMapfile.hpp $(SRCDIR)/LibraryComplexity.hpp $(CMNDIR)/BoostOptions.hpp $(SRCDIR)/MThread.hpp $(SRCDIR)/SeqStats.hpp $(CMNDIR)/BedFormat.hpp $(SRCDIR)/FragmentClusterScore.hpp
+HEADS = $(SRCDIR)/ssp_gv.hpp $(SRCDIR)/Mapfile.hpp $(SRCDIR)/ParseMapfile.hpp $(SRCDIR)/LibraryComplexity.hpp $(CMNDIR)/BoostOptions.hpp $(SRCDIR)/MThread.hpp $(SRCDIR)/SeqStats.hpp $(SRCDIR)/FragmentClusterScore.hpp #  $(CMNDIR)/BedFormat.hpp
 HEADS += $(CMNDIR)/inline.hpp $(CMNDIR)/seq.hpp $(CMNDIR)/statistics.hpp $(CMNDIR)/util.hpp
 
 $(OBJDIR)/ParseMapfile.o: $(SRCDIR)/ShiftProfile.hpp $(HTSLIBDIR)/htslib/sam.h
