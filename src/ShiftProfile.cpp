@@ -39,7 +39,7 @@ void shiftJacVec::setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd,
   int64_t bothsum(0);
   for (auto x: fwd) bothsum += x;
   for (auto x: rev) bothsum += x;
-  
+
   boost::thread_group agroup;
   boost::mutex mtx;
   for (uint32_t i=0; i<seprange.size(); i++) {
@@ -85,16 +85,16 @@ void shiftCcp::setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, co
 
   double val = 1/(x.getsd() * y.getsd() * (chr.width - ng_to - mp_from - 1));
   for (auto &x: chr.mp) x.second *= val;
-  for (auto &x: chr.nc) x.second = std::abs(x.second * val); //*= val; 
+  for (auto &x: chr.nc) x.second = std::abs(x.second * val); //*= val;
 }
 
 void shiftJacBit::setDist(ReadShiftProfile &chr, boost::dynamic_bitset<> &fwd, boost::dynamic_bitset<> &rev)
 {
   double xysum(fwd.count() + rev.count());
-  
+
   clock_t t1,t2;
   t1 = clock();
-  
+
   rev <<= mp_from;
   for (int32_t step=-mp_from; step<mp_to; ++step) {
     rev >>= 1;
@@ -105,7 +105,7 @@ void shiftJacBit::setDist(ReadShiftProfile &chr, boost::dynamic_bitset<> &fwd, b
   t2 = clock();
   PrintTime(t1, t2, "shiftJacBit::setDist");
   if(ng_to < 0) return;
-  
+
   rev >>= (ng_from - mp_to);
 
   for (int32_t step=ng_from; step<ng_to; step+=ng_step) {
@@ -123,7 +123,7 @@ void shiftHamming::setDist(ReadShiftProfile &chr, const boost::dynamic_bitset<> 
     chr.mp[step] = (fwd ^ rev).count();
   }
   rev >>= (ng_from - mp_to);
-  
+
   for (int32_t step=ng_from; step<ng_to; step+=ng_step) {
     rev >>= ng_step;
     chr.nc[step] = (fwd ^ rev).count();
@@ -173,7 +173,7 @@ void genThread(T &dist, const SeqStatsGenomeSSP &genome, uint32_t chr_s, uint32_
 
     dist.execchr(genome, i);
     dist.chr[i].setflen(dist.name);
-    
+
     if (output_eachchr) {
       std::string filename = prefix + "." + genome.chr[i].getname() + ".csv";
       dist.outputmpChr(filename, i);
@@ -208,7 +208,7 @@ void makeProfile(SSPstats &sspst, SeqStatsGenomeSSP &genome, const std::string &
   genome.dflen.setflen_ssp(dist.getnsci());
 
   if(sspst.getNgTo() < 0) return;
-  
+
   std::string prefix2 = head + "." + typestr;
   dist.outputmpGenome(prefix2);
 
@@ -218,7 +218,7 @@ void makeProfile(SSPstats &sspst, SeqStatsGenomeSSP &genome, const std::string &
   return;
 }
 
-template <class T>
+/*template <class T>
 void makeProfile_forDROMPA(SSPstats &sspst, SeqStatsGenomeSSP &genome, const std::string &head, const std::string &typestr)
 {
   DEBUGprint("makeProfile: " + typestr);
@@ -226,7 +226,7 @@ void makeProfile_forDROMPA(SSPstats &sspst, SeqStatsGenomeSSP &genome, const std
   dist.printStartMessage();
 
   int32_t id_longestChr = setIdLongestChr(genome);
-  
+
   std::string prefix(head + "." + typestr);
   genThread(dist, genome, id_longestChr, id_longestChr, prefix, sspst.isEachchr(), sspst.getNgTo());
 
@@ -238,7 +238,7 @@ void makeProfile_forDROMPA(SSPstats &sspst, SeqStatsGenomeSSP &genome, const std
   genome.dflen.setflen_ssp(dist.getnsci());
 
   if(sspst.getNgTo() < 0) return;
-  
+
   std::string prefix2 = head + "." + typestr;
   dist.outputmpGenome(prefix2);
 
@@ -246,20 +246,21 @@ void makeProfile_forDROMPA(SSPstats &sspst, SeqStatsGenomeSSP &genome, const std
 
   DEBUGprint("makeProfile: " + typestr + " done.");
   return;
-}
+}*/
 
-void strShiftProfile(SSPstats &sspst, SeqStatsGenomeSSP &genome, const std::string &head, const std::string &typestr)
+void strShiftProfile(SSPstats &sspst, SeqStatsGenomeSSP &genome,
+		     const std::string &head, const std::string &typestr)
 {
   DEBUGprint("strShiftProfile...");
-  
+
   if (typestr=="exjaccard")    makeProfile<shiftJacVec>(sspst, genome, head, typestr);
   else if (typestr=="jaccard") makeProfile<shiftJacBit>(sspst, genome, head, typestr);
   else if (typestr=="ccp")     makeProfile<shiftCcp>(sspst, genome, head, typestr);
   else if (typestr=="hdp")     makeProfile<shiftHamming>(sspst, genome, head, typestr);
-  else if (typestr=="drompa") {
+/*  else if (typestr=="drompa") {
     if (genome.dflen.isallchr()) makeProfile<shiftJacBit>(sspst, genome, head, "jaccard");
     else makeProfile_forDROMPA<shiftJacBit>(sspst, genome, head, "jaccard");
-  }
+  }*/
 
   DEBUGprint("strShiftProfile done.");
   return;

@@ -111,6 +111,9 @@ class SSPstats {
   }
 };
 
+template <class T>
+void makeProfile(SSPstats &sspst, SeqStatsGenomeSSP &genome, const std::string &head, const std::string &typestr);
+
 void strShiftProfile(SSPstats &sspst, SeqStatsGenomeSSP &genome, const std::string &head, const std::string &typestr);
 
 #endif /* _SHIFTPROFILE_H_ */
