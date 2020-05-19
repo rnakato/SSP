@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.2.0 (2020-05-XX)
+## 1.2.0 (2020-05-19)
 - Adopt htslib API for parsing SAM/BAM/CRAM format
 
 ## 1.1.6 (2020-05-17)
