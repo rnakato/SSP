@@ -1,7 +1,7 @@
 # Changelog
 
 ## 1.2.0 (2020-05-XX)
-- Add bamtools API for parsing SAM/BAM/CRAM format
+- Adopt htslib API for parsing SAM/BAM/CRAM format
 
 ## 1.1.6 (2020-05-17)
 - Change C++ compiler from g++ to clang++

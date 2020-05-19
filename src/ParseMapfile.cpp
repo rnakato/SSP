@@ -5,8 +5,6 @@
 #include <boost/iostreams/filter/gzip.hpp>
 #include <boost/iostreams/device/file.hpp>
 #include <boost/iostreams/device/file_descriptor.hpp>
-#include <api/BamReader.h>
-#include <api/BamAlignment.h>
 #include <ext/stdio_filebuf.h>
 #include "../common/gzstream.h"
 #include "ParseMapfile.hpp"
@@ -85,7 +83,7 @@ namespace {
 
   void func(SeqStatsGenome &genome, const std::string &inputfile)
   {
-    BamTools::BamReader reader;
+/*    BamTools::BamReader reader;
     if (!reader.Open(inputfile)) PRINTERR_AND_EXIT("Failed to open file " << inputfile);
 
     std::cout << "filename: " << reader.GetFilename() << std::endl;
@@ -112,30 +110,11 @@ namespace {
     BamTools::BamAlignment read;
     while (reader.GetNextAlignment(read)) {
       if (read.IsMapped()) {
-	/*	std::cout << "refID: " << read.RefID
-		<< "\tName: " << read.Name
-		<< "\tFlag: " << read.AlignmentFlag
-		<< "\tPosition: " << read.Position
-		<< "\tLength: " << read.Length
-		<< "\tEndPosition: " << read.GetEndPosition()
-		<< "\tQuery: " << read.QueryBases
-		<< "\tAligned: " << read.AlignedBases
-		<< "\tTagData: " << read.TagData
-		<< std::endl;*/
 	++mappedReads;
 
 	if (read.IsDuplicate()) ++duplicatedReads;
 	if (read.IsReverseStrand()) ++reverseReads; else ++forwardReads;
 
-/*      int32_t sv(stoi(v[1])); // bitwise FLAG
-      // unmapped reads, low quality reads
-      if(sv&4 || sv&512 || sv&1024) continue;
-      if(sv&64 || sv&128) std::cerr << "Warning: parsing paired-end file as single-end." << std::endl;
-      Fragment frag;
-      frag.addSAM(v, genome.isPaired(), sv);
-      frag.print();
-      addFragToChr(genome, frag);
-      */
       } else ++unmappedReads;
     }
     reader.Close();
@@ -146,6 +125,7 @@ namespace {
 	      << "\t- reads: " << reverseReads
 	      << "\nunmapped reads: " << unmappedReads
 	      << std::endl;
+*/
     exit(0);
     return;
   }
