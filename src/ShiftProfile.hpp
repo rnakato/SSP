@@ -118,6 +118,7 @@ void genThread(T &dist, const SeqStatsGenomeSSP &genome, uint32_t chr_s, uint32_
 template <class T, class S>
 void makeProfile(SSPstats &sspst, S &genome, const std::string &head, const std::string &typestr);
 
+void setSSPstats(SSPstats &p, const double bu, const double nsc, const double rlsc, const double rsc);
 void strShiftProfile(SSPstats &sspst, SeqStatsGenomeSSP &genome, const std::string &head, const std::string &typestr);
 
 #endif /* _SHIFTPROFILE_H_ */

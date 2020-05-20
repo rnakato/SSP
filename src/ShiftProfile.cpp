@@ -149,14 +149,12 @@ boost::dynamic_bitset<> genBitset(const std::vector<Read> &vReadref, const int32
   return array;
 }
 
-namespace {
-  void setSSPstats(SSPstats &p, const double bu, const double nsc, const double rlsc, const double rsc)
-  {
-    p.setnsc(nsc);
-    p.setrlsc(rlsc);
-    p.setrsc(rsc);
-    p.setbu(bu);
-  }
+void setSSPstats(SSPstats &p, const double bu, const double nsc, const double rlsc, const double rsc)
+{
+  p.setnsc(nsc);
+  p.setrlsc(rlsc);
+  p.setrsc(rsc);
+  p.setbu(bu);
 }
 
 
