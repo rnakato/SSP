@@ -141,6 +141,8 @@ class SeqStatsGenomeSSP {
   }
   void setValues(const MyOpt::Variables &values);
 
+  void read_mapfile();
+
   std::string getname() const { return name; }
   uint64_t getlen() const {
     uint64_t len(0);

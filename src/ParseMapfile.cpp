@@ -394,32 +394,26 @@ namespace {
 
 }
 
-template <class T>
-void read_mapfile(T &genome)
+void SeqStatsGenomeSSP::read_mapfile()
 {
   std::vector<std::string> v;
-  ParseLine(v, genome.getInputfile(), ',');
+  ParseLine(v, getInputfile(), ',');
+
   for (auto &inputfile: v) {
     isFile(inputfile);
     std::cout << boost::format("Parsing %1%...\n") % inputfile;
-    if (genome.onFtype()) {
-      if (genome.getftype() == "SAM"
-	  || genome.getftype() == "BAM"
-	  || genome.getftype() == "CRAM")       parseSam(inputfile, genome);
-      else if (genome.getftype() == "BOWTIE")   parseBowtie(inputfile, genome);
-      else if (genome.getftype() == "TAGALIGN") parseTagAlign(inputfile, genome);
+    if (onFtype()) {
+      if (getftype() == "SAM"  || getftype() == "BAM" || getftype() == "CRAM") parseSam(inputfile, *this);
+      else if (getftype() == "BOWTIE")   parseBowtie(inputfile, *this);
+      else if (getftype() == "TAGALIGN") parseTagAlign(inputfile, *this);
     } else {
-      if (isStr(inputfile, ".sam")
-	  || isStr(inputfile, ".bam")
-	  || isStr(inputfile, ".cram"))         parseSam(inputfile, genome);
-      else if (isStr(inputfile, ".bowtie"))     parseBowtie(inputfile, genome);
-      else if (isStr(inputfile, ".tagalign"))   parseTagAlign(inputfile, genome);
+      if (isStr(inputfile, ".sam") || isStr(inputfile, ".bam") || isStr(inputfile, ".cram")) parseSam(inputfile, *this);
+      else if (isStr(inputfile, ".bowtie"))     parseBowtie(inputfile, *this);
+      else if (isStr(inputfile, ".tagalign"))   parseTagAlign(inputfile, *this);
     }
   }
 
-  if (!genome.getnread(Strand::BOTH)) PRINTERR_AND_EXIT("no read in input file.");
+  if (!getnread(Strand::BOTH)) PRINTERR_AND_EXIT("no read in input file.");
 
   return;
 }
-
-template void read_mapfile<SeqStatsGenomeSSP>(SeqStatsGenomeSSP &);

@@ -153,7 +153,7 @@ int main(int argc, char* argv[])
   SSP::Global p;
   getOpts(p, argc, argv);
 
-  read_mapfile(p.genome);
+  p.genome.read_mapfile();
   p.complexity.checkRedundantReads(p.genome);
 
   estimateFragLength(p);
