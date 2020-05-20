@@ -226,10 +226,6 @@ void strShiftProfile(SSPstats &sspst, SeqStatsGenomeSSP &genome,
   else if (typestr=="jaccard") makeProfile<shiftJacBit>(sspst, genome, head, typestr);
   else if (typestr=="ccp")     makeProfile<shiftCcp>(sspst, genome, head, typestr);
   else if (typestr=="hdp")     makeProfile<shiftHamming>(sspst, genome, head, typestr);
-/*  else if (typestr=="drompa") {
-    if (genome.dflen.isallchr()) makeProfile<shiftJacBit>(sspst, genome, head, "jaccard");
-    else makeProfile_forDROMPA<shiftJacBit>(sspst, genome, head, "jaccard");
-  }*/
 
   DEBUGprint("strShiftProfile done.");
   return;

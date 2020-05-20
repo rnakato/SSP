@@ -20,7 +20,6 @@ class FragmentLengthDist {
   std::vector<int32_t> vlenF5;
   std::vector<int32_t> vflen;
   bool nomodel;
-  bool allchr;
   bool pairedend;
 
   template <class T>
@@ -40,12 +39,10 @@ class FragmentLengthDist {
    vlenF5(ReadLenMax,0),
    vflen(FragLenMax,0),
    nomodel(0),
-   allchr(0),
    pairedend(0)
   {
     opt.add_options()
       ("nomodel", "omit fraglent length estimation (default: estimated by strand-shift profile)")
-      ("allchr", "(for DROMPA) use all chromosomes for fraglent length estimation")
       ("flen",
        boost::program_options::value<int32_t>()->default_value(150)->notifier(boost::bind(&MyOpt::over<int32_t>, _1, 1, "--binsize")),
        "(for --nomodel option) predefined fragment length")
@@ -61,14 +58,12 @@ class FragmentLengthDist {
 
     flen_def  = MyOpt::getVal<int32_t>(values, "flen");
     nomodel   = values.count("nomodel");
-    allchr    = values.count("allchr");
     pairedend = values.count("pair");
 
     DEBUGprint("FragmentLengthDist setValues done.");
   }
 
   bool isnomodel() const { return nomodel; }
-  bool isallchr() const { return allchr; }
 
   int32_t getlenF3 () const { return getmaxi(vlenF3); }
   int32_t getlenF5 () const { return getmaxi(vlenF5); }
