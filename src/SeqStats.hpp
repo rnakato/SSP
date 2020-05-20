@@ -48,7 +48,6 @@ void printSeqStats(const T &obj)
 class SeqStats {
   enum {STRANDNUM=2};
 
-  strandData seq[STRANDNUM];
   std::string refname;
   std::string name;
   uint64_t len, len_mpbl;
@@ -56,13 +55,13 @@ class SeqStats {
   double depth;
 
 public:
+  strandData seq[STRANDNUM];
 
   SeqStats(std::string &s, int32_t l):
     refname(s), name(rmchr(s)), len(l), len_mpbl(l),
     Greekchr(false), depth(0)
   {}
 
-  const strandData* getseq() const { return seq; }
   const std::string & getrefname() const { return refname; }
   const std::string & getname() const { return name; }
   void addfrag(const Fragment &frag) {
