@@ -54,7 +54,6 @@ class SeqStatsSSP {
   strandData seq[STRANDNUM];
   bool Greekchr;
   double depth;
-  uint64_t nread_inbed;
   double sizefactor;
 
  public:
