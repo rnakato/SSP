@@ -38,7 +38,7 @@ Usage: ssp [option] -i <inputfile> -o <output> --gt <genome_table>)";
 
     clock_t t1,t2;
     t1 = clock();
-    strShiftProfile(p.sspst, p.genome, head, "jaccard");
+    p.genome.strShiftProfile(p.sspst, head, "jaccard");
     t2 = clock();
     std::cout << "Jaccard Bit: " << static_cast<double>(t2 - t1) / CLOCKS_PER_SEC << "sec.\n";
     makeFCSProfile(p.fcsst, p.genome, head, "fcs");
@@ -49,21 +49,21 @@ Usage: ssp [option] -i <inputfile> -o <output> --gt <genome_table>)";
 
     if (p.sspst.DoExjac()) {
       t1 = clock();
-      strShiftProfile(p.sspst, p.genome, head, "exjaccard");
+      p.genome.strShiftProfile(p.sspst, head, "exjaccard");
       t2 = clock();
       std::cout << "Jaccard Vec: " << static_cast<double>(t2 - t1) / CLOCKS_PER_SEC << "sec.\n";
     }
 
     if (p.sspst.DoHd()) {
       t1 = clock();
-      strShiftProfile(p.sspst, p.genome, head, "hdp");
+      p.genome.strShiftProfile(p.sspst, head, "hdp");
       t2 = clock();
       std::cout << "Hamming: " << static_cast<double>(t2 - t1) / CLOCKS_PER_SEC << "sec.\n";
     }
 
     if (p.sspst.DoCc()) {
       t1 = clock();
-      strShiftProfile(p.sspst, p.genome, head, "ccp");
+      p.genome.strShiftProfile(p.sspst, head, "ccp");
       t2 = clock();
       std::cout << "ccp: " << static_cast<double>(t2 - t1) / CLOCKS_PER_SEC << "sec.\n";
     }

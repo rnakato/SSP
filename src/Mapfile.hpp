@@ -27,7 +27,7 @@ class FragmentLengthDist {
   {
     out << str << " length distribution" << std::endl;
     out << "length\tnumber\tproportion" << std::endl;
-    for(size_t i=0; i<v.size(); ++i)
+    for (size_t i=0; i<v.size(); ++i)
       if (v[i]) out << boost::format("%1%\t%2%\t%3%\n") % i % v[i] % getratio(v[i], nread);
   }
 
@@ -87,6 +87,8 @@ class FragmentLengthDist {
   void outputDistFile(const std::string &prefix, const uint64_t nread);
 };
 
+class SSPstats;
+
 class SeqStatsGenomeSSP {
   MyOpt::Opts opt;
 
@@ -141,12 +143,12 @@ class SeqStatsGenomeSSP {
   std::string getname() const { return name; }
   uint64_t getlen() const {
     uint64_t len(0);
-    for(auto &x:chr) len += x.getlen();
+    for (auto &x:chr) len += x.getlen();
     return len;
   }
   uint64_t getlenmpbl() const {
     uint64_t len_mpbl(0);
-    for(auto &x:chr) len_mpbl += x.getlenmpbl();
+    for (auto &x:chr) len_mpbl += x.getlenmpbl();
     return len_mpbl;
   }
   double getpmpbl() const {
@@ -154,27 +156,27 @@ class SeqStatsGenomeSSP {
   }
   uint64_t getnread (const Strand::Strand strand) const {
     uint64_t nread(0);
-    for(auto &x:chr) nread += x.getnread(strand);
+    for (auto &x:chr) nread += x.getnread(strand);
     return nread;
   }
   uint64_t getnread_nonred (const Strand::Strand strand) const {
     uint64_t nread(0);
-    for(auto &x:chr) nread += x.getnread_nonred(strand);
+    for (auto &x:chr) nread += x.getnread_nonred(strand);
     return nread;
   }
   uint64_t getnread_red (const Strand::Strand strand) const {
     uint64_t nread(0);
-    for(auto &x:chr) nread += x.getnread_red(strand);
+    for (auto &x:chr) nread += x.getnread_red(strand);
     return nread;
   }
   uint64_t getnread_rpm (const Strand::Strand strand) const {
     uint64_t nread(0);
-    for(auto &x:chr) nread += x.getnread_rpm(strand);
+    for (auto &x:chr) nread += x.getnread_rpm(strand);
     return nread;
   }
   uint64_t getnread_afterGC (const Strand::Strand strand) const {
     uint64_t nread(0);
-    for(auto &x:chr) nread += x.getnread_afterGC(strand);
+    for (auto &x:chr) nread += x.getnread_afterGC(strand);
     return nread;
   }
   void setdepth(const double d) { depth = d; }
@@ -183,10 +185,12 @@ class SeqStatsGenomeSSP {
   void printReadstats() const {
     std::cout << "name\tlength\tlen_mpbl\tread num\tnonred num\tred num\tnormed\tafterGC\tdepth" << std::endl;
     printSeqStats(*this);
-    for(auto &x: chr) printSeqStats(x);
+    for (auto &x: chr) printSeqStats(x);
   }
 
   size_t getnchr() const { return chr.size(); }
+
+  void strShiftProfile(SSPstats &sspst, const std::string &head, const std::string &typestr);
 
 };
 

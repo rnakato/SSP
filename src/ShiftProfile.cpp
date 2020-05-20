@@ -217,15 +217,14 @@ void makeProfile(SSPstats &sspst, S &genome, const std::string &head, const std:
   return;
 }
 
-void strShiftProfile(SSPstats &sspst, SeqStatsGenomeSSP &genome,
-		     const std::string &head, const std::string &typestr)
+void SeqStatsGenomeSSP::strShiftProfile(SSPstats &sspst, const std::string &head, const std::string &typestr)
 {
   DEBUGprint("strShiftProfile...");
 
-  if (typestr=="exjaccard")    makeProfile<shiftJacVec>(sspst, genome, head, typestr);
-  else if (typestr=="jaccard") makeProfile<shiftJacBit>(sspst, genome, head, typestr);
-  else if (typestr=="ccp")     makeProfile<shiftCcp>(sspst, genome, head, typestr);
-  else if (typestr=="hdp")     makeProfile<shiftHamming>(sspst, genome, head, typestr);
+  if (typestr=="exjaccard")    makeProfile<shiftJacVec>(sspst, *this, head, typestr);
+  else if (typestr=="jaccard") makeProfile<shiftJacBit>(sspst, *this, head, typestr);
+  else if (typestr=="ccp")     makeProfile<shiftCcp>(sspst, *this, head, typestr);
+  else if (typestr=="hdp")     makeProfile<shiftHamming>(sspst, *this, head, typestr);
 
   DEBUGprint("strShiftProfile done.");
   return;
