@@ -8,7 +8,7 @@ namespace {
   using mapIntInt = std::unordered_map<int32_t, int32_t>;
   using mapStrInt = std::unordered_map<std::string, int32_t>;
   
-  void hashFilterAllSingle(mapIntInt &mp, SeqStatsSSP &chr, const Strand::Strand strand, const int32_t thre)
+  void hashFilterAllSingle(mapIntInt &mp, SeqStats &chr, const Strand::Strand strand, const int32_t thre)
   {
     for (auto &x: chr.getvReadref_notconst(strand)) {
       if (mp.find(x.F3) != mp.end()) {
@@ -27,7 +27,7 @@ namespace {
     return;
   }
   
-  void hashFilterAllPair(mapStrInt &mp, SeqStatsSSP &chr, const Strand::Strand strand, const int32_t thre)
+  void hashFilterAllPair(mapStrInt &mp, SeqStats &chr, const Strand::Strand strand, const int32_t thre)
   {
     for (auto &x: chr.getvReadref_notconst(strand)) {
       int32_t Fmin(std::min(x.F3, x.F5));
@@ -50,7 +50,7 @@ namespace {
   }
 }
 
-void LibComp::hashFilterCmpSingle(mapIntInt &mp, const SeqStatsSSP &chr, const Strand::Strand strand)
+void LibComp::hashFilterCmpSingle(mapIntInt &mp, const SeqStats &chr, const Strand::Strand strand)
 {
   for (auto &x: chr.getvReadref(strand)) {
     if (rand() >= r4cmp) continue;
@@ -70,7 +70,7 @@ void LibComp::hashFilterCmpSingle(mapIntInt &mp, const SeqStatsSSP &chr, const S
   return;
 }
 
-void LibComp::hashFilterCmpPair(mapStrInt &mp, const SeqStatsSSP &chr, const Strand::Strand strand)
+void LibComp::hashFilterCmpPair(mapStrInt &mp, const SeqStats &chr, const Strand::Strand strand)
 {
   for (auto &x: chr.getvReadref(strand)) {
     if (rand() >= r4cmp) continue;
@@ -93,7 +93,7 @@ void LibComp::hashFilterCmpPair(mapStrInt &mp, const SeqStatsSSP &chr, const Str
   return;
 }
 
-void LibComp::filtering_eachchr_single(SeqStatsSSP &chr)
+void LibComp::filtering_eachchr_single(SeqStats &chr)
 {
   for (auto strand: {Strand::FWD, Strand::REV}) {
     mapIntInt mp;
@@ -103,7 +103,7 @@ void LibComp::filtering_eachchr_single(SeqStatsSSP &chr)
   }
 }
 
-void LibComp::filtering_eachchr_pair(SeqStatsSSP &chr)
+void LibComp::filtering_eachchr_pair(SeqStats &chr)
 {
   mapStrInt mp;
   for (auto strand: {Strand::FWD, Strand::REV}) {

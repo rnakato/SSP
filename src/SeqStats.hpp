@@ -45,7 +45,7 @@ void printSeqStats(const T &obj)
 	    obj.getdepth());
 }
 
-class SeqStatsSSP {
+class SeqStats {
   enum {STRANDNUM=2};
 
   std::string refname;
@@ -59,7 +59,7 @@ protected:
 
 public:
 
-  SeqStatsSSP(std::string &s, int32_t l):
+  SeqStats(std::string &s, int32_t l):
     refname(s), name(rmchr(s)), len(l), len_mpbl(l),
     Greekchr(false), depth(0)
   {}

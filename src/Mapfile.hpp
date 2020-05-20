@@ -109,7 +109,7 @@ class SeqStatsGenomeSSP {
   void readGenomeTable(const std::string &gt);
 
  public:
-  std::vector<SeqStatsSSP> chr;
+  std::vector<SeqStats> chr;
   std::vector<MyMthread::chrrange> vsepchr;
   FragmentLengthDist dflen;
 
