@@ -2,6 +2,7 @@
 
 ## 1.2.0 (2020-05-19)
 - Adopt htslib API for parsing SAM/BAM/CRAM format
+- Now available to use on Mac
 - Remove BedFormat.hpp that is used in DROMPAplus
 - Remove unused classes in SSP that is for DROMPAplus
 
