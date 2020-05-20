@@ -6,9 +6,8 @@
 #include <boost/iostreams/device/file.hpp>
 #include <boost/iostreams/device/file_descriptor.hpp>
 #include <htslib/sam.h>
-#include "../common/gzstream.h"
-#include "ParseMapfile.hpp"
 #include "Mapfile.hpp"
+#include "../common/gzstream.h"
 
 namespace {
   void addFragToChr(SeqStatsGenomeSSP &genome, const Fragment &frag)

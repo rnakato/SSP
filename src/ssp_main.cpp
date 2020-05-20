@@ -8,7 +8,6 @@
 #include <fstream>
 #include <boost/filesystem.hpp>
 #include "ssp_gv.hpp"
-#include "ParseMapfile.hpp"
 
 #define VERSION "1.2.0"
 
