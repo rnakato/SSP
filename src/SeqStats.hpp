@@ -51,15 +51,17 @@ class SeqStatsSSP {
   std::string refname;
   std::string name;
   uint64_t len, len_mpbl;
-  strandData seq[STRANDNUM];
   bool Greekchr;
   double depth;
 
- public:
+protected:
+  strandData seq[STRANDNUM];
 
- SeqStatsSSP(std::string &s, int32_t l):
-   refname(s), name(rmchr(s)), len(l), len_mpbl(l),
-   Greekchr(false), depth(0)
+public:
+
+  SeqStatsSSP(std::string &s, int32_t l):
+    refname(s), name(rmchr(s)), len(l), len_mpbl(l),
+    Greekchr(false), depth(0)
   {}
 
   const std::string & getrefname() const { return refname; }
