@@ -11,25 +11,26 @@ std::vector<int8_t> genVector(const std::vector<Read> &vReadref, const int32_t s
 boost::dynamic_bitset<> genBitset(const std::vector<Read> &vReadref, const int32_t, const int32_t);
 void addmp(std::map<int32_t, double> &, const std::map<int32_t, double> &, double w);
 
-double getmpmean(const std::map<int32_t, double> mp, int32_t s, int32_t e) {
-  double m(0);
-  int32_t n(0);
-  if (s > e) {
-    std::cerr << "Error: s " << s << "> e " << e <<"for getmpmean" << std::endl;
-    return -1;
-  }
-  for (int32_t i=s; i <= e; ++i) {
-    m += mp.at(i);
-    ++n;
-  }
-  return m/n;
-}
-
 class ReadShiftProfile {
   int32_t lenF3;
   double r;
   double bk;
   int32_t bk_from;
+
+  double getmpmean(const std::map<int32_t, double> mp, int32_t s, int32_t e)
+  {
+    double m(0);
+    int32_t n(0);
+    if (s > e) {
+      std::cerr << "Error: s " << s << "> e " << e <<"for getmpmean" << std::endl;
+      return -1;
+    }
+    for (int32_t i=s; i <= e; ++i) {
+      m += mp.at(i);
+      ++n;
+    }
+    return m/n;
+  }
 
  protected:
   double nsc;
@@ -42,7 +43,7 @@ class ReadShiftProfile {
   double backgroundUniformity;
   int32_t mp_from;
   int32_t mp_to;
-  
+
  public:
   std::map<int32_t, double> mp;
   std::map<int32_t, double> nc;
@@ -127,7 +128,7 @@ class ReadShiftProfile {
 
   void print2file(const std::string &filename, const std::string &name) {
     if (!nread) std::cerr << filename << ": no read" << std::endl;
-    
+
     double sum(getmpsum());
     double rRPKM = getratio(num4ssp, nread) / getratio(NUM_100M, len);
 
@@ -168,11 +169,11 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
   int32_t ng_to;
   int32_t ng_step;
   std::vector<range> seprange;
-  
+
  public:
   std::string name;
   std::vector<ReadShiftProfile> chr;
-  
+
  ReadShiftProfileGenome(const std::string n, const SSPstats &sspst, const SeqStatsGenomeSSP &genome):
    ReadShiftProfile(genome.dflen.getlenF3(), sspst.getMpFrom(), sspst.getMpTo(), sspst.getNgFrom(), sspst.getnum4ssp()),
     ng_from(5000),
@@ -231,13 +232,13 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
     out << "dev.off()" << std::endl;
 
     std::string command = "R --vanilla < " + Rscript + " > " + Rscript + ".log 2>&1";
-    
+
     int32_t return_code = system(command.c_str());
     if(WEXITSTATUS(return_code)) {
       std::cerr << "Warning: command " << command << "return nonzero status." << std::endl;
     }
   }
-  
+
   void outputmpGenome(const std::string &prefix) {
     std::string filename = prefix + ".csv";
     print2file(filename, name);
@@ -256,7 +257,7 @@ class shiftJacVec : public ReadShiftProfileGenome {
   double getJaccard(const int32_t step, const int32_t to, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev);
   void genThreadJacVec(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev,
 		       const int32_t s, const int32_t e, boost::mutex &mtx);
-  
+
  public:
  shiftJacVec(const SSPstats &sspst, const SeqStatsGenomeSSP &genome):
    ReadShiftProfileGenome("Jaccard index", sspst, genome) {}
@@ -266,7 +267,7 @@ class shiftJacVec : public ReadShiftProfileGenome {
     auto fwd = genVector(genome.chr[i].getvReadref(Strand::FWD), chr[i].start, chr[i].end);
     auto rev = genVector(genome.chr[i].getvReadref(Strand::REV), chr[i].start, chr[i].end);
 
-    setDist(chr[i], fwd, rev);  
+    setDist(chr[i], fwd, rev);
   }
 };
 
@@ -309,7 +310,7 @@ class shiftHamming : public ReadShiftProfileGenome {
   void execchr(const SeqStatsGenomeSSP &genome, int32_t i) {
     auto fwd = genBitset(genome.chr[i].getvReadref(Strand::FWD),  chr[i].start, chr[i].end);
     auto rev = genBitset(genome.chr[i].getvReadref(Strand::REV), chr[i].start, chr[i].end);
-    
+
     setDist(chr[i], fwd, rev);
   }
 };
