@@ -111,6 +111,10 @@ class SSPstats {
   }
 };
 
+
+template <class T>
+void genThread(T &dist, const SeqStatsGenomeSSP &genome, uint32_t chr_s, uint32_t chr_e, const std::string &prefix, const bool output_eachchr, const int32_t ng_to);
+
 template <class T, class S>
 void makeProfile(SSPstats &sspst, S &genome, const std::string &head, const std::string &typestr);
 
