@@ -185,6 +185,9 @@ class SeqStatsGenomeSSP {
     printSeqStats(*this);
     for(auto &x: chr) printSeqStats(x);
   }
+
+  size_t getnchr() const { return chr.size(); }
+
 };
 
 #endif /* _MAPFILE_HPP_ */
