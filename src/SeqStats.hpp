@@ -48,14 +48,12 @@ void printSeqStats(const T &obj)
 class SeqStats {
   enum {STRANDNUM=2};
 
+  strandData seq[STRANDNUM];
   std::string refname;
   std::string name;
   uint64_t len, len_mpbl;
   bool Greekchr;
   double depth;
-
-protected:
-  strandData seq[STRANDNUM];
 
 public:
 
@@ -64,6 +62,7 @@ public:
     Greekchr(false), depth(0)
   {}
 
+  const strandData* getseq() const { return seq; }
   const std::string & getrefname() const { return refname; }
   const std::string & getname() const { return name; }
   void addfrag(const Fragment &frag) {
