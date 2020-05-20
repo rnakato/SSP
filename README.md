@@ -25,7 +25,7 @@ The version numbers listed have been tested successfully.
 
 ### 2.2.1 Install required libraries
 
-On Ubuntu and Debian:
+On Ubuntu:
 
     sudo apt-get install git build-essential libboost-all-dev libgsl-dev libz-dev
 
@@ -51,7 +51,7 @@ On Mac:
     # change name from "-lboost_thread" to "-lboost_thread-mt"
     sed -i -e 's/-lboost_thread/-lboost_thread-mt/g' Makefile
     make
-    
+
 ### 2.2.3 Add the PATH environment variable
 For example, if you downloaded SSP into the $HOME/my_chipseq_exp directory, type:
 
