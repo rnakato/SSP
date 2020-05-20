@@ -105,7 +105,6 @@ class SeqStatsGenomeSSP {
 
   std::string name;
   double depth;
-  double sizefactor;
 
   void readGenomeTable(const std::string &gt);
 
@@ -118,7 +117,8 @@ class SeqStatsGenomeSSP {
    opt("Genome",100),
    pairedend(0), maxins(0), specifyFtype(0),
    ftype(""),
-   name("Genome"), depth(0), sizefactor(0) {
+   name("Genome"), depth(0)
+  {
    using namespace boost::program_options;
    opt.add_options()
      ("gt", value<std::string>(),
@@ -126,7 +126,7 @@ class SeqStatsGenomeSSP {
      ("mptable", value<std::string>(),
       "Genome table of mappable regions")
       ;
- }
+  }
 
   const std::string & getInputfile() const { return inputfilename; }
   const std::string & getGenomeTable() const { return genometable; }
@@ -180,19 +180,8 @@ class SeqStatsGenomeSSP {
     for(auto &x:chr) nread += x.getnread_afterGC(strand);
     return nread;
   }
-  uint64_t getnread_inbed() const {
-    uint64_t nread(0);
-    for(auto &x:chr) nread += x.getnread_inbed();
-    return nread;
-  }
-  double getFRiP() const {
-    return getratio(getnread_inbed(), getnread_nonred(Strand::BOTH));
-  }
   void setdepth(const double d) { depth = d; }
   double getdepth() const { return depth; }
-  double getsizefactor()const { return sizefactor; }
-
-  void setsizefactor(const double w) { sizefactor = w; }
 
   void printReadstats() const {
     std::cout << "name\tlength\tlen_mpbl\tread num\tnonred num\tred num\tnormed\tafterGC\tdepth" << std::endl;

@@ -54,14 +54,13 @@ class SeqStatsSSP {
   strandData seq[STRANDNUM];
   bool Greekchr;
   double depth;
-  double sizefactor;
 
  public:
 
  SeqStatsSSP(std::string &s, int32_t l):
    refname(s), name(rmchr(s)), len(l), len_mpbl(l),
-   Greekchr(false), depth(0), nread_inbed(0),
-   sizefactor(0) {}
+   Greekchr(false), depth(0)
+  {}
 
   const std::string & getrefname() const { return refname; }
   const std::string & getname() const { return name; }
@@ -88,8 +87,6 @@ class SeqStatsSSP {
     if(strand==Strand::BOTH) return seq[Strand::FWD].nread_afterGC + seq[Strand::REV].nread_afterGC;
     else return seq[strand].nread_afterGC;
   }
-  uint64_t getnread_inbed() const { return nread_inbed; }
-
   void setnread_nonread_nofilter() {
     for (auto strand: {Strand::FWD, Strand::REV}) seq[strand].setnread_nonread_nofilter();
   }
@@ -112,7 +109,6 @@ class SeqStatsSSP {
   uint64_t getlen()       const { return len; }
   uint64_t getlenmpbl()   const { return len_mpbl; }
   double   getpmpbl()     const { return getratio(getlenmpbl(), getlen()); }
-  double   getsizefactor()const { return sizefactor; }
   double   getdepth()     const { return depth; }
 
   void setF5ToRead(const int32_t flen) {
@@ -135,15 +131,6 @@ class SeqStatsSSP {
 #endif
   }
 
-  /*  void setFRiP(const std::vector<NAKATO::bed> &vbed); // defined in DROMPAplus/src/readMpblWigArray.cpp
-
-  double getFRiP() const {
-    return getratio(nread_inbed, getnread_nonred(Strand::BOTH));
-    }*/
-  void setsizefactor(const double w) {
-    sizefactor = w;
-    for (auto strand: {Strand::FWD, Strand::REV}) seq[strand].nread_rpm = seq[strand].nread_nonred * sizefactor;
-  }
   void Greekchron() { Greekchr = true; }
 
   bool isautosome() const {
