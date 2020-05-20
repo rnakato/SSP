@@ -196,10 +196,10 @@ void makeProfile(SSPstats &sspst, S &genome, const std::string &head, const std:
     }
     agroup.join_all();
   } else {
-    genThread(dist, genome, 0, genome.chr.size()-1, prefix, sspst.isEachchr(), sspst.getNgTo());
+    genThread(dist, genome, 0, genome.getnchr()-1, prefix, sspst.isEachchr(), sspst.getNgTo());
   }
 
-  for (size_t i=0; i<genome.chr.size(); ++i) {
+  for (size_t i=0; i<genome.getnchr(); ++i) {
     if (genome.chr[i].isautosome()) dist.addmp2genome(i);
   }
 
