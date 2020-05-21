@@ -83,12 +83,12 @@ class ReadShiftProfile {
   void setControlRatio() {
     int32_t n(0);
     for(auto pair: nc) {
-      if(pair.first >= bk_from) {
+      if (pair.first >= bk_from) {
 	bk += pair.second;
 	++n;
       }
     }
-    if(n) bk /= n; else bk = 1;
+    if (n) bk /= n; else bk = 1;
     r = 1/bk;
   }
 
@@ -114,10 +114,10 @@ class ReadShiftProfile {
 	  nsci = i;
 	}
       } else {
-	if(mpsmooth.at(i) < mpsmooth.at(i+threwidth) || mpsmooth.at(i) < mpsmooth.at(i-threwidth)) continue;
+	if (mpsmooth.at(i) < mpsmooth.at(i+threwidth) || mpsmooth.at(i) < mpsmooth.at(i-threwidth)) continue;
 	double s(mp.at(i)*r);
 	//	printf("%d %f %f\n",i, s, r);
-	if(nsc < s) {
+	if (nsc < s) {
 	  nsc  = s;
 	  rsc  = (mp.at(i) - bk)/(mp.at(lenF3) - bk);
 	  nsci = i;
@@ -182,7 +182,7 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
     name(n)
     {
       for(auto &x: genome.chr) {
-	if(x.isautosome()) {
+	if (x.isautosome()) {
 	  nread += x.getnread_nonred(Strand::BOTH);
 	  len   += x.getlenmpbl();
 	  //	  std::cout<< len << "\t" << x.getlenmpbl() << std::endl;
@@ -204,7 +204,7 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
     for(int32_t i=0; i<numthreads; ++i) {
       int32_t s = i*sepsize;
       int32_t e = (i+1)*sepsize;
-      if(i==numthreads-1) e = length;
+      if (i==numthreads-1) e = length;
       seprange.emplace_back(range(s - mp_from, e - mp_from));
     }
   }
@@ -222,8 +222,8 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
     out << "pdf(paste(output, '.pdf', sep=''), height=7, width=14)" << std::endl;
     out << "par(mfrow=c(1,2))" << std::endl;
     out << "plot(data[1:" << mp_from+mp_to << ",1], data[1:" << mp_from+mp_to << ",5], type='l', xlab='Strand shift', ylab='Score relative to background', xlim=c(" << -mp_from << "," << mp_to << "), main='" << -mp_from << " bp ~ " << mp_to << " bp', ";
-    if(name == "Jaccard index") out << "sub=sprintf('NSC=%g, RSC=%g, RLSC=%g, Bu=%g', " << nsc << "," << rsc << ","  << rlsc << "," << backgroundUniformity << "))" << std::endl;
-    else if(name == "Cross correlation") out << "sub=sprintf('NSC=%g, RSC=%g, RLSC=%g', " << nsc << "," << rsc << ","  << rlsc << "))" << std::endl;
+    if (name == "Jaccard index") out << "sub=sprintf('NSC=%g, RSC=%g, RLSC=%g, Bu=%g', " << nsc << "," << rsc << ","  << rlsc << "," << backgroundUniformity << "))" << std::endl;
+    else if (name == "Cross correlation") out << "sub=sprintf('NSC=%g, RSC=%g, RLSC=%g', " << nsc << "," << rsc << ","  << rlsc << "))" << std::endl;
     else out << ")" << std::endl;
     out << "abline(v=" << nsci <<",lty=2,col=2)" << std::endl;
     out << "abline(v=" << getlenF3() <<",lty=2,col='blue')" << std::endl;
@@ -234,7 +234,7 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
     std::string command = "R --vanilla < " + Rscript + " > " + Rscript + ".log 2>&1";
 
     int32_t return_code = system(command.c_str());
-    if(WEXITSTATUS(return_code)) {
+    if (WEXITSTATUS(return_code)) {
       std::cerr << "Warning: command " << command << "return nonzero status." << std::endl;
     }
   }

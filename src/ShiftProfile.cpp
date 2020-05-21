@@ -206,8 +206,6 @@ void makeProfile(SSPstats &sspst, S &genome, const std::string &head, const std:
   dist.setflen(dist.name);
   genome.dflen.setflen_ssp(dist.getnsci());
 
-  if(sspst.getNgTo() < 0) return;
-
   std::string prefix2 = head + "." + typestr;
   dist.outputmpGenome(prefix2);
 
