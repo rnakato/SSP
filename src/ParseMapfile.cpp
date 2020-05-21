@@ -412,7 +412,10 @@ void SeqStatsGenomeSSP::read_mapfile()
     }
   }
 
-  if (!getnread(Strand::BOTH)) PRINTERR_AND_EXIT("no read in input file.");
+  if (!getnread(Strand::BOTH)) {
+    if (isPaired()) PRINTERR_AND_EXIT("No read in input file. Is this a single-end reads file?");
+    else PRINTERR_AND_EXIT("No read in input file.");
+  }
 
   return;
 }
