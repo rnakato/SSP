@@ -192,6 +192,19 @@ class SeqStatsGenomeSSP {
 
   void strShiftProfile(SSPstats &sspst, const std::string &head, const std::string &typestr);
 
+  int32_t getIdLongestChr()
+  {
+    int32_t id(0);
+    uint64_t lenmax(0);
+    for(size_t i=0; i<getnchr(); ++i) {
+      if (lenmax < chr[i].getlenmpbl()) {
+	lenmax = chr[i].getlenmpbl();
+	id = i;
+      }
+    }
+    return id;
+  }
+
 };
 
 #endif /* _MAPFILE_HPP_ */
