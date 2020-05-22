@@ -27,11 +27,11 @@ The version numbers listed have been tested successfully.
 
 On Ubuntu:
 
-    sudo apt-get install git build-essential libboost-all-dev libgsl-dev libz-dev
+    sudo apt-get install git build-essential libboost-all-dev libgsl-dev libz-dev libbz2-dev
 
 On CentOS and Red Hat:
 
-    sudo yum -y install git gcc-c++ clang boost-devel gsl-devel zlib-devel
+    sudo yum -y install git gcc-c++ clang boost-devel gsl-devel zlib-devel bzip2-devel
 
 On Mac:
 
