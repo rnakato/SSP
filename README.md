@@ -31,7 +31,7 @@ On Ubuntu:
 
 On CentOS and Red Hat:
 
-    sudo yum -y install git gcc-c++ boost-devel gsl-devel zlib-devel
+    sudo yum -y install git gcc-c++ clang boost-devel gsl-devel zlib-devel
 
 On Mac:
 
