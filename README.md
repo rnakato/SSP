@@ -19,6 +19,7 @@ The version numbers listed have been tested successfully.
 * [Boost C++ library (1.53.0, 1.58.0)](http://www.boost.org/)
 * [GNU Scientific Library (1.15, 2.1)](http://www.gnu.org/software/gsl/)
 * [zlib (1.2.7, 1.2.8)](http://www.zlib.net/)
+* [Cmake (>2.8)](https://cmake.org/)
 * [HTSlib (1.10.2)](https://github.com/samtools/htslib) (for SAM/BAM/CRAM formatted input)
 
 ## 2.2 Building from source
@@ -28,15 +29,15 @@ The version numbers listed have been tested successfully.
 On Ubuntu:
 
     sudo apt install git build-essential libboost-all-dev libcurl4-gnutls-dev \
-                     libgsl-dev liblzma-dev libz-dev libbz2-dev 
+                     libgsl-dev liblzma-dev libz-dev libbz2-dev cmake
 
 On CentOS and Red Hat:
 
-    sudo yum -y install git gcc-c++ clang boost-devel gsl-devel zlib-devel bzip2-devel
+    sudo yum -y install git gcc-c++ clang boost-devel gsl-devel zlib-devel bzip2-devel cmake
 
 On Mac:
 
-    brew install gsl curl xz zlib boost
+    brew install gsl curl xz zlib boost cmake
 
 ### 2.2.2 Install SSP
 On Linux:
