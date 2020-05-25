@@ -6,4 +6,9 @@ include_directories(${Boost_INCLUDE_DIRS})
 
 add_executable(ssp ssp_main.cpp)
 
-target_link_libraries(ssp ssp_func ssp_common ${Boost_LIBRARIES})
+target_link_libraries(ssp
+                      ssp_func
+                      ssp_common
+                      ${PROJECT_SOURCE_DIR}/src/htslib-1.10.2/libhts.a
+                      ${Boost_LIBRARIES} -lcurl -llzma -lbz2 -lz
+)

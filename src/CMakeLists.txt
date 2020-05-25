@@ -7,7 +7,7 @@ add_library(ssp_func
     FragmentClusterScore.cpp
   )
 
-#add_subdirectory(htslib-1.10.2)
+
 
 target_include_directories(ssp_func
 	 PUBLIC ${PROJECT_SOURCE_DIR}/src/
