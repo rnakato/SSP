@@ -19,7 +19,7 @@ The version numbers listed have been tested successfully.
 * [Boost C++ library (1.53.0, 1.58.0)](http://www.boost.org/)
 * [GNU Scientific Library (1.15, 2.1)](http://www.gnu.org/software/gsl/)
 * [zlib (1.2.7, 1.2.8)](http://www.zlib.net/)
-* [Cmake (>2.8)](https://cmake.org/)
+* [CMake (>2.8)](https://cmake.org/)
 * [HTSlib (1.10.2)](https://github.com/samtools/htslib) (for SAM/BAM/CRAM formatted input)
 
 ## 2.2 Building from source
