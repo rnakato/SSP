@@ -1,3 +1,6 @@
 bin/
 cobj/
 obj/
+build
+src/htslib-1.10.2/*.o
+src/htslib-1.10.2/*/*.o
