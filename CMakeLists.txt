@@ -1,10 +1,11 @@
+set(CMAKE_VERBOSE_MAKEFILE 1)
 cmake_minimum_required(VERSION 3.0)
 project(SSP CXX)
 
-# Need C++11 due to JsonCpp nowadays
 set( CMAKE_CXX_STANDARD 11 )
 set( CMAKE_CXX_STANDARD_REQUIRED ON )
 set( CMAKE_CXX_EXTENSIONS OFF )
+set( CMAKE_CXX_FLAGS "-O2 -W -Wall")
 
 # サブディレクトリを登録
 add_subdirectory(src)
