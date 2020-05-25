@@ -8,8 +8,6 @@ else()
   set(BOOST_LIBS "-lpthread -lboost_thread -lboost_program_options -lboost_system -lboost_filesystem")
 endif()
 
-link_directories(ssp "/usr/local/lib")
-
 #find_package(Boost 1.53.0 REQUIRED thread program_options system filesystem)
 #include_directories(${Boost_INCLUDE_DIRS})
 
