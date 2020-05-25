@@ -27,7 +27,8 @@ The version numbers listed have been tested successfully.
 
 On Ubuntu:
 
-    sudo apt-get install git build-essential libboost-all-dev libcurl4-gnutls-dev libgsl-dev liblzma-dev libz-dev libbz2-dev 
+    sudo apt install git build-essential libboost-all-dev libcurl4-gnutls-dev \
+                     libgsl-dev liblzma-dev libz-dev libbz2-dev 
 
 On CentOS and Red Hat:
 
