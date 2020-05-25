@@ -40,18 +40,9 @@ On Mac:
     brew install gsl curl xz zlib boost cmake
 
 ### 2.2.2 Install SSP
-On Linux:
 
     git clone https://github.com/rnakato/SSP.git
     cd SSP
-    make
-
-On Mac:
-
-    git clone https://github.com/rnakato/SSP.git
-    cd SSP
-    # change name from "-lboost_thread" to "-lboost_thread-mt"
-    sed -i -e 's/-lboost_thread/-lboost_thread-mt/g' Makefile
     make
 
 ### 2.2.3 Add the PATH environment variable
