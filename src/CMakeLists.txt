@@ -7,8 +7,6 @@ add_library(ssp_func
     FragmentClusterScore.cpp
   )
 
-
-
 target_include_directories(ssp_func
 	 PUBLIC ${PROJECT_SOURCE_DIR}/src/
 )
