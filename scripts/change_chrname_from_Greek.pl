@@ -3,7 +3,6 @@
 open(IN, $ARGV[0]) || die;
 while(<IN>) {
     next if($_ eq "\n");
-    chomp;
 
     my @clm = split(/\t/, $_);
     my $head = "";
@@ -30,11 +29,9 @@ while(<IN>) {
     elsif($chr eq "XV"){ $chr = "15"; }
     elsif($chr eq "XVI"){ $chr = "16"; }
 
-    print "$head";
-    for($i=0;$i<=$#clm;$i++) {
-	print "$clm[$i]";
-	if($i!=$#clm) {print"\t";}
-	else {print"\n";}
+    print "$head$chr";
+    for($i=1;$i<=$#clm;$i++) {
+      print "\t$clm[$i]";
     }
-}
+  }
 close IN;
