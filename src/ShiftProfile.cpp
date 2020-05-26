@@ -6,7 +6,32 @@
 #include "ShiftProfile.hpp"
 #include "ShiftProfile_p.hpp"
 #include "../common/inline.hpp"
-#include "../common/statistics.hpp"
+
+template <class T>
+class moment {
+  double mean;
+  double var;
+  double sd;
+
+public:
+  moment(const std::vector<T> &v, const int32_t from, int32_t to=0):
+    mean(0), var(0), sd(0)
+  {
+    if (!to) to = v.size();
+    int32_t size(to - from);
+    if (size > 1) {
+      for (int32_t i=from; i<to; ++i) mean += v[i];
+      mean /= static_cast<double>(size);
+      for (int32_t i=from; i<to; ++i) var += (v[i] - mean)*(v[i] - mean);
+      var /= static_cast<double>(size -1);
+      sd = sqrt(var);
+    }
+    //      std::cout << size << "\t"<< v.size() << "\t"<< mean << "\t" << var << "\t" << sd << std::endl;
+  }
+  double getmean() const { return mean; }
+  double getvar()  const { return var; }
+  double getsd()   const { return sd; }
+};
 
 void addmp(std::map<int32_t, double> &mpto, const std::map<int32_t, double> &mpfrom, double w)
 {
@@ -66,8 +91,8 @@ void shiftCcp::genThread(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, 
 
 void shiftCcp::setDist(ReadShiftProfile &chr, const std::vector<int8_t> &fwd, const std::vector<int8_t> &rev)
 {
-  MyStatistics::moment<int8_t> x(fwd, mp_from, chr.width - ng_to);
-  MyStatistics::moment<int8_t> y(rev, mp_from, chr.width - ng_to);
+  moment<int8_t> x(fwd, mp_from, chr.width - ng_to);
+  moment<int8_t> y(rev, mp_from, chr.width - ng_to);
 
   boost::thread_group agroup;
   boost::mutex mtx;

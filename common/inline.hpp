@@ -7,7 +7,6 @@
 #include <iostream>
 #include <sstream>
 #include <boost/format.hpp>
-#include "statistics.hpp"
 
 #define PRINTERR_AND_EXIT(...) do{ std::cerr << "Error: " << __VA_ARGS__ << std::endl; std::exit(1); } while(0)
 #ifdef DEBUG
