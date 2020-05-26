@@ -29,15 +29,15 @@ The version numbers listed have been tested successfully.
 On Ubuntu:
 
     sudo apt install git build-essential libboost-all-dev libcurl4-gnutls-dev \
-                     libgsl-dev liblzma-dev libz-dev libbz2-dev cmake
+                     liblzma-dev libz-dev libbz2-dev cmake
 
 On CentOS and Red Hat:
 
-    sudo yum -y install git gcc-c++ clang boost-devel gsl-devel zlib-devel bzip2-devel cmake
+    sudo yum -y install git gcc-c++ clang boost-devel zlib-devel bzip2-devel cmake
 
 On Mac:
 
-    brew install gsl curl xz zlib boost cmake
+    brew install curl xz zlib boost cmake
 
 ### 2.2.2 Install SSP
 
