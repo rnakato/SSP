@@ -61,7 +61,7 @@ To obtain a docker image for SSP and DROMPA, type:
 
 For Singularity:
 
-    singularity pull ssp_drompa.img docker://rnakato/ssp_drompa
+    singularity build ssp_drompa.img docker://rnakato/ssp_drompa
     singularity exec ssp_drompa.img ssp
 
 # 3. Usage
