@@ -37,12 +37,12 @@ template <class T>
 void printSeqStats(const T &obj)
 {
   printList(obj.getname(), obj.getlen(), obj.getlenmpbl(),
-	    obj.getnread(Strand::BOTH),
-	    obj.getnread_nonred(Strand::BOTH),
-	    obj.getnread_red(Strand::BOTH),
-	    obj.getnread_rpm(Strand::BOTH),
-	    obj.getnread_afterGC(Strand::BOTH),
-	    obj.getdepth());
+            obj.getnread(Strand::BOTH),
+            obj.getnread_nonred(Strand::BOTH),
+            obj.getnread_red(Strand::BOTH),
+            obj.getnread_rpm(Strand::BOTH),
+            obj.getnread_afterGC(Strand::BOTH),
+            obj.getdepth());
 }
 
 class SeqStats {

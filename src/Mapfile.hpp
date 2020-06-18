@@ -65,9 +65,9 @@ class FragmentLengthDist {
 
   bool isnomodel() const { return nomodel; }
 
-  int32_t getlenF3 () const { return getmaxi(vlenF3); }
-  int32_t getlenF5 () const { return getmaxi(vlenF5); }
-  int32_t getflen4paired () const { return getmaxi(vflen); }
+  int32_t getlenF3() const { return getmaxi(vlenF3); }
+  int32_t getlenF5() const { return getmaxi(vlenF5); }
+  int32_t getflen4paired() const { return getmaxi(vflen); }
 
   void setflen_ssp(const int32_t len) { flen_ssp = len; }
   int32_t getflen() const {
@@ -75,10 +75,14 @@ class FragmentLengthDist {
     else if (!nomodel) return flen_ssp;
     else              return flen_def;
   }
+  void printreadlen(std::ofstream &out) const {
+    out << "read length (F3): " << getlenF3() << std::endl;
+    if (pairedend) out << "read length (F5): " << getlenF5() << std::endl;
+  }
   void printFlen(std::ofstream &out) const {
     if (pairedend)     out << "Most likely fragment length: " << getflen4paired() << std::endl;
     else if (!nomodel) out << "Estimated fragment length: "   << flen_ssp << std::endl;
-    else              out << "Predefined fragment length: "  << flen_def << std::endl;
+    else               out << "Predefined fragment length: "  << flen_def << std::endl;
   }
   void addF3(const int32_t lenF3) { ++vlenF3[lenF3]; }
   void addF5(const int32_t lenF5) { ++vlenF5[lenF5]; }

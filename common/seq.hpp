@@ -21,7 +21,7 @@ class chrsize {
   std::string name;
   int32_t len;
 
- public:
+public:
   chrsize(const std::string &n, const int32_t l):
     refname(n), name(rmchr(n)), len(l)
   {}
@@ -32,11 +32,11 @@ class chrsize {
 };
 
 class range {
- public:
+public:
   int32_t start;
   int32_t end;
- range(): start(0), end(0) {}
- range(int32_t s, int32_t e): start(s), end(e) {}
+  range(): start(0), end(0) {}
+  range(int32_t s, int32_t e): start(s), end(e) {}
   int32_t getlen() const { return end-start; }
 };
 
@@ -47,8 +47,8 @@ class var {
   T limlow;
   T limup;
   bool isupper;
- public:
- var(): name(""), val(0), limlow(0), limup(0), isupper(false){}
+public:
+  var(): name(""), val(0), limlow(0), limup(0), isupper(false){}
   var(std::string &str, T low):       name(str), val(0), limlow(low), limup(0), isupper(false) {}
   var(std::string &str, T low, T up): name(str), val(0), limlow(low), limup(up), isupper(true) {}
   void set(T n) {
@@ -63,7 +63,7 @@ class var {
 };
 
 class fasta {
- public:
+public:
   std::string name;
   uint64_t len, len_mpbl;
   int32_t nbin;
@@ -73,11 +73,11 @@ class fasta {
   explicit fasta (std::vector<std::string> &v): name(v[0]), len(stoi(v[1])), len_mpbl(0), nbin(0), p_mpbl(0), gcov(0) {}
   void print() const {
     std::cout << name << "\t"
-	      << len << "\t"
-	      << nbin << "\t"
-	      << len_mpbl << "\t"
-	      << p_mpbl << "\t"
-	      << gcov << std::endl;
+              << len << "\t"
+              << nbin << "\t"
+              << len_mpbl << "\t"
+              << p_mpbl << "\t"
+              << gcov << std::endl;
   }
 };
 
@@ -92,7 +92,7 @@ public:
   Fragment(): chr(""), F3(0), strand(Strand::FWD), fraglen(0), readlen_F3(0) {}
 
   void addSAM(const std::string &_chrname, const int32_t _readlen, const int32_t position,
-	      const int32_t isize, const bool _strand, const bool ispaired)
+              const int32_t isize, const bool _strand, const bool ispaired)
   {
     chr = rmchr(_chrname);
     readlen_F3 = _readlen;
@@ -106,22 +106,22 @@ public:
     }
   }
 
- void print() const {
+  void print() const {
 #ifdef PRINTFRAGMENT
-   std::cout << "chr:"       << chr
-	     << "\tposi:"    << F3
-	     << "\tstrand:"  << strand
-	     << "\tfraglen:" << fraglen
-	     <<"\treadlen:"  << readlen_F3
-	     << std::endl;
+    std::cout << "chr:"       << chr
+              << "\tposi:"    << F3
+              << "\tstrand:"  << strand
+              << "\tfraglen:" << fraglen
+              <<"\treadlen:"  << readlen_F3
+              << std::endl;
 #endif
- }
+  }
 };
 
 class Read {
   int32_t weight;
   enum {WeightNum=1000};
- public:
+public:
   int32_t F3;
   int32_t F5;
   int32_t duplicate;
@@ -145,11 +145,11 @@ class Read {
   void print() const {
 #ifdef PRINTREAD
     std::cout << "F3:"      << F3
-	      << "\tF5:"    << F5
-	      << "\tweight:"<< weight
-	      << "\tduplicate:" << duplicate
-	      << "\tinpeak:"    << inpeak
-	      << std::endl;
+              << "\tF5:"    << F5
+              << "\tweight:"<< weight
+              << "\tduplicate:" << duplicate
+              << "\tinpeak:"    << inpeak
+              << std::endl;
 #endif
   }
 

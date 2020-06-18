@@ -48,13 +48,15 @@ namespace SSP {
     void outputSSPstats() {
       std::string filename = getprefix() + ".stats.txt";
       std::ofstream out(filename);
-      out << "Sample\ttotal read number\tnonredundant read number\t"
-	  << "read length\tfragment length\t";
+      out << "Sample\ttotal read number\tnonredundant read number\tread length\tfragment length\t";
       sspst.printhead(out);
       out << "\t";
       fcsst.printhead(out);
-      out << samplename << "\t" << genome.getnread(Strand::BOTH) << "\t" << genome.getnread_nonred(Strand::BOTH) << "\t"
-	  << genome.dflen.getlenF3() << "\t" << genome.dflen.getflen() << "\t";
+      out << samplename << "\t"
+          << genome.getnread(Strand::BOTH) << "\t"
+          << genome.getnread_nonred(Strand::BOTH) << "\t"
+          << genome.dflen.getlenF3() << "\t"
+          << genome.dflen.getflen() << "\t";
       sspst.print(out);
       out << "\t";
       fcsst.print(out);
