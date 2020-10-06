@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.2.2 (2020-05-25)
+## 1.2.2 (2020-10-06)
 - Bug fix: switch boost::bind to std::bind to avoid complilation error depend on the version of compiler
 
 ## 1.2.1 (2020-05-25)
