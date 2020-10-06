@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <unordered_map>
 #include <boost/format.hpp>
+//#include <boost/bind.hpp>
 #include "SeqStats.hpp"
 #include "../common/BoostOptions.hpp"
 
@@ -36,10 +37,12 @@ class LibComp {
   {
     opt.add_options()
       ("thre_pb",
-       boost::program_options::value<int32_t>()->default_value(0)->notifier(boost::bind(&MyOpt::over<int32_t>, _1, 0, "--thre_pb")),
+       boost::program_options::value<int32_t>()->default_value(0)->notifier(std::bind(&MyOpt::over<int32_t>, std::placeholders::_1, 0, "--thre_pb")),
+      // boost::program_options::value<int32_t>()->default_value(0), //->notifier(boost::bind(&MyOpt::over<int32_t>, _1, 0, "--thre_pb")),
        "PCRbias threshold (default: more than max(1 read, 10 times greater than genome average)) ")
       ("ncmp",
-       boost::program_options::value<int64_t>()->default_value(NUM_10M)->notifier(boost::bind(&MyOpt::over<int64_t>, _1, 0, "--ncmp")),
+        boost::program_options::value<int64_t>()->default_value(NUM_10M)->notifier(std::bind(&MyOpt::over<int64_t>, std::placeholders::_1, 0, "--ncmp")),
+//       boost::program_options::value<int64_t>()->default_value(NUM_10M), //->notifier(boost::bind(&MyOpt::over<int64_t>, _1, 0, "--ncmp")),
        "read number for calculating library complexity")
       ("nofilter", "do not filter PCR bias")
       ;

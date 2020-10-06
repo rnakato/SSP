@@ -44,7 +44,8 @@ class FragmentLengthDist {
     opt.add_options()
       ("nomodel", "omit fraglent length estimation (default: estimated by strand-shift profile)")
       ("flen",
-       boost::program_options::value<int32_t>()->default_value(150)->notifier(boost::bind(&MyOpt::over<int32_t>, _1, 1, "--binsize")),
+//         boost::program_options::value<int32_t>()->default_value(150),
+       boost::program_options::value<int32_t>()->default_value(150)->notifier(std::bind(&MyOpt::over<int32_t>, std::placeholders::_1, 1, "--binsize")),
        "(for --nomodel option) predefined fragment length")
       ;
   }

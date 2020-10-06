@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.2.2 (2020-05-25)
+- Bug fix: switch boost::bind to std::bind to avoid complilation error depend on the version of compiler
+
 ## 1.2.1 (2020-05-25)
 - Adopt CMake to compile SSP
 - Add script change_chrname_[to|from]_Greek.pl
