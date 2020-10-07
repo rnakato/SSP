@@ -11,9 +11,8 @@ endif()
 #find_package(Boost 1.53.0 REQUIRED thread program_options system filesystem)
 #include_directories(${Boost_INCLUDE_DIRS})
 
-add_executable(ssp ssp_main.cpp)
-
 link_directories(ssp "/usr/local/lib")
+add_executable(ssp ssp_main.cpp)
 
 target_link_libraries(ssp
                       ssp_func
