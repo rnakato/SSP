@@ -42,7 +42,7 @@ int32_t getmaxi(std::vector<T> v)
   return maxi;
 };
 
-template <class T>
+/*template <class T>
 void GaussianSmoothing(std::vector<T> &v, const int32_t nsmooth)
 {
   std::vector<double> w(nsmooth+1,0);
@@ -78,7 +78,7 @@ void GaussianSmoothing(std::vector<T> &v, const int32_t nsmooth)
     for (int32_t i=nsmooth; i>0; --i) m[i] = m[i-1];
   }
   return;
-}
+}*/
 
 template <class T>
 int32_t findIndex(std::vector<T> array, T value)
