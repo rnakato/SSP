@@ -9,7 +9,7 @@
 #include <boost/filesystem.hpp>
 #include "ssp_gv.hpp"
 
-#define VERSION "1.2.2"
+#define VERSION "1.2.3"
 
 namespace {
   void printVersion()

@@ -96,6 +96,7 @@ class ReadShiftProfile {
     int32_t threwidth(5);
     int32_t leftend(lenF3*1.2);
     if (leftend>150) leftend=150;
+    if (leftend<10) leftend=10;
 
     setControlRatio();
     if (name == "Hamming distance") nsc = mp.at(mp_to-1);

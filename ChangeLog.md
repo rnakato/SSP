@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.2.3 (2022-04-09)
+- Bug fix: fixed the error when the F3 length (read length) is too short (e.g., 1~3)
+
 ## 1.2.2 (2020-10-06)
 - Bug fix: switch boost::bind to std::bind to avoid complilation error depend on the version of compiler
 
