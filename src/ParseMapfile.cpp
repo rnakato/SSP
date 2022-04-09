@@ -408,7 +408,7 @@ void SeqStatsGenomeSSP::read_mapfile()
     } else {
       if (isStr(inputfile, ".sam") || isStr(inputfile, ".bam") || isStr(inputfile, ".cram")) parseSam(inputfile, *this);
       else if (isStr(inputfile, ".bowtie"))     parseBowtie(inputfile, *this);
-      else if (isStr(inputfile, ".tagalign"))   parseTagAlign(inputfile, *this);
+      else if (isStr(inputfile, ".tagalign") || isStr(inputfile, ".tagAlign") || isStr(inputfile, ".bed")) parseTagAlign(inputfile, *this);
     }
   }
 
