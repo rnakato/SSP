@@ -115,7 +115,13 @@ public:
     int32_t d;
     for (auto strand: {Strand::FWD, Strand::REV}) {
       if(strand == Strand::FWD) d = flen; else d = -flen;
-      for(auto &x: seq[strand].vRead) x.F5 = x.F3 + d;
+      if(d<=0) PRINTERR_AND_EXIT("fragment length <= 0.");
+
+      for(auto &x: seq[strand].vRead) {
+	x.F5 = std::max(x.F3 + d, 0);
+	x.F5 = std::min(x.F5, (int32_t)(getlen()-1));
+	//if (x.F5 > getlen()-1) x.F5 = getlen()-1;
+      }
     }
   }
 
