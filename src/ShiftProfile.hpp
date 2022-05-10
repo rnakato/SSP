@@ -80,6 +80,7 @@ class SSPstats {
 
     DEBUGprint("SSPstats setValues done.");
   }
+
   void dump()
   {
     std::cout << boost::format("SSP background region: [%d,%d], step %d\n") % ng_from % ng_to % ng_step;

@@ -28,7 +28,7 @@ void printList()
 std::string rmchr(const std::string &chr)
 {
   std::string s;
-  if(!chr.find("chr")) s = chr.substr(3);
+  if(!chr.find("chr") || !chr.find("Chr")) s = chr.substr(3);
   else s = chr;
   return s;
 }

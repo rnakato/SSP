@@ -80,6 +80,7 @@ class ReadShiftProfile {
     for(auto pair: mp) sum += pair.second;
     return sum;
   }
+
   void setControlRatio() {
     int32_t n(0);
     for(auto pair: nc) {
@@ -90,6 +91,7 @@ class ReadShiftProfile {
     }
     if (n) bk /= n; else bk = 1;
     r = 1/bk;
+//    printf("controlratio=%f\n",r);
   }
 
   void setflen(const std::string &name) {
@@ -102,12 +104,15 @@ class ReadShiftProfile {
     if (name == "Hamming distance") nsc = mp.at(mp_to-1);
     else nsc = mp.at(mp_to-1)*r;
 
+    // printf("nsc=%f\n", nsc);
+
     std::map<int32_t, double> mpsmooth;
     for (int32_t i=mp_to-1-2; i > leftend-threwidth; --i) {
       mpsmooth[i] = getmpmean(mp, i-2, i+2);
     }
 
     for (int32_t i=mp_to-1-threwidth-2; i > leftend; --i) {
+//      printf("i=%d, leftend=%d, mp_to=%d\n", i, leftend, mp_to);
       if (name == "Hamming distance") {
 	if (mpsmooth.at(i) > mpsmooth.at(i+threwidth) || mpsmooth.at(i) > mpsmooth.at(i-threwidth)) continue;
 	if (nsc > mp.at(i)) {
@@ -117,7 +122,7 @@ class ReadShiftProfile {
       } else {
 	if (mpsmooth.at(i) < mpsmooth.at(i+threwidth) || mpsmooth.at(i) < mpsmooth.at(i-threwidth)) continue;
 	double s(mp.at(i)*r);
-	//	printf("%d %f %f\n",i, s, r);
+//	printf("%d %f %f\n",i, s, r);
 	if (nsc < s) {
 	  nsc  = s;
 	  rsc  = (mp.at(i) - bk)/(mp.at(lenF3) - bk);

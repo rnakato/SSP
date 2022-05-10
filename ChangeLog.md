@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.2.4 (2022-05-10)
+- Bug fix: fixed the error when O. sativa genome is applied ("chrN" -> "ChrN")
+
 ## 1.2.3 (2022-04-09)
 - Bug fix: fixed the error when the F3 length (read length) is too short (e.g., sequence stripped bam)
 
