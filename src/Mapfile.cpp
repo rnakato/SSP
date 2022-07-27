@@ -67,12 +67,21 @@ void SeqStatsGenomeSSP::readGenomeTable(const std::string &gt)
   std::ifstream in(gt);
   if(!in) PRINTERR_AND_EXIT("Could not open " << gt << ".");
 
-  while (!in.eof()) {
-    std::vector<std::string> v;
-    getline(in, lineStr);
-    if(lineStr.empty() || lineStr[0] == '#') continue;
-    ParseLine(v, lineStr, '\t');
-    chr.emplace_back(v[0], stoi(v[1]));
+  printf("reading genome_table file..\n");
+
+  try {
+    while (!in.eof()) {
+      std::vector<std::string> v;
+      getline(in, lineStr);
+      if(lineStr.empty() || lineStr[0] == '#') continue;
+      if(ParseLine(v, lineStr, '\t')) PRINTERR_AND_EXIT("invalid format: " << gt );
+      chr.emplace_back(v[0], stoi(v[1]));
+//      std::cout << v[0] << ",,," << v[1] << std::endl;
+    }
+  } catch (const boost::bad_any_cast& e) {
+    std::cout << e.what() << std::endl;
+    PRINTERR_AND_EXIT("invalid format of the genome_table file: " << gt );
   }
+
   return;
 }

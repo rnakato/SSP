@@ -197,7 +197,7 @@ namespace {
     } else if ((genome.onFtype() && genome.getftype() == "CRAM") || isStr(inputfile, ".cram")) {
       std::cout << "Input format: CRAM" << std::endl;
     } else {
-      PRINTERR_AND_EXIT("error: invalid input file type.");
+      PRINTERR_AND_EXIT("invalid input file type.");
     }
 
     if (genome.isPaired()) do_bampe(genome, inputfile);
@@ -222,15 +222,14 @@ namespace {
       if (lineStr.empty()) continue;
 
       std::vector<std::string> v;
-      ParseLine(v, lineStr, '\t');
-      //      ParseLine(v, lineStr, "\t");
-      //      boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
+//      ParseLine(v, lineStr, '\t');
+      if(ParseLine(v, lineStr, '\t')) PRINTERR_AND_EXIT("invalid format in " << inputfile << ": " << lineStr );
 
       if (genome.isPaired()) {
         std::vector<std::string> read;
-        ParseLine(read, v[0], '/');
-        //	ParseLine(read, v[0], "/");
-        //boost::split(read, v[0], boost::algorithm::is_any_of("/"));
+        //ParseLine(read, v[0], '/');
+	if(ParseLine(read, v[0], '/')) PRINTERR_AND_EXIT("no '/' in readname in bowtie file: " << lineStr << ": " << v[0] );
+
         if (nametemp != "" && nametemp != read[0]) PRINTERR_AND_EXIT("Invalid read pair." << nametemp <<"-" << read[0]);
         if (read[1] == "1") {  // F3 read
           chr_F3 = rmchr(v[2]);
@@ -289,9 +288,9 @@ namespace {
       if (lineStr.empty()) continue;
 
       std::vector<std::string> v;
-      ParseLine(v, lineStr, '\t');
-      //      ParseLine(v, lineStr, "\t");
-      //      boost::split(v, lineStr, boost::algorithm::is_any_of("\t"));
+//      ParseLine(v, lineStr, '\t');
+      if(ParseLine(v, lineStr, '\t')) PRINTERR_AND_EXIT("invalid format in tagAlign: " << lineStr );
+
       if (v.size() < 6) PRINTERR_AND_EXIT("Use tagAlign (BED3+3) file");
 
       if (genome.isPaired()) PRINTERR_AND_EXIT("tagAlign format does not support paired-end file.\n");
@@ -396,7 +395,7 @@ namespace {
 void SeqStatsGenomeSSP::read_mapfile()
 {
   std::vector<std::string> v;
-  ParseLine(v, getInputfile(), ',');
+  ParseLine_NoDelimCheck(v, getInputfile(), ',');
 
   for (auto &inputfile: v) {
     isFile(inputfile);

@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.2.5 (2022-07-27)
+- Add error messages when the format of supplied genometable/mptable files is wrong.
+
 ## 1.2.4 (2022-05-10)
 - Bug fix: fixed the error when O. sativa genome is applied ("chrN" -> "ChrN")
 

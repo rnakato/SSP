@@ -178,7 +178,7 @@ public:
       std::vector<std::string> v;
       getline(in, lineStr);
       if(lineStr.empty() || lineStr[0] == '#') continue;
-      ParseLine(v, lineStr, '\t');
+      if(ParseLine(v, lineStr, '\t')) PRINTERR_AND_EXIT("invalid format: " << mptable );
       if(name == rmchr(v[0])) len_mpbl = stoi(v[1]);
     }
     return;

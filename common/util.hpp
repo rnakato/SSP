@@ -16,7 +16,8 @@ bool checkFile(const std::string &str);
 bool isStr(std::string, std::string);
 int32_t compare_chr(const std::string &, const std::string &);
 
-void ParseLine(std::vector<std::string> &v, const std::string &str, char delim);
+void ParseLine_NoDelimCheck(std::vector<std::string> &v, const std::string &str, char delim);
+int32_t ParseLine(std::vector<std::string> &v, const std::string &str, char delim);
 void printList();
 
 template <class Thead, class... Tbody>

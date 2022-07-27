@@ -5,10 +5,9 @@
 #include <algorithm>
 #include <boost/filesystem.hpp>
 
-void ParseLine(std::vector<std::string> &v, const std::string &str, char delim)
+void ParseLine_NoDelimCheck(std::vector<std::string> &v, const std::string &str, char delim)
 {
-  size_t current(0), found;
-//  DEBUGprint("ParseLine...");
+  size_t current(0), found(0);
 
   while((found = str.find_first_of(delim, current)) != std::string::npos) {
     v.emplace_back(std::string(str, current, found - current));
@@ -16,8 +15,24 @@ void ParseLine(std::vector<std::string> &v, const std::string &str, char delim)
   }
   v.emplace_back(std::string(str, current, str.size() - current));
 
-//  DEBUGprint("ParseLine done.");
   return;
+}
+
+int32_t ParseLine(std::vector<std::string> &v, const std::string &str, char delim)
+{
+  size_t current(0), found(0);
+
+  if(str.find(delim) == std::string::npos) {    // no delim in str
+    return 1;
+  }
+
+  while((found = str.find_first_of(delim, current)) != std::string::npos) {
+    v.emplace_back(std::string(str, current, found - current));
+    current = found + 1;
+  }
+  v.emplace_back(std::string(str, current, str.size() - current));
+
+  return 0;
 }
 
 void printList()
