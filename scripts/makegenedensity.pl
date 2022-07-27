@@ -24,6 +24,7 @@ close (InputFile);
 open(ListFile, $genefile) ||die "error: can't open $genefile.\n";
 while(<ListFile>){
     next if($_ eq "\n");
+    next if($_ =~ "geneName");
     chomp;
     my @clm = split(/\t/, $_);
     $Hash_chr{$clm[0]} = $clm[2];
