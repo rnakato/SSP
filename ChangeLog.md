@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.2.6 (2023-07-04)
+- Add genome table file for S. Pombe (genometable.SPombe.txt)
+
 ## 1.2.5 (2022-07-27)
 - Add error messages when the format of supplied genometable/mptable files is wrong.
 

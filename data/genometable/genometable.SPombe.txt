@@ -1,0 +1,6 @@
+chr_II_telomeric_gap	20000
+chrI	5579133
+chrII	4539804
+chrIII	2452883
+mating_type_region	20128
+chrM	19433
