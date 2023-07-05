@@ -85,7 +85,8 @@ For Singularity:
       --gt arg                     Genome table (tab-delimited file describing the name and length of
                                    each chromosome)
       --mptable arg                Genome table of mappable regions
-
+      --include_allchr             Include all chromosomes for calculation (default: autosomes only,
+                                   i.e., 'chrN', where N is a numeric number)
     Fragment:
       --nomodel                    omit fraglent length estimation (default: estimated by strand-shift profile)
       --flen arg (=150)            predefined fragment length (with --nomodel option)
