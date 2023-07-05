@@ -44,8 +44,7 @@ class FragmentLengthDist {
     opt.add_options()
       ("nomodel", "omit fraglent length estimation (default: estimated by strand-shift profile)")
       ("flen",
-//         boost::program_options::value<int32_t>()->default_value(150),
-       boost::program_options::value<int32_t>()->default_value(150)->notifier(std::bind(&MyOpt::over<int32_t>, std::placeholders::_1, 1, "--binsize")),
+       boost::program_options::value<int32_t>()->default_value(150)->notifier(std::bind(&MyOpt::over<int32_t>, std::placeholders::_1, 1, "--flen")),
        "(for --nomodel option) predefined fragment length")
       ;
   }
@@ -104,6 +103,7 @@ class SeqStatsGenomeSSP {
   int32_t maxins;
   int32_t specifyFtype;
   std::string ftype;
+  int32_t include_all_chromosome;
 
   std::string name;
   double depth;
@@ -117,8 +117,8 @@ class SeqStatsGenomeSSP {
 
  SeqStatsGenomeSSP():
    opt("Genome",100),
-   pairedend(0), maxins(0), specifyFtype(0),
-   ftype(""),
+   pairedend(0), maxins(0), specifyFtype(0), ftype(""),
+   include_all_chromosome(0), 
    name("Genome"), depth(0)
   {
    using namespace boost::program_options;
@@ -127,12 +127,14 @@ class SeqStatsGenomeSSP {
       "Genome table (tab-delimited file describing the name and length of each chromosome)")
      ("mptable", value<std::string>(),
       "Genome table of mappable regions")
+     ("include_allchr", "Include all chromosomes for calculation (default: autosomes only, i.e., 'chrN', where N is a numeric number)")
       ;
   }
 
   const std::string & getInputfile() const { return inputfilename; }
   const std::string & getGenomeTable() const { return genometable; }
   int32_t isPaired()    const { return pairedend; }
+  int32_t isAllChromosome()    const { return include_all_chromosome; }
   int32_t getmaxins()   const { return maxins; }
   int32_t onFtype()     const { return specifyFtype; }
   const std::string & getftype() const { return ftype; }

@@ -52,6 +52,7 @@ class SeqStats {
   std::string name;
   uint64_t len, len_mpbl;
   bool Greekchr;
+  bool consider_allchromosome;
   double depth;
 
 public:
@@ -59,7 +60,7 @@ public:
 
   SeqStats(std::string &s, int32_t l):
     refname(s), name(rmchr(s)), len(l), len_mpbl(l),
-    Greekchr(false), depth(0)
+    Greekchr(false), consider_allchromosome(false), depth(0)
   {}
 
   const std::string & getrefname() const { return refname; }
@@ -136,29 +137,32 @@ public:
   }
 
   void Greekchron() { Greekchr = true; }
+  void ConsiderAllchron() { consider_allchromosome = true; }
 
   bool isautosome() const {
+    if (consider_allchromosome) return true;
+    
     int32_t chrnum(0);
     try {
       chrnum = stoi(name);
     } catch (std::invalid_argument &e) {  // 数値以外
       if(Greekchr) {
-	if(name=="I")         chrnum = 1;
-	else if(name=="II")   chrnum = 2;
-	else if(name=="III")  chrnum = 3;
-	else if(name=="IV")   chrnum = 4;
-	else if(name=="V")    chrnum = 5;
-	else if(name=="VI")   chrnum = 6;
-	else if(name=="VII")  chrnum = 7;
-	else if(name=="VIII") chrnum = 8;
-	else if(name=="IX")   chrnum = 9;
-	else if(name=="X")    chrnum = 10;
-	else if(name=="XI")   chrnum = 11;
-	else if(name=="XII")  chrnum = 12;
-	else if(name=="XIII") chrnum = 13;
-	else if(name=="XIV")  chrnum = 14;
-	else if(name=="XV")   chrnum = 15;
-	else if(name=="XVI")  chrnum = 16;
+        if(name=="I")         chrnum = 1;
+        else if(name=="II")   chrnum = 2;
+        else if(name=="III")  chrnum = 3;
+        else if(name=="IV")   chrnum = 4;
+        else if(name=="V")    chrnum = 5;
+        else if(name=="VI")   chrnum = 6;
+        else if(name=="VII")  chrnum = 7;
+        else if(name=="VIII") chrnum = 8;
+        else if(name=="IX")   chrnum = 9;
+        else if(name=="X")    chrnum = 10;
+        else if(name=="XI")   chrnum = 11;
+        else if(name=="XII")  chrnum = 12;
+        else if(name=="XIII") chrnum = 13;
+        else if(name=="XIV")  chrnum = 14;
+        else if(name=="XV")   chrnum = 15;
+        else if(name=="XVI")  chrnum = 16;
       }
       if(name=="2L") chrnum = 1;
       if(name=="2R") chrnum = 2;

@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.3.0 (2023-07-05)
+- Add `--include_allchr` option to avoid an error if the chromosomes in the genome_table file do not begin with "chr".
+
 ## 1.2.6 (2023-07-04)
 - Add genome table file for S. Pombe (genometable.SPombe.txt)
 

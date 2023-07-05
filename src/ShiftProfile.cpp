@@ -182,7 +182,6 @@ void setSSPstats(SSPstats &p, const double bu, const double nsc, const double rl
   p.setbu(bu);
 }
 
-
 template <class T>
 void genThread(T &dist, const SeqStatsGenomeSSP &genome, uint32_t chr_s, uint32_t chr_e, const std::string &prefix, const bool output_eachchr, const int32_t ng_to)
 {
@@ -229,6 +228,7 @@ void makeProfile(SSPstats &sspst, S &genome, const std::string &head, const std:
   }
 
   dist.setflen(dist.name);
+
   genome.dflen.setflen_ssp(dist.getnsci());
 
   std::string prefix2 = head + "." + typestr;

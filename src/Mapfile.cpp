@@ -26,6 +26,7 @@ void SeqStatsGenomeSSP::setValues(const MyOpt::Variables &values) {
   inputfilename = MyOpt::getVal<std::string>(values, "input");
   pairedend     = values.count("pair");
   maxins        = MyOpt::getVal<int32_t>(values, "maxins");
+  include_all_chromosome = values.count("include_allchr");
   specifyFtype  = values.count("ftype");
   if(onFtype()) {
     ftype = MyOpt::getVal<std::string>(values, "ftype");
@@ -48,6 +49,11 @@ void SeqStatsGenomeSSP::setValues(const MyOpt::Variables &values) {
     }
   }
 
+  // ignore isautosome();
+  if(include_all_chromosome) {
+    for(auto &x: chr) x.ConsiderAllchron();
+  }
+  
   // sepchr
   vsepchr = MyMthread::getVsepchr(getlen(), chr, MyOpt::getVal<int32_t>(values, "threads"));
 

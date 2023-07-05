@@ -104,7 +104,7 @@ class ReadShiftProfile {
     if (name == "Hamming distance") nsc = mp.at(mp_to-1);
     else nsc = mp.at(mp_to-1)*r;
 
-    // printf("nsc=%f\n", nsc);
+//    printf("nsc=%f\n", nsc);
 
     std::map<int32_t, double> mpsmooth;
     for (int32_t i=mp_to-1-2; i > leftend-threwidth; --i) {
@@ -114,21 +114,21 @@ class ReadShiftProfile {
     for (int32_t i=mp_to-1-threwidth-2; i > leftend; --i) {
 //      printf("i=%d, leftend=%d, mp_to=%d\n", i, leftend, mp_to);
       if (name == "Hamming distance") {
-	if (mpsmooth.at(i) > mpsmooth.at(i+threwidth) || mpsmooth.at(i) > mpsmooth.at(i-threwidth)) continue;
-	if (nsc > mp.at(i)) {
-	  nsc  = mp.at(i);
-	  nsci = i;
-	}
+        if (mpsmooth.at(i) > mpsmooth.at(i+threwidth) || mpsmooth.at(i) > mpsmooth.at(i-threwidth)) continue;
+        if (nsc > mp.at(i)) {
+          nsc  = mp.at(i);
+          nsci = i;
+        } 
       } else {
-	if (mpsmooth.at(i) < mpsmooth.at(i+threwidth) || mpsmooth.at(i) < mpsmooth.at(i-threwidth)) continue;
-	double s(mp.at(i)*r);
-//	printf("%d %f %f\n",i, s, r);
-	if (nsc < s) {
-	  nsc  = s;
-	  rsc  = (mp.at(i) - bk)/(mp.at(lenF3) - bk);
-	  nsci = i;
-	}
-      }
+        if (mpsmooth.at(i) < mpsmooth.at(i+threwidth) || mpsmooth.at(i) < mpsmooth.at(i-threwidth)) continue;
+        double s(mp.at(i)*r);
+        //	printf("%d %f %f\n",i, s, r);
+        if (nsc < s) {
+          nsc  = s;
+          rsc  = (mp.at(i) - bk)/(mp.at(lenF3) - bk);
+          nsci = i;
+        }
+      } 
     }
   }
 
@@ -188,16 +188,16 @@ class ReadShiftProfileGenome: public ReadShiftProfile {
     name(n)
     {
       for(auto &x: genome.chr) {
-	if (x.isautosome()) {
-	  nread += x.getnread_nonred(Strand::BOTH);
-	  len   += x.getlenmpbl();
-	  //	  std::cout<< len << "\t" << x.getlenmpbl() << std::endl;
-	}
+        if (x.isautosome()) {
+          nread += x.getnread_nonred(Strand::BOTH);
+          len   += x.getlenmpbl();
+          //	  std::cout<< len << "\t" << x.getlenmpbl() << std::endl;
+        }
       }
       for(auto &x: genome.chr) {
-	ReadShiftProfile v(genome.dflen.getlenF3(), sspst.getNgFrom(), sspst.getMpTo(), sspst.getNgFrom(), sspst.getnum4ssp(), 0, x.getlen(), x.getnread_nonred(Strand::BOTH), x.getlenmpbl());
-	v.setrchr(nread);
-	chr.emplace_back(v);
+        ReadShiftProfile v(genome.dflen.getlenF3(), sspst.getNgFrom(), sspst.getMpTo(), sspst.getNgFrom(), sspst.getnum4ssp(), 0, x.getlen(), x.getnread_nonred(Strand::BOTH), x.getlenmpbl());
+        v.setrchr(nread);
+        chr.emplace_back(v);
       }
       // seprange
       defSepRange(sspst.getnumthreads());
