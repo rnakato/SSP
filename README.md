@@ -145,11 +145,15 @@ Note that the chromosome length should be enough longer than the background leng
 
 In this parameter set, the background region is the average ranging from 10k to 50k at steps of 500 bp.
 
-In default, FCS is calcutated for 10M nonredundant reads. If the number of nonredundant reads in the input data are smaller than 10M, specify smaller number for fair comparison among samples as follows:
+By default, FCS is calcutated for 10M nonredundant reads. If the number of nonredundant reads in the input data are smaller than 10M, specify smaller number for fair comparison among samples as follows:
 
      ssp -i ChIP1.bam -o ChIP --gt genometable.txt --num4ssp 5000000
 
 When specifying smaller read number for --num4ssp, FCS score becomes smaller, but the magnitude relation among samples is consistent.
+
+By default, SSP uses only autosomes, i.e., ‘chrN’, where N is a numeric number, in the genome_table file. However, in some cases the chromosome names do not start with “chr”. In such a case, add the `--include_allchr` option to include all chromosomes in the genome_table file.
+
+     ssp -i ChIP1.bam -o ChIP --gt genometable.txt --include_allchr
 
 ## 3.3. Output files
 * ChIP.stats.txt: Stats of the sample (read number, read length, estimated fragment length, NSC, RLSC, RSC, background uniformity, FCS)
