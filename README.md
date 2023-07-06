@@ -1,5 +1,8 @@
 # SSP README
 
+## 0. Changelog
+See [Changelog](https://github.com/rnakato/SSP/blob/master/ChangeLog.md)
+
 # 1. Overview
 SSP (strand-shift profile) is a tool for quality assessment of ChIP-seq data without peak calling.
 
