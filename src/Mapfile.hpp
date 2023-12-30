@@ -13,7 +13,7 @@
 class FragmentLengthDist {
   MyOpt::Opts opt;
 
-  enum {ReadLenMax=200, FragLenMax=1000};
+  enum {ReadLenMax=200, FragLenMax=1000000};
   int32_t flen_ssp;
   int32_t flen_def;
   std::vector<int32_t> vlenF3;
