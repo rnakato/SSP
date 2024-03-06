@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.3.2 (2024-03-06)
+- Added `mptable.UCSC.T2T.28mer.flen150.txt` and `mptable.UCSC.T2T.36mer.flen150.txt` in `data/mptable`.
+
 ## 1.3.1 (2023-12-31)
 - Bug fix when applying a large value to `--maxins`.
 
