@@ -105,7 +105,7 @@ class SSPstats {
   void setbu(const double c) { backgroundUniformity = c; }
 
   void printhead(std::ofstream &out) {
-    out << "NSC\tRLSC\tRSC\tbackground uniformity";
+    out << "NSC\tRLSC\tRSC\tBackground uniformity";
   }
   void print(std::ofstream &out) {
     out << nsc << "\t" << rlsc << "\t" << rsc << "\t" << backgroundUniformity;

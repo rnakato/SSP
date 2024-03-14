@@ -46,7 +46,7 @@ while(<File>){
 close (File);
 
 print "Sample\tMapped reads\t + strand\t - strand\tRedundancy threshold\tNonredundant\tRedundant\tComplexity for10M\tTested_reads\tRead depth\tGenome coverage";
-print "\treads in peaks\tFRiP";
+print "\tReads in peaks\tFRiP";
 print "\tGC summit" if($gcsummit ne "");
 print "\n";
 
