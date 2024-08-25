@@ -95,15 +95,15 @@ namespace {
     bam_destroy1(aln);
     sam_close(fp);
 
-    std::cout << "mapped reads: " << mappedReads
-              << "\tunmapped reads: " << unmappedReads
-              << "\nmatched reads: " << matchedReads
-              << "\tmatched proper reads: " << matchedProperReads
-              << "\tunmatched reads: " << unmatchedReads
-              << "\nproperpair: " << ProperPair
+    std::cout << "Mapped reads: " << mappedReads
+              << "\tUnmapped reads: " << unmappedReads
+              << "\nMatched reads: " << matchedReads
+              << "\tMatched proper reads: " << matchedProperReads
+              << "\tUnmatched reads: " << unmatchedReads
+              << "\nProper pairs: " << ProperPair
               << "\t+ pairs: " << forwardReads
               << "\t- pairs: " << reverseReads
-              << "\nduplicated reads: " << duplicatedReads
+              << "\nDuplicate reads: " << duplicatedReads
               << "\nFalied quality reads: " << failqualityReads
               << std::endl;
 

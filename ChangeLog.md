@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.4.0 (2024-08-25)
+- Fixed a bug that causes a momery error when the input file has long reads (>200 bp).
+- Changed Makefile and CMakeLists.txt to enable DEBUG mode.
+
+
 ## 1.3.2 (2024-03-06)
 - Added `mptable.UCSC.T2T.28mer.flen150.txt` and `mptable.UCSC.T2T.36mer.flen150.txt` in `data/mptable`.
 
