@@ -1,7 +1,7 @@
 # Changelog
 
 ## 1.4.0 (2024-08-25)
-- Fixed a bug that causes a momery error when the input file has long reads (>200 bp).
+- Fixed a bug that causes a memory error when the input file has long reads (>200 bp).
 - Changed Makefile and CMakeLists.txt to enable DEBUG mode.
 
 ## 1.3.2 (2024-03-06)
