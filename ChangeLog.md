@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.4.1 (2025-07-07)
+- Added genome table and mptable for T2T-mhaESC in `data/`
+
 ## 1.4.0 (2024-08-25)
 - Fixed a bug that causes a memory error when the input file has long reads (>200 bp).
 - Changed Makefile and CMakeLists.txt to enable DEBUG mode.
