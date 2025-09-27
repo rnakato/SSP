@@ -13,7 +13,15 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: make
+    - name: apt install
       run: 
         sudo apt install git build-essential libboost-all-dev libcurl4-gnutls-dev liblzma-dev libz-dev libbz2-dev cmake
+
+    - name: make
+      run: 
         make
+        
+    - name: test
+      run: 
+        ssp -h
+
