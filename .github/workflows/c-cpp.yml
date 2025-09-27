@@ -14,4 +14,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: make
-      run: make
+      run: 
+      sudo apt install git build-essential libboost-all-dev libcurl4-gnutls-dev liblzma-dev libz-dev libbz2-dev cmake
+      make
