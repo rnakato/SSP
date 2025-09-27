@@ -23,5 +23,5 @@ jobs:
         
     - name: test
       run: 
-        ./ssp -h
+        ./bin/ssp -h
 
