@@ -2,6 +2,7 @@
 
 ## 1.4.3 (2026.6.19)
 - Added genome table and mptale for Medaka in ``data/``
+- Modified Makefile
 
 ## 1.4.2 (2026.3.16)
 - Added genome table and mptable for RPE1 T2T genome in `data/`
