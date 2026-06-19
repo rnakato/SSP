@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.4.3 (2026.6.19)
+- Added genome table and mptale for Medaka in ``data/``
+
 ## 1.4.2 (2026.3.16)
 - Added genome table and mptable for RPE1 T2T genome in `data/`
 - Bug fix in `mptable.UCSC.SPombe.36mer.flen150.txt` and `mptable.UCSC.T2T.28mer.flen150.txt`
